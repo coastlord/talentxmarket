@@ -68,7 +68,7 @@ export default function SignUp() {
                 ))}
               </ul>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+            <div className="bg-white rounded-2xl p-8">
               <iframe data-tally-src={`https://tally.so/embed/${EMP_FORM}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1`} loading="lazy" width="100%" height="500" frameBorder={0} title="Post a Job Form" />
             </div>
           </div>
