@@ -11,12 +11,22 @@ export async function GET() {
   try {
     const token = process.env.AIRTABLE_TOKEN;
     const baseId = process.env.AIRTABLE_BASE_ID;
-    const res = await fetch(
-      `https://api.airtable.com/v0/${baseId}/Professionals?filterByFormula={Status}='Active'`,
-      { headers: { Authorization: `Bearer ${token}` }, next: { revalidate: 60 } }
-    );
-    if (!res.ok) throw new Error('Airtable fetch failed');
+
+    const formula = encodeURIComponent("AND({Status}='Active')");
+    const url = `https://api.airtable.com/v0/${baseId}/Professionals?filterByFormula=${formula}`;
+
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+
     const data = await res.json();
+
+    if (!res.ok) {
+      console.error('Airtable error:', data);
+      return NextResponse.json({ error: data }, { status: 500 });
+    }
+
     const sanitized = (data.records || []).map((record: any, i: number) => ({
       id: record.id || String(i),
       initials: getInitials(record.fields?.Name || ''),
@@ -27,11 +37,14 @@ export async function GET() {
       remote: record.fields?.Remote || false,
       type: record.fields?.['Employment Type'] || '',
       availability: record.fields?.Availability === 'Available Now' ? 'now' : 'soon',
-      skills: record.fields?.Skills ? record.fields.Skills.split(',').map((s: string) => s.trim()).filter(Boolean) : [],
+      skills: record.fields?.Skills
+        ? record.fields.Skills.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : [],
     }));
+
     return NextResponse.json(sanitized);
   } catch (err) {
-    console.error('Airtable error:', err);
-    return NextResponse.json([], { status: 500 });
+    console.error('Fetch error:', err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
