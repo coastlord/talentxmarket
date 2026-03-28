@@ -23,35 +23,83 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-36">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo.png"
+              src="/logo-light.png"
               alt="TalentX Market"
-              width={640}
-              height={192}
-              className="h-28 w-auto invert"
+              width={160}
+              height={48}
+              className="h-10 w-auto"
               priority
             />
           </Link>
 
+          {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#how-it-works" className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium">How It Works</a>
-            <a href="#roles" className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium">Specialisms</a>
-            <a href="#why-talentx" className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium">Why TalentX</a>
-            <a href="#about" className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium">About</a>
-            <Link href="/talent" className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-semibold">
+            <a
+              href="#how-it-works"
+              className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium"
+            >
+              How It Works
+            </a>
+            <a
+              href="#roles"
+              className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium"
+            >
+              Specialisms
+            </a>
+            <a
+              href="#why-talentx"
+              className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium"
+            >
+              Why TalentX
+            </a>
+            <a
+              href="#about"
+              className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium"
+            >
+              About
+            </a>
+            <Link
+              href="/talent"
+              className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-semibold"
+            >
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
               Browse Talent
             </Link>
+            <Link
+              href="/jobs"
+              className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-semibold"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Browse Jobs
+            </Link>
           </div>
 
+          {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <a href="#open-to-work" className="px-5 py-2.5 text-sm font-semibold text-white border border-white/30 rounded-lg hover:border-brand-gold hover:text-brand-gold transition-all duration-200">I&apos;m a Professional</a>
-            <a href="#hiring" className="px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-black rounded-lg hover:bg-brand-gold-light transition-all duration-200">I&apos;m Hiring</a>
+            <a
+              href="#open-to-work"
+              className="px-5 py-2.5 text-sm font-semibold text-white border border-white/30 rounded-lg hover:border-brand-gold hover:text-brand-gold transition-all duration-200"
+            >
+              I&apos;m a Professional
+            </a>
+            <a
+              href="#hiring"
+              className="px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-black rounded-lg hover:bg-brand-gold-light transition-all duration-200"
+            >
+              I&apos;m Hiring
+            </a>
           </div>
 
-          <button className="md:hidden text-white p-2" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+          {/* Mobile Menu Toggle */}
+          <button
+            className="md:hidden text-white p-2"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
             {menuOpen ? (
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -64,6 +112,7 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden bg-brand-black border-t border-white/10 py-4">
             <div className="flex flex-col gap-4 px-4">
@@ -75,9 +124,17 @@ export default function Navbar() {
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                 Browse Talent
               </Link>
+              <Link href="/jobs" className="flex items-center gap-1.5 text-brand-gold text-sm font-semibold" onClick={() => setMenuOpen(false)}>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                Browse Jobs
+              </Link>
               <div className="flex flex-col gap-3 pt-2 border-t border-white/10">
-                <a href="#open-to-work" className="btn-secondary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>I&apos;m a Professional</a>
-                <a href="#hiring" className="btn-primary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>I&apos;m Hiring</a>
+                <a href="#open-to-work" className="btn-secondary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
+                  I&apos;m a Professional
+                </a>
+                <a href="#hiring" className="btn-primary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
+                  I&apos;m Hiring
+                </a>
               </div>
             </div>
           </div>
@@ -85,4 +142,4 @@ export default function Navbar() {
       </div>
     </nav>
   );
-        }
+}
