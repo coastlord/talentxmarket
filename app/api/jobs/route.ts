@@ -1,5 +1,21 @@
 import { NextResponse } from 'next/server';
 
+interface AirtableRecord {
+  id: string;
+  createdTime: string;
+  fields: {
+    'Company Name'?: string;
+    'Job Title / Role Hiring For'?: string;
+    'Work Location'?: string;
+    'Employment Type'?: string;
+    'Location'?: string;
+    'Salary / Rate Budget'?: string;
+    'Years of Experience Required'?: string;
+    'Required Jurisdictions'?: string;
+    'Required Certifications'?: string;
+  };
+}
+
 export async function GET() {
   try {
     const token = process.env.AIRTABLE_TOKEN;
@@ -19,7 +35,7 @@ export async function GET() {
       return NextResponse.json({ error: data }, { status: 500 });
     }
 
-    const sanitized = (data.records || []).map((record, i) => ({
+    const sanitized = (data.records || []).map((record: AirtableRecord, i: number) => ({
       id: record.id || String(i),
       companyName: record.fields?.['Company Name'] || 'Confidential',
       jobTitle: record.fields?.['Job Title / Role Hiring For'] || 'Compliance Role',
