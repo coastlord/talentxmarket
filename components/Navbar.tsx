@@ -25,19 +25,13 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <svg width="46" height="46" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect width="46" height="46" rx="9" fill="#C9A84C"/>
-              <rect x="7" y="11" width="13" height="3.5" rx="1.75" fill="#0A0A0A"/>
-              <rect x="12.25" y="14.5" width="3.5" height="11.5" rx="1.75" fill="#0A0A0A"/>
-              <line x1="22" y1="11" x2="39" y2="28" stroke="#0A0A0A" strokeWidth="3.5" strokeLinecap="round"/>
-              <line x1="29.5" y1="19.5" x2="22" y2="28" stroke="#0A0A0A" strokeWidth="3.5" strokeLinecap="round"/>
-              <polyline points="30,11 39,11 39,20" fill="none" stroke="#0A0A0A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <div className="flex flex-col leading-none select-none">
-              <span className="text-white font-black text-[22px] tracking-tight leading-tight">TalentX</span>
-              <span className="text-brand-gold font-bold text-[10px] tracking-[0.18em] uppercase leading-tight">Market</span>
-            </div>
+          <Link href="/" className="flex items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.png"
+              alt="TalentX Market"
+              className="h-16 w-auto object-contain invert"
+            />
           </Link>
 
           {/* Desktop Nav Links */}
