@@ -30,7 +30,7 @@ export default function Navbar() {
               alt="TalentX Market"
               width={160}
               height={48}
-              className="h-10 w-auto"
+              className="h-10 w-auto invert"
               priority
             />
           </Link>
