@@ -1,6 +1,5 @@
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
-import StatsBar from '@/components/StatsBar';
 import HowItWorks from '@/components/HowItWorks';
 import ComplianceRoles from '@/components/ComplianceRoles';
 import WhyTalentX from '@/components/WhyTalentX';
@@ -14,7 +13,6 @@ export default function Home() {
     <main>
       <Navbar />
       <Hero />
-      <StatsBar />
       <HowItWorks />
       <ComplianceRoles />
       <WhyTalentX />
