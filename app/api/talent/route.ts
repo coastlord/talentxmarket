@@ -11,9 +11,10 @@ export async function GET() {
   try {
     const token = process.env.AIRTABLE_TOKEN;
     const baseId = process.env.AIRTABLE_BASE_ID;
+    const tableId = 'tblFf2SRxXXSruwZu';
 
     const formula = encodeURIComponent("AND({Status}='Active')");
-    const url = `https://api.airtable.com/v0/${baseId}/Professionals?filterByFormula=${formula}`;
+    const url = `https://api.airtable.com/v0/${baseId}/${tableId}?filterByFormula=${formula}`;
 
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
