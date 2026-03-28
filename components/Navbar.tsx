@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Navbar() {
@@ -26,13 +25,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/logo-light.png"
               alt="TalentX Market"
-              width={160}
-              height={48}
-              className="h-10 w-auto"
-              priority
+              className="h-14 w-auto object-contain"
             />
           </Link>
 
