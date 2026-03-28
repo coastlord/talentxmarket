@@ -111,7 +111,7 @@ export default function TalentPage() {
   useEffect(() => {
     fetch('/api/talent')
       .then((r) => r.json())
-      .then((d) => { setPros(d); setLoading(false); })
+      .then((d) => { setPros(Array.isArray(d) ? d : []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
