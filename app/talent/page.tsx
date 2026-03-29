@@ -59,12 +59,12 @@ function Card({ pro }: { pro: Pro }) {
             {pro.specialism}
           </span>
           {pro.certifications.slice(0, 2).map((cert) => (
-            <span key={cert} className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-brand-gold/10 text-brand-black border border-brand-gold/50">
-              <span className="text-brand-gold text-[10px]">✦</span>{cert}
+            <span key={cert} className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand-black text-brand-gold border border-brand-gold/40 tracking-wide shadow-sm">
+              <span className="text-[9px] opacity-80">✦</span>{cert}
             </span>
           ))}
           {pro.certifications.length > 2 && (
-            <span className="text-xs font-bold px-2 py-1 rounded-full bg-brand-gold/10 text-brand-black border border-brand-gold/50">
+            <span className="text-[11px] font-bold px-2 py-1 rounded-full bg-brand-black text-brand-gold border border-brand-gold/40">
               +{pro.certifications.length - 2}
             </span>
           )}
