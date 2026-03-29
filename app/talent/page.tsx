@@ -33,41 +33,84 @@ interface Pro {
 }
 
 function Card({ pro }: { pro: Pro }) {
+  const specColor = COLORS[pro.specialism] || 'bg-gray-100 text-gray-700';
+  const isAvailNow = pro.availability === 'now';
+
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg hover:border-brand-gold/30 transition-all duration-300 group flex flex-col">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
-            <span className="text-brand-gold font-bold text-sm">{pro.initials}</span>
-          </div>
-          <div>
-            <span className={"text-xs font-semibold px-2.5 py-1 rounded-full " + (COLORS[pro.specialism] || 'bg-gray-100 text-gray-700')}>
-              {pro.specialism}
-            </span>
-            <p className="text-brand-dark font-semibold text-sm mt-1">{pro.seniority}</p>
-          </div>
+    <div className="bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-lg hover:border-brand-gold/30 transition-all duration-300 group flex flex-col">
+
+      {/* Header: avatar + availability badge */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="w-12 h-12 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
+          <span className="text-brand-gold font-bold text-sm">{pro.initials}</span>
         </div>
-        <span className={"inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 " + (pro.availability === 'now' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-amber-50 text-amber-700 border border-amber-200')}>
-          <span className={"w-1.5 h-1.5 rounded-full " + (pro.availability === 'now' ? 'bg-green-500' : 'bg-amber-400')} />
-          {pro.availability === 'now' ? 'Available Now' : 'Available Soon'}
+        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${isAvailNow ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isAvailNow ? 'bg-green-500' : 'bg-amber-400'}`} />
+          {isAvailNow ? 'Available Now' : 'Available Soon'}
         </span>
       </div>
-      <div className="space-y-2 mb-4">
-        <p className="text-brand-gray text-sm">{pro.experience} experience</p>
-        <p className="text-brand-gray text-sm">{pro.location}{pro.remote && <span className="text-brand-gold ml-1 text-xs font-medium">· Remote</span>}</p>
-        <p className="text-brand-gray text-sm">{pro.type}</p>
+
+      {/* Job title + specialism */}
+      <div className="mb-3">
+        <p className="text-brand-dark font-bold text-base leading-snug mb-2 line-clamp-2">{pro.seniority}</p>
+        <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${specColor}`}>
+          {pro.specialism}
+        </span>
       </div>
-      <div className="flex flex-wrap gap-1.5 mb-5">
-        {pro.skills.slice(0, 4).map((s) => (
-          <span key={s} className="text-xs bg-gray-50 text-brand-gray border border-gray-200 px-2 py-0.5 rounded-md">{s}</span>
-        ))}
-        {pro.skills.length > 4 && (
-          <span className="text-xs bg-gray-50 text-brand-gray border border-gray-200 px-2 py-0.5 rounded-md">+{pro.skills.length - 4}</span>
+
+      {/* Divider */}
+      <div className="border-t border-gray-100 mb-3" />
+
+      {/* Key details with icons */}
+      <div className="space-y-1.5 mb-4 text-sm text-brand-gray">
+        {pro.location && (
+          <div className="flex items-center gap-2">
+            <span className="text-brand-gold flex-shrink-0 text-xs">📍</span>
+            <span className="truncate">
+              {pro.location}
+              {pro.remote && <span className="text-brand-gold ml-1 text-xs font-medium">· Remote</span>}
+            </span>
+          </div>
+        )}
+        {pro.type && (
+          <div className="flex items-center gap-2">
+            <span className="text-brand-gold flex-shrink-0 text-xs">💼</span>
+            <span>{pro.type}</span>
+          </div>
+        )}
+        {pro.experience && (
+          <div className="flex items-center gap-2">
+            <span className="text-brand-gold flex-shrink-0 text-xs">⏱</span>
+            <span>{pro.experience} experience</span>
+          </div>
         )}
       </div>
-      <div className="border-t border-dashed border-gray-200 pt-4 mt-auto">
-        <p className="text-xs text-gray-400 mb-3">Full name, contact and CV locked</p>
-        <a href="mailto:hello@talentxmarket.com?subject=Employer Access Request" className="w-full flex items-center justify-center gap-2 bg-brand-black hover:bg-brand-gold text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 group-hover:bg-brand-gold">
+
+      {/* Skills */}
+      {pro.skills.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {pro.skills.slice(0, 3).map((s) => (
+            <span key={s} className="text-xs bg-gray-50 text-brand-gray border border-gray-200 px-2 py-0.5 rounded-md truncate max-w-[110px]">
+              {s}
+            </span>
+          ))}
+          {pro.skills.length > 3 && (
+            <span className="text-xs bg-gray-50 text-brand-gray border border-gray-200 px-2 py-0.5 rounded-md">
+              +{pro.skills.length - 3} more
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="border-t border-dashed border-gray-200 pt-3 mt-auto">
+        <p className="text-xs text-gray-400 mb-3 flex items-center gap-1">
+          🔒 Full name, contact and CV locked
+        </p>
+        <a
+          href="mailto:hello@talentxmarket.com?subject=Employer Access Request"
+          className="w-full flex items-center justify-center gap-2 bg-brand-black hover:bg-brand-gold text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 group-hover:bg-brand-gold"
+        >
           Unlock Profile
         </a>
       </div>
@@ -77,23 +120,26 @@ function Card({ pro }: { pro: Pro }) {
 
 function Skeleton() {
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-6 flex flex-col animate-pulse">
-      <div className="flex items-start gap-3 mb-4">
+    <div className="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col animate-pulse">
+      <div className="flex items-start justify-between mb-3">
         <div className="w-12 h-12 rounded-full bg-gray-200" />
-        <div className="flex-1 space-y-2">
-          <div className="h-5 bg-gray-200 rounded-full w-20" />
-          <div className="h-4 bg-gray-100 rounded-full w-28" />
-        </div>
+        <div className="h-6 bg-gray-100 rounded-full w-28" />
       </div>
+      <div className="mb-3 space-y-2">
+        <div className="h-5 bg-gray-200 rounded w-3/4" />
+        <div className="h-5 bg-gray-100 rounded-full w-20" />
+      </div>
+      <div className="border-t border-gray-100 mb-3" />
       <div className="space-y-2 mb-4">
         <div className="h-3 bg-gray-100 rounded-full w-full" />
-        <div className="h-3 bg-gray-100 rounded-full w-3/4" />
+        <div className="h-3 bg-gray-100 rounded-full w-2/3" />
+        <div className="h-3 bg-gray-100 rounded-full w-1/2" />
       </div>
-      <div className="flex gap-2 mb-5">
-        <div className="h-5 bg-gray-100 rounded-md w-12" />
+      <div className="flex gap-2 mb-4">
         <div className="h-5 bg-gray-100 rounded-md w-16" />
+        <div className="h-5 bg-gray-100 rounded-md w-20" />
       </div>
-      <div className="border-t border-dashed border-gray-200 pt-4 mt-auto">
+      <div className="border-t border-dashed border-gray-200 pt-3 mt-auto">
         <div className="h-9 bg-gray-200 rounded-xl w-full" />
       </div>
     </div>
@@ -111,7 +157,10 @@ export default function TalentPage() {
   useEffect(() => {
     fetch('/api/talent')
       .then((r) => r.json())
-      .then((d) => { setPros(Array.isArray(d) ? d : []); setLoading(false); })
+      .then((d) => {
+        setPros(Array.isArray(d) ? d : []);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 
@@ -122,17 +171,27 @@ export default function TalentPage() {
     if (avail === 'Available Soon' && p.availability !== 'soon') return false;
     if (search) {
       const q = search.toLowerCase();
-      if (!p.specialism.toLowerCase().includes(q) && !p.location.toLowerCase().includes(q) && !p.skills.some((s) => s.toLowerCase().includes(q))) return false;
+      if (
+        !p.specialism.toLowerCase().includes(q) &&
+        !p.location.toLowerCase().includes(q) &&
+        !p.skills.some((s) => s.toLowerCase().includes(q))
+      ) return false;
     }
     return true;
   }), [pros, specialism, type, avail, search]);
 
-  const clearFilters = () => { setSpecialism('All'); setType('All'); setAvail('All'); setSearch(''); };
+  const clearFilters = () => {
+    setSpecialism('All');
+    setType('All');
+    setAvail('All');
+    setSearch('');
+  };
 
   return (
     <div>
       <Navbar />
       <main className="bg-gray-50 min-h-screen">
+        {/* Hero */}
         <div className="bg-brand-black pt-28 pb-16 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="inline-flex items-center gap-2 bg-brand-gold/10 text-brand-gold text-xs font-semibold px-3 py-1.5 rounded-full border border-brand-gold/20 mb-4">
@@ -140,7 +199,8 @@ export default function TalentPage() {
               {loading ? 'Loading...' : pros.length + ' Professionals Registered'}
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
-              Browse Compliance <span className="block text-brand-gold">Talent</span>
+              Browse Compliance
+              <span className="block text-brand-gold">Talent</span>
             </h1>
             <p className="text-white/60 max-w-xl leading-relaxed">
               Compliance professionals actively open to new opportunities. Subscribe to unlock full profiles and contact directly — no agency fees.
@@ -148,15 +208,20 @@ export default function TalentPage() {
           </div>
         </div>
 
+        {/* Info banner */}
         <div className="bg-brand-gold/10 border-b border-brand-gold/20 py-3 px-4">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-sm text-brand-dark">Full names, contact details and CVs are visible to subscribed employers only.</p>
-            <a href="mailto:hello@talentxmarket.com?subject=Employer Access Request" className="flex-shrink-0 bg-brand-gold text-brand-black text-xs font-bold px-4 py-2 rounded-lg hover:bg-brand-gold/90 transition-colors">
+            <a
+              href="mailto:hello@talentxmarket.com?subject=Employer Access Request"
+              className="flex-shrink-0 bg-brand-gold text-brand-black text-xs font-bold px-4 py-2 rounded-lg hover:bg-brand-gold/90 transition-colors"
+            >
               Get Employer Access
             </a>
           </div>
         </div>
 
+        {/* Filter bar */}
         <div className="sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm py-4 px-4">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-3">
             <input
@@ -181,13 +246,15 @@ export default function TalentPage() {
           </div>
         </div>
 
+        {/* Grid */}
         <div className="max-w-7xl mx-auto px-4 py-12">
           <p className="text-brand-gray text-sm mb-6">
             {loading ? 'Loading...' : 'Showing ' + filtered.length + ' professionals'}
           </p>
+
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {[1,2,3,4,5,6,7,8].map((i) => <Skeleton key={i} />)}
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => <Skeleton key={i} />)}
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-20">
@@ -196,18 +263,24 @@ export default function TalentPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {filtered.map((pro, i) => (
+              {filtered.map((pro) => (
                 <Card key={pro.id} pro={pro} />
               ))}
             </div>
           )}
         </div>
 
+        {/* CTA */}
         <div className="bg-brand-black py-20 px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-black text-white mb-4">Are you a compliance professional?</h2>
-            <p className="text-white/60 mb-8">Register your availability and get discovered by compliance-focused employers. Always free.</p>
-            <Link href="/#open-to-work" className="inline-flex items-center gap-2 bg-brand-gold text-brand-black font-bold px-8 py-4 rounded-xl hover:bg-brand-gold/90 transition-colors">
+            <p className="text-white/60 mb-8">
+              Register your availability and get discovered by compliance-focused employers. Always free.
+            </p>
+            <Link
+              href="/#open-to-work"
+              className="inline-flex items-center gap-2 bg-brand-gold text-brand-black font-bold px-8 py-4 rounded-xl hover:bg-brand-gold/90 transition-colors"
+            >
               Post Your Availability
             </Link>
           </div>
@@ -216,4 +289,4 @@ export default function TalentPage() {
       <Footer />
     </div>
   );
-}
+                }
