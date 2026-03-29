@@ -105,7 +105,7 @@ function Card({ pro }: { pro: Pro }) {
       {/* Footer */}
       <div className="border-t border-dashed border-gray-200 pt-3 mt-auto">
         <p className="text-xs text-gray-400 mb-3 flex items-center gap-1">
-          🔒 Full name, contact and CV locked
+          🔒 Full name, contact & LinkedIn locked
         </p>
         <a
           href="mailto:hello@talentxmarket.com?subject=Employer Access Request"
@@ -211,7 +211,7 @@ export default function TalentPage() {
         {/* Info banner */}
         <div className="bg-brand-gold/10 border-b border-brand-gold/20 py-3 px-4">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-sm text-brand-dark">Full names, contact details and CVs are visible to subscribed employers only.</p>
+            <p className="text-sm text-brand-dark">Full names, contact details and LinkedIn profiles are visible to subscribed employers only.</p>
             <a
               href="mailto:hello@talentxmarket.com?subject=Employer Access Request"
               className="flex-shrink-0 bg-brand-gold text-brand-black text-xs font-bold px-4 py-2 rounded-lg hover:bg-brand-gold/90 transition-colors"
