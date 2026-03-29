@@ -41,8 +41,8 @@ export async function GET() {
       skills: record.fields?.Skills
         ? record.fields.Skills.split(',').map((s: string) => s.trim()).filter(Boolean)
         : [],
-      certifications: record.fields?.Certifications
-        ? record.fields.Certifications.split(',').map((c: string) => c.trim()).filter(Boolean)
+      certifications: record.fields?.['Professional Certification']
+        ? record.fields['Professional Certification'].split(',').map((c: string) => c.trim()).filter(Boolean)
         : [],
     }));
 
