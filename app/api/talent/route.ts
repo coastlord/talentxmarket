@@ -28,23 +28,30 @@ export async function GET() {
       return NextResponse.json({ error: data }, { status: 500 });
     }
 
-    const sanitized = (data.records || []).map((record: any, i: number) => ({
-      id: record.id || String(i),
-      initials: getInitials(record.fields?.Name || ''),
-      specialism: record.fields?.Specialism || 'Compliance',
-      seniority: record.fields?.Seniority || '',
-      experience: record.fields?.Experience || '',
-      location: record.fields?.Location || '',
-      remote: record.fields?.Remote || false,
-      type: record.fields?.['Employment Type'] || '',
-      availability: record.fields?.Availability === 'Available Now' ? 'now' : 'soon',
-      skills: record.fields?.Skills
-        ? record.fields.Skills.split(',').map((s: string) => s.trim()).filter(Boolean)
-        : [],
-      certifications: record.fields?.['Professional Certification']
-        ? record.fields['Professional Certification'].split(',').map((c: string) => c.trim()).filter(Boolean)
-        : [],
-    }));
+    const sanitized = (data.records || []).map((record: any, i: number) => {
+      const rawCerts = record.fields?.['Professional Certifications'];
+      const certifications = Array.isArray(rawCerts)
+        ? rawCerts.filter(Boolean)
+        : typeof rawCerts === 'string'
+          ? rawCerts.split(',').map((c: string) => c.trim()).filter(Boolean)
+          : [];
+
+      return {
+        id: record.id || String(i),
+        initials: getInitials(record.fields?.Name || ''),
+        specialism: record.fields?.Specialism || 'Compliance',
+        seniority: record.fields?.Seniority || '',
+        experience: record.fields?.Experience || '',
+        location: record.fields?.Location || '',
+        remote: record.fields?.Remote || false,
+        type: record.fields?.['Employment Type'] || '',
+        availability: record.fields?.Availability === 'Available Now' ? 'now' : 'soon',
+        skills: record.fields?.Skills
+          ? record.fields.Skills.split(',').map((s: string) => s.trim()).filter(Boolean)
+          : [],
+        certifications,
+      };
+    });
 
     return NextResponse.json(sanitized);
   } catch (err) {
