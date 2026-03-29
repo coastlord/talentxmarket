@@ -30,6 +30,7 @@ interface Pro {
   type: string;
   availability: string;
   skills: string[];
+  certifications: string[];
 }
 
 function Card({ pro }: { pro: Pro }) {
@@ -50,12 +51,24 @@ function Card({ pro }: { pro: Pro }) {
         </span>
       </div>
 
-      {/* Job title + specialism */}
+      {/* Job title + specialism + certifications */}
       <div className="mb-3">
         <p className="text-brand-dark font-bold text-base leading-snug mb-2 line-clamp-2">{pro.seniority}</p>
-        <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${specColor}`}>
-          {pro.specialism}
-        </span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${specColor}`}>
+            {pro.specialism}
+          </span>
+          {pro.certifications.slice(0, 2).map((cert) => (
+            <span key={cert} className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-brand-gold/10 text-brand-black border border-brand-gold/50">
+              <span className="text-brand-gold text-[10px]">✦</span>{cert}
+            </span>
+          ))}
+          {pro.certifications.length > 2 && (
+            <span className="text-xs font-bold px-2 py-1 rounded-full bg-brand-gold/10 text-brand-black border border-brand-gold/50">
+              +{pro.certifications.length - 2}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Divider */}
@@ -289,4 +302,4 @@ export default function TalentPage() {
       <Footer />
     </div>
   );
-                }
+}
