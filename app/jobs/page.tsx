@@ -48,7 +48,7 @@ function timeAgo(iso: string): string {
   const days = Math.floor(diff / 86400000);
   if (days === 0) return 'Today';
   if (days === 1) return 'Yesterday';
-  if (days < 7) return `${days} days ago`;
+  if (days < 7) return `${days}d ago`;
   if (days < 30) return `${Math.floor(days / 7)}w ago`;
   return `${Math.floor(days / 30)}mo ago`;
 }
@@ -59,57 +59,86 @@ function Card({ job }: { job: Job }) {
   const typeColor = TYPE_COLORS[job.employmentType] || 'bg-gray-100 text-gray-700';
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg hover:border-brand-gold/30 transition-all duration-300 group flex flex-col">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
-            <span className="text-brand-gold font-bold text-sm">{initials}</span>
+    <div className="bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-lg hover:border-brand-gold/30 transition-all duration-300 group flex flex-col">
+
+      {/* Header: company logo + name + posted date */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-11 h-11 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
+            <span className="text-brand-gold font-bold text-xs">{initials}</span>
           </div>
-          <div>
-            {job.employmentType && (
-              <span className={'text-xs font-semibold px-2.5 py-1 rounded-full ' + typeColor}>
-                {job.employmentType}
-              </span>
-            )}
-            <p className="text-brand-dark font-semibold text-sm mt-1 leading-snug">{job.jobTitle}</p>
-          </div>
+          <p className="text-brand-dark font-semibold text-sm truncate">{job.companyName}</p>
         </div>
+        {job.postedAt && (
+          <span className="text-xs text-gray-400 flex-shrink-0 ml-2 mt-0.5">
+            {timeAgo(job.postedAt)}
+          </span>
+        )}
+      </div>
+
+      {/* Job title */}
+      <p className="text-brand-dark font-bold text-base leading-snug mb-3 line-clamp-2">
+        {job.jobTitle}
+      </p>
+
+      {/* Type + location badges on their own row */}
+      <div className="flex flex-wrap gap-1.5 mb-3">
+        {job.employmentType && (
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${typeColor}`}>
+            {job.employmentType}
+          </span>
+        )}
         {job.workLocation && (
-          <span className={'inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 border ' + locColor}>
-            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
+          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full border ${locColor}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 flex-shrink-0" />
             {job.workLocation}
           </span>
         )}
       </div>
 
-      <div className="space-y-1.5 mb-4">
-        <p className="text-brand-dark font-medium text-sm">{job.companyName}</p>
+      {/* Divider */}
+      <div className="border-t border-gray-100 mb-3" />
+
+      {/* Key details with icons */}
+      <div className="space-y-1.5 mb-3 text-sm text-brand-gray">
         {job.location && (
-          <p className="text-brand-gray text-sm">{job.location}</p>
-        )}
-        {job.experience && (
-          <p className="text-brand-gray text-sm">{job.experience} experience required</p>
+          <div className="flex items-center gap-2">
+            <span className="text-brand-gold flex-shrink-0 text-xs">📍</span>
+            <span className="truncate">{job.location}</span>
+          </div>
         )}
         {job.salary && (
-          <p className="text-brand-gray text-sm">💰 {job.salary}</p>
+          <div className="flex items-center gap-2">
+            <span className="text-brand-gold flex-shrink-0 text-xs">💰</span>
+            <span className="truncate">{job.salary}</span>
+          </div>
+        )}
+        {job.experience && (
+          <div className="flex items-center gap-2">
+            <span className="text-brand-gold flex-shrink-0 text-xs">⏱</span>
+            <span>{job.experience} experience</span>
+          </div>
         )}
       </div>
 
+      {/* Jurisdictions / certifications tags */}
       {(job.jurisdictions || job.certifications) && (
-        <div className="flex flex-wrap gap-1.5 mb-4">
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {job.jurisdictions && (
-            <span className="text-xs bg-gray-50 text-brand-gray border border-gray-200 px-2 py-0.5 rounded-md">{job.jurisdictions}</span>
+            <span className="text-xs bg-gray-50 text-brand-gray border border-gray-200 px-2 py-0.5 rounded-md truncate max-w-[130px]">
+              {job.jurisdictions}
+            </span>
           )}
           {job.certifications && (
-            <span className="text-xs bg-gray-50 text-brand-gray border border-gray-200 px-2 py-0.5 rounded-md">{job.certifications}</span>
+            <span className="text-xs bg-gray-50 text-brand-gray border border-gray-200 px-2 py-0.5 rounded-md truncate max-w-[130px]">
+              {job.certifications}
+            </span>
           )}
         </div>
       )}
 
-      <div className="border-t border-dashed border-gray-200 pt-4 mt-auto">
-        {job.postedAt && (
-          <p className="text-xs text-gray-400 mb-3">Posted {timeAgo(job.postedAt)}</p>
-        )}
+      {/* Apply button */}
+      <div className="border-t border-dashed border-gray-200 pt-3 mt-auto">
         <a
           href="mailto:hello@talentxmarket.com?subject=Job Application Enquiry"
           className="w-full flex items-center justify-center gap-2 bg-brand-black hover:bg-brand-gold text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 group-hover:bg-brand-gold"
@@ -123,23 +152,25 @@ function Card({ job }: { job: Job }) {
 
 function Skeleton() {
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-6 flex flex-col animate-pulse">
-      <div className="flex items-start gap-3 mb-4">
-        <div className="w-12 h-12 rounded-full bg-gray-200" />
-        <div className="flex-1 space-y-2">
-          <div className="h-5 bg-gray-200 rounded-full w-20" />
-          <div className="h-4 bg-gray-100 rounded-full w-36" />
+    <div className="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col animate-pulse">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-11 h-11 rounded-full bg-gray-200" />
+          <div className="h-4 bg-gray-200 rounded w-24" />
         </div>
+        <div className="h-3 bg-gray-100 rounded w-10" />
       </div>
-      <div className="space-y-2 mb-4">
+      <div className="h-5 bg-gray-200 rounded w-4/5 mb-3" />
+      <div className="flex gap-2 mb-3">
+        <div className="h-6 bg-gray-100 rounded-full w-20" />
+        <div className="h-6 bg-gray-100 rounded-full w-16" />
+      </div>
+      <div className="border-t border-gray-100 mb-3" />
+      <div className="space-y-2 mb-3">
         <div className="h-3 bg-gray-100 rounded-full w-full" />
         <div className="h-3 bg-gray-100 rounded-full w-2/3" />
       </div>
-      <div className="flex gap-2 mb-5">
-        <div className="h-5 bg-gray-100 rounded-md w-16" />
-        <div className="h-5 bg-gray-100 rounded-md w-20" />
-      </div>
-      <div className="border-t border-dashed border-gray-200 pt-4 mt-auto">
+      <div className="border-t border-dashed border-gray-200 pt-3 mt-auto">
         <div className="h-9 bg-gray-200 rounded-xl w-full" />
       </div>
     </div>
