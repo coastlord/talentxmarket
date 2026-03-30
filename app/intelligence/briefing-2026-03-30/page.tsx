@@ -41,8 +41,8 @@ export default function BriefingPage() {
   return (
     <>
       <Navbar />
-      <main className="bg-white min-h-screen pt-20">
-        <section className="bg-brand-black text-white pt-16 pb-14 px-6">
+      <main className="bg-white min-h-screen">
+        <section className="bg-brand-black text-white pt-28 pb-14 px-6">
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center gap-2 text-xs text-white/40 mb-8">
               <Link href="/intelligence" className="hover:text-brand-gold transition-colors">Intelligence Hub</Link>
