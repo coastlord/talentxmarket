@@ -5,8 +5,7 @@ import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Compliance Intelligence Hub | TalentX Market',
-  description:
-    "Stay ahead with TalentX Market's Compliance Intelligence Hub — curated AML, sanctions, regulatory and enforcement briefings for compliance professionals across Southeast Asia and beyond.",
+  description: "Stay ahead with TalentX Market's Compliance Intelligence Hub — curated AML, sanctions, regulatory and enforcement briefings for compliance professionals across Southeast Asia and beyond.",
 };
 
 const briefings = [
@@ -15,8 +14,7 @@ const briefings = [
     date: 'Monday, 30 March 2026',
     shortDate: '30 Mar 2026',
     title: 'Global Compliance & Financial Crime Weekly Briefing',
-    summary:
-      'Record $80M FinCEN penalty on broker-dealer, UK overhauls AML regulations, OFAC Iran & Russia oil sanctions updates, FCA opens MFS probe, EU AMLA launches first CDD consultations, and MAS issues 16-year ban.',
+    summary: 'Record $80M FinCEN penalty on broker-dealer, UK overhauls AML regulations, OFAC Iran & Russia oil sanctions updates, FCA opens MFS probe, EU AMLA launches first CDD consultations, and MAS issues 16-year ban.',
     cardCount: 6,
     tags: ['Enforcement', 'Regulatory', 'Sanctions', 'AML'],
     priority: 'HIGH',
@@ -37,8 +35,8 @@ export default function IntelligenceHubPage() {
   return (
     <>
       <Navbar />
-      <main className="bg-white min-h-screen pt-20">
-        <section className="bg-brand-black text-white pt-20 pb-16 px-6">
+      <main className="bg-white min-h-screen">
+        <section className="bg-brand-black text-white pt-28 pb-16 px-6">
           <div className="max-w-5xl mx-auto">
             <p className="text-brand-gold text-xs font-bold tracking-[3px] uppercase mb-5 flex items-center gap-3">
               TalentX Market
@@ -81,8 +79,7 @@ export default function IntelligenceHubPage() {
               <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
                 <div className="flex items-center gap-3 flex-wrap">
                   <span className="inline-flex items-center gap-1.5 bg-brand-gold/10 text-brand-gold border border-brand-gold/30 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-sm">
-                    <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
-                    Latest
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />Latest
                   </span>
                   {latest.tags.map((tag) => (
                     <span key={tag} className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-sm ${tagColors[tag] || ''}`}>{tag}</span>
