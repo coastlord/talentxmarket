@@ -118,7 +118,7 @@ export default function SignUp() {
             </div>
 
             {/* Right: Tally Form */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+            <div className="bg-white rounded-2xl p-8 border border-brand-gold/20">
               <TallyEmbed formId={EMPLOYER_FORM_ID} title="Post a Job Form" />
             </div>
           </div>
