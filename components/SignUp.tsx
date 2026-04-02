@@ -1,5 +1,8 @@
 'use client';
 
+const PROFESSIONAL_FORM_ID = 'D4VGWb';
+const EMPLOYER_FORM_ID = 'GxLk2O';
+
 function TallyEmbed({ formId, title }: { formId: string; title: string }) {
   return (
     <div style={{ width: '100%' }}>

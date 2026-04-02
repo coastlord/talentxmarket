@@ -21,7 +21,8 @@ export async function GET() {
 
     const sanitized = (data.records || []).map((record: any, i: number) => {
       // Derive initials from Full Name — never expose the full name
-      const fullName: string = record.fields?.['Full Name'] || '';
+      // Airtable may store as 'Name' (default field) or 'Full Name' depending on Tally mapping
+      const fullName: string = record.fields?.['Full Name'] || record.fields?.['Name'] || '';
       const nameParts = fullName.trim().split(' ').filter(Boolean);
       let initials = 'TX';
       if (nameParts.length === 1) initials = nameParts[0].slice(0, 2).toUpperCase();
