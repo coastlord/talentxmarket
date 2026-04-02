@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TalentX — Professional Card Mock v2</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      background: #f4f4f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 48px 24px;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .page-header img {
+      height: 36px;
+      margin-bottom: 16px;
+    }
+
+    .page-header h1 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #C9A84C;
+      margin-bottom: 6px;
+    }
+
+    .page-header p {
+      font-size: 13px;
+      color: #888;
+    }
+
+    /* Card Grid */
+    .card-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      max-width: 1100px;
+    }
+
+    /* ─── THE CARD ─────────────────────────────────────────────────── */
+    .pro-card {
+      background: #ffffff;
+      border: 1px solid #e8e8e8;
+      border-radius: 16px;
+      width: 300px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      position: relative;
+    }
+
+    .pro-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.11);
+      transform: translateY(-2px);
+    }
+
+    /* ── TOP ROW: Avatar + Available badge + Cert badge ── */
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .card-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #0A0A0A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+
+    /* Location sits directly under avatar */
+    .location-inline {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #555;
+      font-weight: 400;
+    }
+
+    .location-inline svg {
+      flex-shrink: 0;
+      color: #C9A84C;
+    }
+
+    .card-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    /* Available badge */
+    .badge-available {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #16a34a;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .badge-available .dot {
+      width: 6px;
+      height: 6px;
+      background: #16a34a;
+      border-radius: 50%;
+    }
+
+    /* Certification badge */
+    .cert-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #0A0A0A;
+      color: #C9A84C;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 20px;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .cert-badge svg {
+      flex-shrink: 0;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: #f0f0f0;
+      margin: 12px 0;
+    }
+
+    /* ── META ROWS (industry / employment / experience) ── */
+    .meta-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 13px;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      color: #1a1a1a;
+    }
+
+    .meta-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #fafafa;
+      border: 1px solid #efefef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .meta-icon svg {
+      color: #C9A84C;
+    }
+
+    .meta-label {
+      font-size: 10px;
+      color: #999;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      display: block;
+      line-height: 1;
+    }
+
+    .meta-value {
+      font-size: 12.5px;
+      color: #0A0A0A;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    /* ── SKILLS ── */
+    .skills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .skill-chip {
+      background: #f7f7f7;
+      border: 1px solid #e8e8e8;
+      color: #333;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .skill-more {
+      background: #0A0A0A;
+      color: #C9A84C;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* ── LOCKED FOOTER ── */
+    .locked-section {
+      background: #fafafa;
+      border: 1px solid #efefef;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+    }
+
+    .locked-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .locked-header svg {
+      color: #C9A84C;
+      flex-shrink: 0;
+    }
+
+    .locked-header span {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #888;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .locked-items {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .locked-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .locked-item svg {
+      color: #bbb;
+      flex-shrink: 0;
+    }
+
+    .locked-blur {
+      height: 9px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #e0e0e0 0%, #ececec 100%);
+      flex: 1;
+    }
+
+    .locked-blur.short { max-width: 120px; }
+    .locked-blur.medium { max-width: 160px; }
+    .locked-blur.long { max-width: 200px; }
+
+    /* ── UNLOCK BUTTON ── */
+    .unlock-btn {
+      width: 100%;
+      background: #0A0A0A;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.18s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .unlock-btn:hover {
+      background: #1a1a1a;
+    }
+
+    .unlock-btn svg {
+      color: #C9A84C;
+    }
+
+    /* ─── ANNOTATION STRIP ─────────────────────────────────────────── */
+    .annotation {
+      background: #fff8e6;
+      border: 1px solid #C9A84C33;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 11.5px;
+      color: #7a6020;
+      margin-top: 12px;
+      width: 300px;
+    }
+
+    .annotation strong { color: #C9A84C; }
+  </style>
+</head>
+<body>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <img src="/public/tx-logo.png" alt="TalentX" onerror="this.style.display='none'" />
+    <h1>Professional Card — Mock v2</h1>
+    <p>Review before pushing to production · Brand: #0A0A0A · #C9A84C · #FFFFFF</p>
+  </div>
+
+  <!-- Card Grid: 3 example cards -->
+  <div class="card-grid">
+
+    <!-- ── CARD 1: AML Specialist ── -->
+    <div>
+      <div class="pro-card">
+
+        <!-- TOP ROW -->
+        <div class="card-top">
+          <div class="card-left">
+            <div class="avatar">S.T.</div>
+            <div class="location-inline">
+              <!-- Pin icon -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Kuala Lumpur, Malaysia
+            </div>
+          </div>
+          <div class="card-right">
+            <div class="badge-available"><span class="dot"></span> Available Now</div>
+            <div class="cert-badge">
+              <!-- Shield check icon -->
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              FCA Approved Person
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- META ROWS -->
+        <div class="meta-list">
+          <div class="meta-row">
+            <div class="meta-icon">
+              <!-- Building/Industry icon -->
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <div>
+              <span class="meta-label">Industry</span>
+              <span class="meta-value">Banking</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-icon">
+              <!-- Briefcase icon -->
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12"/></svg>
+            </div>
+            <div>
+              <span class="meta-label">Employment Type</span>
+              <span class="meta-value">Permanent</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-icon">
+              <!-- Clock/Experience icon -->
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <span class="meta-label">Experience</span>
+              <span class="meta-value">3–5 Years</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SKILLS -->
+        <div class="skills-row">
+          <span class="skill-chip">Sanctions Screening</span>
+          <span class="skill-chip">Chargeback</span>
+          <span class="skill-chip">Dispute Mgmt</span>
+          <span class="skill-chip">KYC/KYB</span>
+          <span class="skill-more">+3 more</span>
+        </div>
+
+        <!-- LOCKED SECTION -->
+        <div class="locked-section">
+          <div class="locked-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Unlock to reveal</span>
+          </div>
+          <div class="locked-items">
+            <div class="locked-item">
+              <!-- Person icon -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <div class="locked-blur medium"></div>
+            </div>
+            <div class="locked-item">
+              <!-- Email icon -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <div class="locked-blur long"></div>
+            </div>
+            <div class="locked-item">
+              <!-- File/CV icon -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <div class="locked-blur short"></div>
+            </div>
+            <div class="locked-item">
+              <!-- LinkedIn icon -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              <div class="locked-blur medium"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UNLOCK BUTTON -->
+        <button class="unlock-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+          Unlock Profile
+        </button>
+
+      </div>
+      <div class="annotation">
+        <strong>Card 1:</strong> AML Specialist · Banking · FCA Approved · KL
+      </div>
+    </div>
+
+    <!-- ── CARD 2: MLRO ── -->
+    <div>
+      <div class="pro-card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="avatar">A.R.</div>
+            <div class="location-inline">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              London, United Kingdom
+            </div>
+          </div>
+          <div class="card-right">
+            <div class="badge-available"><span class="dot"></span> Available Now</div>
+            <div class="cert-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              CAMS Certified
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="meta-list">
+          <div class="meta-row">
+            <div class="meta-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <div>
+              <span class="meta-label">Industry</span>
+              <span class="meta-value">FinTech</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12"/></svg>
+            </div>
+            <div>
+              <span class="meta-label">Employment Type</span>
+              <span class="meta-value">Contract</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <span class="meta-label">Experience</span>
+              <span class="meta-value">8–10 Years</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skills-row">
+          <span class="skill-chip">AML Oversight</span>
+          <span class="skill-chip">SAR Reporting</span>
+          <span class="skill-chip">Risk Frameworks</span>
+          <span class="skill-chip">Reg Reporting</span>
+          <span class="skill-more">+2 more</span>
+        </div>
+
+        <div class="locked-section">
+          <div class="locked-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Unlock to reveal</span>
+          </div>
+          <div class="locked-items">
+            <div class="locked-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <div class="locked-blur long"></div>
+            </div>
+            <div class="locked-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <div class="locked-blur medium"></div>
+            </div>
+            <div class="locked-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <div class="locked-blur short"></div>
+            </div>
+            <div class="locked-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              <div class="locked-blur medium"></div>
+            </div>
+          </div>
+        </div>
+
+        <button class="unlock-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+          Unlock Profile
+        </button>
+      </div>
+      <div class="annotation">
+        <strong>Card 2:</strong> MLRO · FinTech · CAMS · London
+      </div>
+    </div>
+
+    <!-- ── CARD 3: Risk & Compliance ── -->
+    <div>
+      <div class="pro-card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="avatar">M.K.</div>
+            <div class="location-inline">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Dubai, UAE
+            </div>
+          </div>
+          <div class="card-right">
+            <div class="badge-available" style="background:#fff7ed; border-color:#fed7aa; color:#c2410c;">
+              <span class="dot" style="background:#c2410c;"></span> Open to Offers
+            </div>
+            <div class="cert-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              ICA Diploma
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="meta-list">
+          <div class="meta-row">
+            <div class="meta-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <div>
+              <span class="meta-label">Industry</span>
+              <span class="meta-value">Insurance</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12"/></svg>
+            </div>
+            <div>
+              <span class="meta-label">Employment Type</span>
+              <span class="meta-value">Interim / FTC</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <span class="meta-label">Experience</span>
+              <span class="meta-value">5–8 Years</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skills-row">
+          <span class="skill-chip">Risk Assessment</span>
+          <span class="skill-chip">FATF Compliance</span>
+          <span class="skill-chip">PEP Screening</span>
+          <span class="skill-chip">EDD</span>
+          <span class="skill-more">+4 more</span>
+        </div>
+
+        <div class="locked-section">
+          <div class="locked-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Unlock to reveal</span>
+          </div>
+          <div class="locked-items">
+            <div class="locked-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <div class="locked-blur medium"></div>
+            </div>
+            <div class="locked-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <div class="locked-blur long"></div>
+            </div>
+            <div class="locked-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <div class="locked-blur short"></div>
+            </div>
+            <div class="locked-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              <div class="locked-blur medium"></div>
+            </div>
+          </div>
+        </div>
+
+        <button class="unlock-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+          Unlock Profile
+        </button>
+      </div>
+      <div class="annotation">
+        <strong>Card 3:</strong> Risk & Compliance · Insurance · ICA Diploma · Dubai
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Change Summary -->
+  <div style="margin-top: 48px; max-width: 860px; background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 24px 28px;">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #C9A84C; margin-bottom: 14px;">Changes vs Current Card</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; font-size: 12.5px; color: #444; line-height: 1.7;">
+      <div>✅ "Compliance" tag removed</div>
+      <div>✅ Cert badge moved up beside initials</div>
+      <div>✅ Location pinned directly under initials</div>
+      <div>✅ Industry field added with icon</div>
+      <div>✅ Employment type with briefcase icon</div>
+      <div>✅ Experience years with clock icon</div>
+      <div>✅ Skills: max 4 chips + gold "+N more" pill</div>
+      <div>✅ Locked section: Name · Email · CV · LinkedIn</div>
+      <div>✅ Gold blur bars signal hidden value</div>
+      <div>✅ "Unlock Profile" CTA — black + gold icon</div>
+    </div>
+  </div>
+
+</body>
+</html>

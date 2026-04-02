@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useAuth, UserButton } from '@clerk/nextjs';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isSignedIn, isLoaded } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -26,7 +28,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <Image
-              src="/logo.png"
+              src="/logo-dark.png"
               alt="TalentX Market"
               width={220}
               height={64}
@@ -84,20 +86,50 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA / Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <a
-              href="#open-to-work"
-              className="px-5 py-2.5 text-sm font-semibold text-white border border-white/30 rounded-lg hover:border-brand-gold hover:text-brand-gold transition-all duration-200"
-            >
-              I&apos;m a Professional
-            </a>
-            <a
-              href="#hiring"
-              className="px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-black rounded-lg hover:bg-brand-gold-light transition-all duration-200"
-            >
-              I&apos;m Hiring
-            </a>
+            {isLoaded && isSignedIn ? (
+              // Logged-in state: Dashboard link + User avatar
+              <>
+                <Link
+                  href="/dashboard"
+                  className="px-5 py-2.5 text-sm font-semibold text-brand-gold border border-brand-gold/30 rounded-lg hover:border-brand-gold hover:bg-brand-gold/5 transition-all duration-200"
+                >
+                  My Dashboard
+                </Link>
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    variables: { colorPrimary: '#C9A84C' },
+                    elements: {
+                      avatarBox: 'w-9 h-9',
+                    },
+                  }}
+                />
+              </>
+            ) : (
+              // Logged-out state: Original CTAs + Sign In
+              <>
+                <a
+                  href="#open-to-work"
+                  className="px-5 py-2.5 text-sm font-semibold text-white border border-white/30 rounded-lg hover:border-brand-gold hover:text-brand-gold transition-all duration-200"
+                >
+                  I&apos;m a Professional
+                </a>
+                <a
+                  href="#hiring"
+                  className="px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-black rounded-lg hover:bg-brand-gold-light transition-all duration-200"
+                >
+                  I&apos;m Hiring
+                </a>
+                <Link
+                  href="/sign-in"
+                  className="px-4 py-2.5 text-sm font-medium text-white/60 hover:text-white transition-colors duration-200"
+                >
+                  Sign In
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -139,12 +171,23 @@ export default function Navbar() {
                 Intelligence Hub
               </Link>
               <div className="flex flex-col gap-3 pt-2 border-t border-white/10">
-                <a href="#open-to-work" className="btn-secondary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
-                  I&apos;m a Professional
-                </a>
-                <a href="#hiring" className="btn-primary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
-                  I&apos;m Hiring
-                </a>
+                {isLoaded && isSignedIn ? (
+                  <Link href="/dashboard" className="btn-secondary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
+                    My Dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <a href="#open-to-work" className="btn-secondary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
+                      I&apos;m a Professional
+                    </a>
+                    <a href="#hiring" className="btn-primary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
+                      I&apos;m Hiring
+                    </a>
+                    <Link href="/sign-in" className="text-center text-sm text-white/60 hover:text-white py-2" onClick={() => setMenuOpen(false)}>
+                      Sign In
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

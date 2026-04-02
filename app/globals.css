@@ -1,23 +1,70 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  html { scroll-behavior: smooth; }
-  body { @apply bg-white text-gray-900 font-sans; -webkit-font-smoothing: antialiased; }
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-brand-white text-brand-dark font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
 }
 
 @layer components {
-  .btn-primary { @apply inline-flex items-center justify-center px-8 py-4 bg-brand-gold text-brand-black font-semibold rounded-lg hover:bg-brand-gold-light transition-all duration-200 shadow-lg hover:-translate-y-0.5; }
-  .btn-secondary { @apply inline-flex items-center justify-center px-8 py-4 bg-transparent text-white font-semibold rounded-lg border-2 border-white hover:bg-white hover:text-brand-black transition-all duration-200; }
-  .btn-dark { @apply inline-flex items-center justify-center px-8 py-4 bg-brand-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-all duration-200; }
-  .section-heading { @apply text-4xl md:text-5xl font-bold text-brand-dark leading-tight; }
-  .section-subheading { @apply text-lg text-brand-gray mt-4 max-w-2xl; }
-  .card { @apply bg-white rounded-2xl p-8 shadow-sm border border-brand-light-gray hover:shadow-md transition-shadow duration-200; }
-  .gold-line { @apply w-16 h-1 bg-brand-gold rounded-full; }
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-8 py-4 bg-brand-gold text-brand-black font-semibold rounded-lg hover:bg-brand-gold-light transition-all duration-200 text-base shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-8 py-4 bg-transparent text-brand-white font-semibold rounded-lg border-2 border-brand-white hover:bg-brand-white hover:text-brand-black transition-all duration-200 text-base;
+  }
+
+  .btn-dark {
+    @apply inline-flex items-center justify-center px-8 py-4 bg-brand-black text-brand-white font-semibold rounded-lg hover:bg-gray-800 transition-all duration-200 text-base;
+  }
+
+  .section-heading {
+    @apply text-4xl md:text-5xl font-bold text-brand-dark leading-tight;
+  }
+
+  .section-subheading {
+    @apply text-lg text-brand-gray mt-4 max-w-2xl;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl p-8 shadow-sm border border-brand-light-gray hover:shadow-md transition-shadow duration-200;
+  }
+
+  .gold-line {
+    @apply w-16 h-1 bg-brand-gold rounded-full;
+  }
 }
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #C9A84C; border-radius: 3px; }
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C9A84C;
+  border-radius: 3px;
+}
+
+/* Tally form container */
+.tally-container iframe {
+  min-height: 400px;
+}

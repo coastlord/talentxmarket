@@ -81,7 +81,7 @@ function Card({ job }: { job: Job }) {
         {job.jobTitle}
       </p>
 
-      {/* Type + location badges on their own row */}
+      {/* Type + location badges — own row, no overflow */}
       <div className="flex flex-wrap gap-1.5 mb-3">
         {job.employmentType && (
           <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${typeColor}`}>

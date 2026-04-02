@@ -1,19 +1,11 @@
 import { NextResponse } from 'next/server';
 
-function getInitials(name: string): string {
-  if (!name) return '??';
-  const parts = name.trim().split(' ');
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + '.' + parts[parts.length - 1][0] + '.').toUpperCase();
-}
-
 export async function GET() {
   try {
     const token = process.env.AIRTABLE_TOKEN;
     const baseId = process.env.AIRTABLE_BASE_ID;
-    const tableId = 'tblFf2SRxXXSruwZu';
-    const formula = encodeURIComponent("AND({Status}='Active')");
-    const url = `https://api.airtable.com/v0/${baseId}/${tableId}?filterByFormula=${formula}`;
+    const tableId = process.env.AIRTABLE_TABLE_ID || 'Professionals';
+    const url = `https://api.airtable.com/v0/${baseId}/${tableId}`;
 
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
@@ -28,31 +20,39 @@ export async function GET() {
     }
 
     const sanitized = (data.records || []).map((record: any, i: number) => {
-      const rawCerts = record.fields?.['Professional Certifications'];
-      const certifications = Array.isArray(rawCerts)
-        ? rawCerts.filter(Boolean)
-        : typeof rawCerts === 'string'
-        ? rawCerts.split(',').map((c: string) => c.trim()).filter(Boolean)
-        : [];
+      // Derive initials from Full Name — never expose the full name
+      const fullName: string = record.fields?.['Full Name'] || '';
+      const nameParts = fullName.trim().split(' ').filter(Boolean);
+      let initials = 'TX';
+      if (nameParts.length === 1) initials = nameParts[0].slice(0, 2).toUpperCase();
+      else if (nameParts.length >= 2)
+        initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
 
-      const rawSkills = record.fields?.Skills;
-      const skills = Array.isArray(rawSkills)
-        ? rawSkills.filter(Boolean)
+      // Skills — Airtable multi-select returns array
+      const rawSkills = record.fields?.['Skills'];
+      const skills: string[] = Array.isArray(rawSkills)
+        ? rawSkills
         : typeof rawSkills === 'string'
         ? rawSkills.split(',').map((s: string) => s.trim()).filter(Boolean)
         : [];
 
+      // Certifications — multi-select
+      const rawCerts = record.fields?.['Professional Certifications'];
+      const certifications: string[] = Array.isArray(rawCerts)
+        ? rawCerts
+        : typeof rawCerts === 'string'
+        ? rawCerts.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : [];
+
       return {
         id: record.id || String(i),
-        initials: getInitials(record.fields?.Name || ''),
-        specialism: record.fields?.Specialism || 'Compliance',
-        seniority: record.fields?.Seniority || '',
-        experience: record.fields?.['Years of Experience'] || record.fields?.Experience || '',
-        location: record.fields?.Location || '',
-        remote: record.fields?.Remote || false,
-        type: record.fields?.['Employment Type'] || '',
-        industry: record.fields?.Industry || '',
-        availability: record.fields?.Availability === 'Available Now' ? 'now' : 'soon',
+        initials,
+        availabilityStatus: record.fields?.['Availability Status'] || 'Available Now',
+        role: record.fields?.['Role'] || record.fields?.['Job Title'] || 'Compliance Professional',
+        location: record.fields?.['Location'] || '',
+        industry: record.fields?.['Industry'] || '',
+        employmentType: record.fields?.['Employment Type'] || '',
+        experience: record.fields?.['Years of Experience'] || '',
         skills,
         certifications,
       };

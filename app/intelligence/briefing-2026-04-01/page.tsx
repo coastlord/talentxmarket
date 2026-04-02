@@ -4,9 +4,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Global Compliance & Financial Crime Briefing — 30 March 2026 | TalentX Market',
+  title: 'Global Compliance & Financial Crime Briefing — 1 April 2026 | TalentX Market',
   description:
-    'Record $80M FinCEN penalty, UK AML overhaul, OFAC sanctions updates, FCA MFS probe, EU AMLA consultations, and MAS 16-year ban — the TalentX compliance intelligence briefing for 30 March 2026.',
+    'US Treasury sham transactions alert, FATF Singapore Mutual Evaluation, FATF Ministerial April 2026, BNM operational resilience consultation, GENIUS Act stablecoin NPRM, and FCA CCI regime launch — TalentX compliance intelligence briefing for 1 April 2026.',
 };
 
 /* ─── DATA ─────────────────────────────────────────────────────── */
@@ -14,100 +14,100 @@ export const metadata: Metadata = {
 const cards = [
   {
     id: 1,
-    tag: 'Enforcement',
+    tag: 'Sanctions',
     priority: 'HIGH' as const,
-    headline: 'FinCEN Imposes Record $80M Penalty on Canaccord Genuity for AML Failures',
+    headline: 'US Treasury Warns of "Sham Transactions" Being Used to Bypass Sanctions',
     summary:
-      'On 6 March 2026, FinCEN assessed an $80 million civil money penalty against broker-dealer Canaccord Genuity LLC — the largest BSA enforcement action ever brought against a broker-dealer. The action stems from willful failure to implement an effective AML programme between 2018 and 2024, including unreviewed surveillance reports. Compliance professionals in broker-dealer and wealth management sectors should review their own transaction monitoring backlogs and AML programme adequacy immediately.',
-    source: 'FinCEN · Holland & Knight',
-    url: 'https://www.hklaw.com/en/insights/publications/2026/03/fincen-imposes-record-penalty-on-broker-dealer',
+      'The US Treasury has issued an alert warning that sanctioned individuals and entities are increasingly using sham transactions — fictitious or disguised deals — to retain effective control of assets while appearing to comply with sanctions requirements. The alert calls on financial institutions and sanctions compliance teams to apply heightened scrutiny beyond formal ownership structures, focusing on beneficial control and economic substance. Sanctions and OFAC compliance professionals should review transaction monitoring rules and escalation procedures for shell or nominee arrangements.',
+    source: 'US Treasury · AML Intelligence',
+    url: 'https://www.amlintelligence.com/2026/04/latest-us-treasury-warns-of-rise-in-sham-transactions-to-bypass-sanctions/',
   },
   {
     id: 2,
     tag: 'Regulatory',
     priority: 'HIGH' as const,
-    headline: 'UK Lays Draft Regulations to Overhaul AML Framework, Tightens Crypto Rules',
+    headline: 'FATF Singapore Mutual Evaluation Report to Be Published in April 2026',
     summary:
-      'On 25 March 2026, HM Treasury laid the Money Laundering and Terrorist Financing (Amendment) Regulations 2026 before Parliament. Key changes include narrowing the "high-risk third countries" definition to FATF black-list-only jurisdictions, updating enhanced due diligence triggers, and requiring crypto firms to apply EDD to correspondent relationships while banning relationships with shell banks. Implementation expected May–June 2026. Compliance teams at UK-regulated firms should begin gap analyses now.',
-    source: 'HM Treasury · AML Intelligence',
-    url: 'https://www.amlintelligence.com/2026/03/latest-uk-to-overhaul-aml-rules-here-are-the-main-changes/',
+      'Following endorsement at the February 2026 FATF Plenary, the Mutual Evaluation Reports for Singapore, Austria, and Italy are scheduled for publication in April–May 2026 after a global quality and consistency review. For Singapore — a key jurisdiction in the APAC compliance market — this is a landmark moment. The MAS-supervised financial sector will face public scrutiny of its AML/CFT effectiveness ratings, directly shaping regulatory expectations, enforcement posture, and compliance hiring priorities in Singapore for the next cycle. Compliance professionals and employers in Singapore should monitor the publication date closely.',
+    source: 'FATF · ComplyAdvantage',
+    url: 'https://complyadvantage.com/insights/fatf-plenary-february-2026-key-updates/',
   },
   {
     id: 3,
-    tag: 'Sanctions',
+    tag: 'Regulatory',
     priority: 'HIGH' as const,
-    headline: 'OFAC Issues Iran & Russia Oil General Licenses, Settles with TradeStation for $1.1M',
+    headline: 'FATF Ministers to Endorse 2026–2028 Strategic Priorities in April Washington Meeting',
     summary:
-      'On 20 March 2026, OFAC issued General License U authorising wind-down transactions for Iranian-origin crude oil shipments, mirroring Russia-related GL 134 from 12 March. Separately, TradeStation Securities agreed to pay $1,110,661 to settle 481 apparent OFAC violations for providing brokerage services to persons in Iran, Syria, and Crimea. Sanctions compliance teams should review exposure to energy sector clients and ensure screening processes capture geographic risk indicators.',
-    source: 'OFAC · Steptoe',
-    url: 'https://www.steptoe.com/en/news-publications/international-compliance-blog/weekly-sanctions-update-march-23-2026.html',
+      'FATF Ministers are convening in April 2026 to formally endorse the body\'s strategic priorities for the next two-year cycle. Key focus areas include: strengthening beneficial ownership transparency, increasing asset recovery capabilities, combating corruption, and enhancing coordination across the FATF\'s Global Network of 200+ jurisdictions. For compliance professionals, this meeting sets the policy direction that will cascade through every national regulator — from BNM and MAS to the FCA and FinCEN — over the next two years. Monitoring the Ministerial Declaration is essential reading for MLROs and Chief Compliance Officers building 2026–2027 risk frameworks.',
+    source: 'FATF',
+    url: 'https://www.fatf-gafi.org/en/publications/Fatfgeneral/outcomes-FATF-plenary-february-2026.html',
   },
   {
     id: 4,
-    tag: 'Enforcement',
+    tag: 'Regulatory',
     priority: 'HIGH' as const,
-    headline: 'FCA Opens AML Probe into MFS Amid £1.3Bn Mortgage Scandal',
+    headline: 'BNM Opens Consultation on Operational Resilience Framework — Deadline 30 April 2026',
     summary:
-      'The UK Financial Conduct Authority has opened a formal enforcement investigation into Market Financial Solutions (MFS), the lender at the centre of a £1.3 billion mortgage scandal. MFS is supervised by the FCA solely for AML compliance as an Annex 1 business. This case underscores the FCA\'s sharpening focus on financial crime — AML-related investigations now account for 74% of FCA enforcement caseload. MLROs and compliance officers at non-bank lenders should take note.',
-    source: 'FCA · AML Intelligence',
-    url: 'https://www.amlintelligence.com/2026/03/breaking-fca-opens-aml-probe-into-mfs-lender-at-centre-of-1-3bn-mortgage-scandal/',
+      'Bank Negara Malaysia has published a discussion paper outlining its direction to strengthen the operational resilience of financial institutions under its supervision. The paper proposes governance mechanisms to ensure continuity of critical financial services and invites written feedback from stakeholders by 30 April 2026. This signals BNM\'s shift from purely financial soundness supervision toward operational and systemic resilience — a growing compliance remit. Malaysian compliance professionals, especially those in risk, BCM, and governance roles, should engage with this paper and flag implications for their institutions.',
+    source: 'Bank Negara Malaysia',
+    url: 'https://www.bnm.gov.my',
   },
   {
     id: 5,
     tag: 'Regulatory',
-    priority: 'MEDIUM' as const,
-    headline: 'EU Anti-Money Laundering Authority Launches First Consultations on CDD Standards',
+    priority: 'HIGH' as const,
+    headline: 'US Treasury Issues First-Ever Proposed Rule to Implement GENIUS Act Stablecoin Regulation',
     summary:
-      'The EU\'s new Anti-Money Laundering Authority (AMLA), which assumed rule-setting powers from the European Banking Authority in January 2026, has launched two consultations — one refining customer due diligence standards and another addressing linked transaction detection. This marks a major step toward harmonised AML/CFT supervision across EU member states. Firms operating cross-border in Europe should monitor these consultations closely as they will shape compliance requirements for 2027 onward.',
-    source: 'AMLA · RegTech Analyst',
-    url: 'https://regtechanalyst.com/global-financial-crime-compliance-key-signals-for-march-2026/',
+      'The US Department of the Treasury has issued a Notice of Proposed Rulemaking (NPRM) seeking public comment on its implementation of the GENIUS Act — the first federal framework specifically governing stablecoins. This marks the beginning of formal AML/CFT compliance obligations for stablecoin issuers, including transaction monitoring, Travel Rule compliance, and KYC requirements aligned with bank-grade standards. For compliance professionals in digital assets, crypto, and fintech, this signals a rapidly maturing regulatory environment in the US with significant implications globally as other jurisdictions follow suit.',
+    source: 'US Department of the Treasury',
+    url: 'https://home.treasury.gov/news/press-releases/sb0201',
   },
   {
     id: 6,
-    tag: 'Enforcement',
+    tag: 'Regulatory',
     priority: 'MEDIUM' as const,
-    headline: 'MAS Issues 16-Year Ban on Ex-Banker Linked to Singapore Money Laundering Case',
+    headline: 'FCA\'s New Consumer Composite Investments Regime Begins 6 April 2026',
     summary:
-      'In March 2026, the Monetary Authority of Singapore issued Prohibition Orders against two former relationship managers connected to the major August 2023 money laundering case — a 16-year ban for Wang Qiming and a 7-year ban for Liu Kai. This follows MAS\'s stated intent to take robust enforcement action where financial institutions and individuals fail AML/CFT obligations. Compliance teams in Singapore should use this as a case study for staff training on personal accountability.',
-    source: 'Monetary Authority of Singapore',
-    url: 'https://www.mas.gov.sg/regulation/enforcement/enforcement-actions/2026/mas-issues-prohibition-orders-against-former-relationship-managers-wang-qiming-and-liu-kai',
+      'The UK Financial Conduct Authority\'s new Consumer Composite Investments (CCI) disclosure regime takes effect from 6 April 2026, replacing the widely criticised PRIIPs Regulation and UCITS disclosure requirements for retail investment products. Firms have until 8 June 2027 for full mandatory compliance. UK compliance and product governance teams at asset managers, platforms, and banks distributing retail funds must begin gap analyses and disclosure document updates immediately. This is one of the most significant UK retail regulatory changes post-Brexit.',
+    source: 'FCA · Proskauer FinReg',
+    url: 'https://www.proskauer.com/report/finreg-timeline-2026',
   },
 ];
 
 const signals = [
   {
-    title: 'FATF — Grey List Update',
-    body: 'Kuwait and Papua New Guinea added to FATF increased monitoring list at the February 2026 Plenary. Myanmar faces potential countermeasures by June 2026 if no further progress is demonstrated.',
+    title: 'EU MiCA — Active Enforcement Phase',
+    body: 'The EU\'s Markets in Crypto-Assets Regulation (MiCA) is now in active enforcement. Digital asset service providers across Europe must meet bank-grade AML/KYC standards: full transaction monitoring, Travel Rule adherence, and sanction screening. Compliance hiring for crypto/VASP roles in Europe is surging.',
   },
   {
-    title: 'Bank Negara Malaysia — AML Fines',
-    body: 'Four entities fined RM1.07M for AML/CFT failures: MBSB Bank (RM560K) and SME Bank (RM460K) for delayed STR reporting, plus two corporate services firms for due diligence failures.',
+    title: 'EU AMLA — Single Rulebook Goes Live',
+    body: 'The new EU Anti-Money Laundering Authority is now directly supervising high-risk cross-border entities and enforcing a unified AML single rulebook, replacing 27 divergent national frameworks. A generation-defining shift for compliance professionals operating across EU jurisdictions.',
   },
   {
-    title: 'FinCEN — Real Estate Rule Live',
-    body: 'Residential real estate reporting requirements for non-financed transfers to legal entities and trusts took effect 1 March 2026. All relevant parties must comply immediately.',
+    title: 'FATF — Travel Rule Gaps Persist',
+    body: 'FATF\'s June 2025 update flagged persistent global gaps in Travel Rule implementation for VASPs, urging stronger enforcement and cross-border cooperation. Expect increased supervisory focus on Travel Rule compliance through 2026.',
   },
   {
-    title: 'ACAMS — AI Risk at Record High',
-    body: '75% of respondents rate malicious use of generative AI as a high or very high risk to financial crime programmes — ranking as the top external risk for the third consecutive year.',
+    title: 'California DFPI — Crypto Rules Proposed',
+    body: 'California\'s DFPI released formal crypto rulemaking proposals in April covering registration, disclosures, and surety bond standards. Compliance deadline: 1 July 2026. Relevant for digital asset firms with US exposure.',
   },
 ];
 
 const pulseCards = [
   {
-    title: 'Malaysia Compliance Hiring — Surging Demand',
-    body: 'Over 20,000 open compliance roles in Malaysia as of February 2026. Digital bank launches and Bank Negara\'s expanding regulatory perimeter across digital assets, open banking, and cross-border payments are the primary drivers. CAMS and ACAMS certifications give candidates a strong competitive edge.',
-    source: 'Glassdoor · Net2Source',
+    title: 'Malaysia — Compliance Demand Sustained',
+    body: 'BNM\'s expanding regulatory perimeter — now covering digital assets, open banking, and operational resilience — is generating sustained demand for compliance professionals across banking, fintech, and digital bank sectors. CAMS and ICA certifications remain strong differentiators for candidates.',
+    source: 'BNM · Glassdoor',
   },
   {
-    title: 'Singapore MLRO — Premium for Crypto & VASP Experience',
-    body: 'Active MLRO and Compliance Officer roles increasingly require 6+ years\' experience plus crypto/VASP regulatory knowledge, reflecting MAS\'s expanding digital asset oversight. Average AML Analyst salary sits around SGD 59,500, with senior roles (8+ years) reaching ~SGD 74,000.',
-    source: 'Glassdoor · SalaryExpert · Robert Walters',
+    title: 'Singapore MLRO — Crypto/VASP Premium',
+    body: 'With the FATF Singapore Mutual Evaluation imminent and MAS expanding digital asset oversight, MLRO and Compliance Officer roles increasingly demand 6+ years\' experience plus crypto/VASP regulatory knowledge. Premium salary uplifts of 15–20% are visible for VASP-specialist compliance profiles.',
+    source: 'MAS · Robert Walters',
   },
   {
-    title: 'Regional Trend — Compliance as a Strategic Hire',
-    body: 'Across Southeast Asia, banks and fintechs are repositioning compliance roles as strategic hires contributing to growth, not overhead. ESG compliance and digital banking compliance are emerging as premium specialisations in Malaysia and Singapore.',
-    source: 'Robert Walters · Morgan McKinley',
+    title: 'Digital Asset Compliance — New Career Track',
+    body: 'Across APAC and Europe, digital asset compliance is crystallising as a distinct profession with its own regulatory curriculum, certifications, and career ladder. Firms are hiring at MLRO, Head, and VP level for dedicated crypto compliance roles.',
+    source: 'Industry Observation',
   },
 ];
 
@@ -139,42 +139,42 @@ export default function BriefingPage() {
                 Intelligence Hub
               </Link>
               <span>/</span>
-              <span className="text-white/60">30 March 2026</span>
+              <span className="text-white/60">1 April 2026</span>
             </div>
 
             <p className="text-brand-gold text-[10px] font-bold tracking-[3px] uppercase mb-4 flex items-center gap-3">
-              Weekly Briefing
+              Intelligence Briefing
               <span className="inline-block w-6 h-px bg-brand-gold" />
             </p>
 
             <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
               Global Compliance &amp;{' '}
               <span className="text-brand-gold">Financial Crime</span>
-              <br />Weekly Briefing
+              <br />Intelligence Briefing
             </h1>
 
             <div className="flex items-center gap-5 flex-wrap mt-6 text-sm text-white/50">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-gold" />
-                Monday, 30 March 2026
+                Wednesday, 1 April 2026
               </span>
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-gold" />
-                AML · Sanctions · Regulatory · Enforcement
+                Sanctions · Regulatory · AML · Digital Assets
               </span>
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-gold" />
-                Southeast Asia Focus
+                Global Coverage · Southeast Asia Focus
               </span>
             </div>
 
             {/* Quick stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-10 pt-8 border-t border-white/10">
               {[
-                { n: '6',      l: 'Stories' },
-                { n: '4',      l: 'High priority' },
-                { n: '$80M',   l: 'Largest fine' },
-                { n: '4',      l: 'Jurisdictions' },
+                { n: '6',       l: 'Stories' },
+                { n: '5',       l: 'High priority' },
+                { n: 'FATF',    l: 'Ministerial April' },
+                { n: '5',       l: 'Jurisdictions' },
               ].map((s) => (
                 <div key={s.l}>
                   <div className="text-brand-gold font-bold text-2xl">{s.n}</div>
@@ -316,7 +316,7 @@ export default function BriefingPage() {
               ← Back to Intelligence Hub
             </Link>
             <p className="text-xs text-brand-gray/60">
-              Next briefing: Monday, 6 April 2026
+              Next briefing: Saturday, 4 April 2026
             </p>
           </div>
         </section>

@@ -1,20 +1,62 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { ClerkProvider } from '@clerk/nextjs';
 
 export const metadata: Metadata = {
   title: 'TalentX Market | The Compliance Talent Marketplace',
-  description: 'TalentX Market connects compliance professionals — AML, Risk, MLRO, Trust & Safety specialists — with top employers.',
+  description:
+    'TalentX Market connects compliance professionals — AML, Risk, MLRO, Trust & Safety specialists — with top employers. Post your availability or find your next hire today.',
+  keywords:
+    'compliance jobs, AML jobs, MLRO recruitment, risk management talent, trust and safety jobs, compliance marketplace, compliance professionals',
+  openGraph: {
+    title: 'TalentX Market | The Compliance Talent Marketplace',
+    description:
+      'The unified platform where compliance professionals post availability and employers find specialist talent.',
+    url: 'https://talentxmarket.com',
+    siteName: 'TalentX Market',
+    images: [
+      {
+        url: '/logo-dark.png',
+        width: 1200,
+        height: 630,
+        alt: 'TalentX Market',
+      },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TalentX Market | The Compliance Talent Marketplace',
+    description:
+      'Connecting compliance professionals with top employers worldwide.',
+  },
+  icons: {
+    icon: '/logo-icon.png',
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-      </head>
-      <body>{children}</body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <head>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossOrigin="anonymous"
+          />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+            rel="stylesheet"
+          />
+        </head>
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }

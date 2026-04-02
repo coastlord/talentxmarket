@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalentX — Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #C9A84C;
+    --gold-light: rgba(201,168,76,0.10);
+    --gold-mid: rgba(201,168,76,0.20);
+    --black: #0A0A0A;
+    --ink: #1a1a1a;
+    --muted: #6b7280;
+    --subtle: #9ca3af;
+    --border: #e5e7eb;
+    --surface: #f9fafb;
+    --white: #ffffff;
+  }
+
+  body {
+    background: var(--white);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    height: 56px;
+    gap: 0;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    margin-right: 40px;
+  }
+  .nav-logo-mark {
+    width: 30px; height: 30px;
+    background: var(--black);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 12px; color: var(--gold);
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+  }
+  .nav-logo-text {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--black);
+    letter-spacing: -0.4px;
+  }
+
+  .nav-tabs {
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+    gap: 0;
+    flex: 1;
+  }
+  .nav-tab {
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--black); }
+  .nav-tab.active {
+    color: var(--black);
+    border-bottom-color: var(--gold);
+    font-weight: 600;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+  .nav-plan-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: var(--gold-light);
+    border: 1px solid var(--gold-mid);
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+  .nav-avatar {
+    width: 30px; height: 30px;
+    background: var(--black);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--gold);
+  }
+
+  /* ── GREETING BAR ── */
+  .greeting-bar {
+    background: var(--black);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .greeting-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+  }
+  .greeting-text strong {
+    color: var(--white);
+    font-weight: 600;
+  }
+  .greeting-date {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.3px;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .page {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 32px 64px;
+    gap: 32px;
+  }
+
+  /* ── LEFT COLUMN: INTELLIGENCE FEED ── */
+  .feed-column {}
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+  .section-link {
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .section-link:hover { text-decoration: underline; }
+
+  /* Top ticker strip */
+  .ticker-strip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .ticker-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    padding-right: 16px;
+  }
+  .ticker-items {
+    display: flex;
+    gap: 28px;
+    overflow: hidden;
+  }
+  .ticker-item {
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ticker-item .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* Intelligence cards */
+  .feed-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    background: var(--white);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+    position: relative;
+  }
+  .feed-card:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  .feed-card.featured {
+    border-color: var(--gold);
+    background: linear-gradient(to right, rgba(201,168,76,0.03), var(--white));
+  }
+  .feed-card-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .category-tag {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .tag-aml      { background: rgba(239,68,68,0.08);  color: #b91c1c; }
+  .tag-sanctions{ background: rgba(239,68,68,0.08);  color: #b91c1c; }
+  .tag-reg      { background: rgba(59,130,246,0.08); color: #1d4ed8; }
+  .tag-salary   { background: rgba(201,168,76,0.12); color: #92400e; }
+  .tag-insight  { background: rgba(16,185,129,0.08); color: #065f46; }
+  .tag-featured { background: var(--black); color: var(--gold); }
+
+  .feed-time {
+    font-size: 11px;
+    color: var(--subtle);
+    margin-left: auto;
+  }
+  .feed-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1.4;
+    margin-bottom: 6px;
+    letter-spacing: -0.2px;
+  }
+  .feed-card-summary {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .feed-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--surface);
+  }
+  .feed-source {
+    font-size: 10.5px;
+    color: var(--subtle);
+    font-weight: 500;
+  }
+  .feed-read-more {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* Divider with label */
+  .feed-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .feed-divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .feed-divider-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--subtle);
+  }
+
+  /* Salary data card */
+  .data-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    background: var(--surface);
+  }
+  .data-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .data-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .data-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .data-role {
+    font-size: 11.5px;
+    color: var(--muted);
+    width: 160px;
+    flex-shrink: 0;
+  }
+  .data-bar-wrap {
+    flex: 1;
+    height: 5px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .data-bar {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 99px;
+  }
+  .data-range {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--black);
+    width: 100px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ── RIGHT COLUMN ── */
+  .right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Quick search */
+  .search-box {
+    background: var(--white);
+    border: 1.5px solid var(--black);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .search-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--black);
+    margin-bottom: 10px;
+  }
+  .search-input-wrap {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 12px;
+    gap: 8px;
+    background: var(--surface);
+    margin-bottom: 10px;
+  }
+  .search-icon { font-size: 14px; }
+  .search-input {
+    border: none;
+    background: transparent;
+    font-size: 12.5px;
+    color: var(--ink);
+    outline: none;
+    flex: 1;
+    font-family: inherit;
+  }
+  .search-input::placeholder { color: var(--subtle); }
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .filter-chip {
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .filter-chip:hover, .filter-chip.active {
+    background: var(--black);
+    color: var(--gold);
+    border-color: var(--black);
+  }
+  .search-btn {
+    width: 100%;
+    margin-top: 10px;
+    background: var(--black);
+    color: var(--gold);
+    border: none;
+    border-radius: 7px;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    transition: opacity 0.15s;
+  }
+  .search-btn:hover { opacity: 0.85; }
+
+  /* Talent snapshot panel */
+  .panel {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+  .panel-title {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+  .panel-link {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--gold);
+    cursor: pointer;
+  }
+
+  /* Mini talent card */
+  .mini-card {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .mini-card:last-child { border-bottom: none; }
+  .mini-card:hover { background: var(--surface); }
+  .mini-avatar {
+    width: 36px; height: 36px;
+    background: var(--black);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: var(--gold);
+    flex-shrink: 0;
+  }
+  .mini-info { flex: 1; }
+  .mini-role {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 2px;
+  }
+  .mini-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+  .mini-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .mini-tag {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .mini-tag.cert {
+    background: var(--gold-light);
+    border-color: var(--gold-mid);
+    color: #92400e;
+  }
+  .mini-lock {
+    font-size: 11px;
+    color: var(--subtle);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .mini-card-footer {
+    padding: 12px 16px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+  .unlock-btn {
+    width: 100%;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    border-radius: 6px;
+    padding: 9px;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    transition: opacity 0.15s;
+  }
+  .unlock-btn:hover { opacity: 0.88; }
+
+  /* Market pulse panel */
+  .pulse-panel {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .pulse-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pulse-item:last-child { border-bottom: none; }
+  .pulse-emoji { font-size: 14px; flex-shrink: 0; }
+  .pulse-text { font-size: 12px; color: var(--ink); flex: 1; line-height: 1.4; }
+  .pulse-text strong { color: var(--black); font-weight: 700; }
+  .pulse-delta {
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .delta-up { color: #059669; }
+  .delta-hot { color: #dc2626; }
+
+  /* Upcoming events */
+  .event-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .event-item:last-child { border-bottom: none; }
+  .event-date-block {
+    flex-shrink: 0;
+    width: 36px;
+    text-align: center;
+    background: var(--gold-light);
+    border: 1px solid var(--gold-mid);
+    border-radius: 6px;
+    padding: 4px 0;
+  }
+  .event-day {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--black);
+    line-height: 1;
+  }
+  .event-mon {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+  .event-text { flex: 1; }
+  .event-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--black);
+    line-height: 1.4;
+    margin-bottom: 2px;
+  }
+  .event-host {
+    font-size: 11px;
+    color: var(--subtle);
+  }
+
+  /* ── BOTTOM STATS BAR ── */
+  .stats-bar {
+    max-width: 1280px;
+    margin: 0 auto 0;
+    padding: 0 32px;
+  }
+  .stats-inner {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .stat-cell {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--subtle);
+  }
+  .stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--black);
+    letter-spacing: -0.8px;
+    line-height: 1;
+  }
+  .stat-sub {
+    font-size: 11px;
+    color: #059669;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-mark">TX</div>
+    <span class="nav-logo-text">TalentX</span>
+  </a>
+
+  <div class="nav-tabs">
+    <a class="nav-tab active" href="#">Dashboard</a>
+    <a class="nav-tab" href="#">Talent Search</a>
+    <a class="nav-tab" href="#">Intelligence</a>
+    <a class="nav-tab" href="#">Market Data</a>
+    <a class="nav-tab" href="#">Saved Profiles</a>
+  </div>
+
+  <div class="nav-right">
+    <span class="nav-plan-badge">Growth Plan</span>
+    <div class="nav-avatar">RH</div>
+  </div>
+</nav>
+
+<!-- ── GREETING BAR ── -->
+<div class="greeting-bar">
+  <div class="greeting-text">Good morning, <strong>Rania</strong> — 3 new compliance professionals joined this week</div>
+  <div class="greeting-date">Sunday, 29 March 2026</div>
+</div>
+
+<!-- ── STATS BAR ── -->
+<div class="stats-bar" style="padding-top:24px;">
+  <div class="stats-inner">
+    <div class="stat-cell">
+      <div class="stat-label">Verified Professionals</div>
+      <div class="stat-value">248</div>
+      <div class="stat-sub">↑ 12 this month</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">Active Employers</div>
+      <div class="stat-value">34</div>
+      <div class="stat-sub">↑ 5 this week</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">Profiles Unlocked</div>
+      <div class="stat-value">91</div>
+      <div class="stat-sub">↑ 8 this month</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">Top Demand Role</div>
+      <div class="stat-value" style="font-size:16px; margin-top:2px;">AML Analyst</div>
+      <div class="stat-sub" style="color:var(--gold);">↑ Trending in MY + SG</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN PAGE ── -->
+<div class="page">
+
+  <!-- ── LEFT: INTELLIGENCE FEED ── -->
+  <div class="feed-column">
+
+    <div class="section-header">
+      <span class="section-title">Compliance Intelligence</span>
+      <a class="section-link" href="#">View all →</a>
+    </div>
+
+    <!-- Ticker -->
+    <div class="ticker-strip">
+      <div class="ticker-label">Live</div>
+      <div class="ticker-items">
+        <div class="ticker-item"><span class="dot"></span>BNM issues updated AML/CFT guidelines for DNFBPs · March 2026</div>
+        <div class="ticker-item"><span class="dot"></span>MAS consults on stablecoin framework · open until April 15</div>
+        <div class="ticker-item"><span class="dot"></span>FATF Plenary outcomes published · 14 countries on grey list</div>
+        <div class="ticker-item"><span class="dot"></span>CAMS renewal window opens · May 2026</div>
+      </div>
+    </div>
+
+    <!-- Featured card -->
+    <div class="feed-card featured">
+      <div class="feed-card-top">
+        <span class="category-tag tag-featured">Featured</span>
+        <span class="category-tag tag-reg">Regulatory</span>
+        <span class="feed-time">2h ago</span>
+      </div>
+      <div class="feed-card-title">BNM releases revised AML/CFT and Targeted Financial Sanctions Policy Document for 2026</div>
+      <div class="feed-card-summary">Bank Negara Malaysia has issued updated compliance requirements effective Q2 2026, expanding obligations to cover digital asset service providers and e-money issuers. MLROs and compliance officers are advised to conduct gap assessments by June 30.</div>
+      <div class="feed-card-footer">
+        <span class="feed-source">Source: Bank Negara Malaysia · bnm.gov.my</span>
+        <a class="feed-read-more" href="#">Read briefing →</a>
+      </div>
+    </div>
+
+    <!-- Standard card -->
+    <div class="feed-card">
+      <div class="feed-card-top">
+        <span class="category-tag tag-aml">Enforcement</span>
+        <span class="feed-time">Yesterday</span>
+      </div>
+      <div class="feed-card-title">Singapore MAS fines fintech firm S$2.4M for AML control failures</div>
+      <div class="feed-card-summary">The Monetary Authority of Singapore took action against a licensed payment institution for inadequate customer due diligence and suspicious transaction reporting. Third enforcement action in Q1 2026.</div>
+      <div class="feed-card-footer">
+        <span class="feed-source">Source: MAS · mas.gov.sg</span>
+        <a class="feed-read-more" href="#">Read briefing →</a>
+      </div>
+    </div>
+
+    <div class="feed-card">
+      <div class="feed-card-top">
+        <span class="category-tag tag-sanctions">Sanctions</span>
+        <span class="feed-time">2 days ago</span>
+      </div>
+      <div class="feed-card-title">OFAC adds 47 entities to SDN list — cryptocurrency and real estate focus</div>
+      <div class="feed-card-summary">The US Treasury's latest SDN update targets entities linked to ransomware operations and illicit real estate transactions. Compliance teams should update screening lists immediately.</div>
+      <div class="feed-card-footer">
+        <span class="feed-source">Source: OFAC · treasury.gov</span>
+        <a class="feed-read-more" href="#">Read briefing →</a>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="feed-divider">
+      <div class="feed-divider-line"></div>
+      <div class="feed-divider-label">Market Data</div>
+      <div class="feed-divider-line"></div>
+    </div>
+
+    <!-- Salary data card -->
+    <div class="data-card">
+      <div class="data-card-title">
+        <span class="category-tag tag-salary">Salary Benchmarks</span>
+        Malaysia & Singapore · Q1 2026
+      </div>
+      <div class="data-rows">
+        <div class="data-row">
+          <div class="data-role">MLRO (Senior)</div>
+          <div class="data-bar-wrap"><div class="data-bar" style="width:92%"></div></div>
+          <div class="data-range">MYR 18–28K/mo</div>
+        </div>
+        <div class="data-row">
+          <div class="data-role">AML Manager</div>
+          <div class="data-bar-wrap"><div class="data-bar" style="width:74%"></div></div>
+          <div class="data-range">MYR 12–18K/mo</div>
+        </div>
+        <div class="data-row">
+          <div class="data-role">Compliance Analyst</div>
+          <div class="data-bar-wrap"><div class="data-bar" style="width:55%"></div></div>
+          <div class="data-range">MYR 6–10K/mo</div>
+        </div>
+        <div class="data-row">
+          <div class="data-role">KYC Specialist</div>
+          <div class="data-bar-wrap"><div class="data-bar" style="width:48%"></div></div>
+          <div class="data-range">MYR 5–8K/mo</div>
+        </div>
+        <div class="data-row">
+          <div class="data-role">Sanctions Analyst</div>
+          <div class="data-bar-wrap"><div class="data-bar" style="width:58%"></div></div>
+          <div class="data-range">MYR 7–11K/mo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feed-card">
+      <div class="feed-card-top">
+        <span class="category-tag tag-insight">Insight</span>
+        <span class="feed-time">3 days ago</span>
+      </div>
+      <div class="feed-card-title">CAMS-certified professionals command 23% salary premium in Southeast Asia</div>
+      <div class="feed-card-summary">TalentX data across 248 verified professionals shows ACAMS certification remains the strongest salary predictor in the region, followed by ICA Diploma and CFE credentials.</div>
+      <div class="feed-card-footer">
+        <span class="feed-source">Source: TalentX Market Data · Q1 2026</span>
+        <a class="feed-read-more" href="#">View full report →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── RIGHT COLUMN ── -->
+  <div class="right-column">
+
+    <!-- Quick Search -->
+    <div class="search-box">
+      <div class="search-label">Find Talent</div>
+      <div class="search-input-wrap">
+        <span class="search-icon">🔎</span>
+        <input class="search-input" type="text" placeholder="Role, skill, or certification…">
+      </div>
+      <div class="filter-chips">
+        <span class="filter-chip active">AML</span>
+        <span class="filter-chip">MLRO</span>
+        <span class="filter-chip">KYC</span>
+        <span class="filter-chip">Sanctions</span>
+        <span class="filter-chip">Malaysia</span>
+        <span class="filter-chip">CAMS</span>
+      </div>
+      <button class="search-btn">Search Talent Pool →</button>
+    </div>
+
+    <!-- Talent Snapshot -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Featured Professionals</span>
+        <span class="panel-link">View all →</span>
+      </div>
+
+      <div class="mini-card">
+        <div class="mini-avatar">O.A</div>
+        <div class="mini-info">
+          <div class="mini-role">AML Compliance Manager</div>
+          <div class="mini-meta">Banking · 8 yrs · Kuala Lumpur</div>
+          <div class="mini-tags">
+            <span class="mini-tag cert">CAMS</span>
+            <span class="mini-tag">Transaction Monitoring</span>
+            <span class="mini-tag">SAR Filing</span>
+          </div>
+        </div>
+        <div class="mini-lock">🔒</div>
+      </div>
+
+      <div class="mini-card">
+        <div class="mini-avatar">L.C</div>
+        <div class="mini-info">
+          <div class="mini-role">MLRO · Financial Crime Lead</div>
+          <div class="mini-meta">Fintech · 12 yrs · Singapore</div>
+          <div class="mini-tags">
+            <span class="mini-tag cert">ICA Dip.</span>
+            <span class="mini-tag">Sanctions</span>
+            <span class="mini-tag">Governance</span>
+          </div>
+        </div>
+        <div class="mini-lock">🔒</div>
+      </div>
+
+      <div class="mini-card">
+        <div class="mini-avatar">R.H</div>
+        <div class="mini-info">
+          <div class="mini-role">KYC & Onboarding Specialist</div>
+          <div class="mini-meta">Digital Bank · 5 yrs · Remote</div>
+          <div class="mini-tags">
+            <span class="mini-tag cert">CAMS</span>
+            <span class="mini-tag">CDD/EDD</span>
+            <span class="mini-tag">PEP Screening</span>
+          </div>
+        </div>
+        <div class="mini-lock">🔒</div>
+      </div>
+
+      <div class="mini-card-footer">
+        <button class="unlock-btn">⚡ Unlock Full Profiles — Subscribe</button>
+      </div>
+    </div>
+
+    <!-- Market Pulse -->
+    <div class="pulse-panel">
+      <div class="panel-header">
+        <span class="panel-title">Market Pulse</span>
+      </div>
+      <div class="pulse-item">
+        <span class="pulse-emoji">📈</span>
+        <span class="pulse-text"><strong>AML Analyst</strong> demand up in MY + SG</span>
+        <span class="pulse-delta delta-up">↑ 18%</span>
+      </div>
+      <div class="pulse-item">
+        <span class="pulse-emoji">🔥</span>
+        <span class="pulse-text"><strong>MLRO</strong> roles hardest to fill</span>
+        <span class="pulse-delta delta-hot">High demand</span>
+      </div>
+      <div class="pulse-item">
+        <span class="pulse-emoji">🌍</span>
+        <span class="pulse-text"><strong>Remote compliance</strong> roles growing</span>
+        <span class="pulse-delta delta-up">↑ 31%</span>
+      </div>
+      <div class="pulse-item">
+        <span class="pulse-emoji">🏦</span>
+        <span class="pulse-text"><strong>Fintech</strong> top hiring sector this quarter</span>
+        <span class="pulse-delta delta-up">↑ 24%</span>
+      </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Upcoming Events</span>
+        <span class="panel-link">Add event →</span>
+      </div>
+      <div class="event-item">
+        <div class="event-date-block">
+          <div class="event-day">10</div>
+          <div class="event-mon">Apr</div>
+        </div>
+        <div class="event-text">
+          <div class="event-title">ACAMS AML & FinCrime Asia Summit</div>
+          <div class="event-host">Kuala Lumpur · In-person</div>
+        </div>
+      </div>
+      <div class="event-item">
+        <div class="event-date-block">
+          <div class="event-day">15</div>
+          <div class="event-mon">Apr</div>
+        </div>
+        <div class="event-text">
+          <div class="event-title">MAS Stablecoin Framework — Consultation Closes</div>
+          <div class="event-host">Deadline · Submit online</div>
+        </div>
+      </div>
+      <div class="event-item">
+        <div class="event-date-block">
+          <div class="event-day">22</div>
+          <div class="event-mon">Apr</div>
+        </div>
+        <div class="event-text">
+          <div class="event-title">TalentX Webinar: Hiring CAMS-Certified Talent</div>
+          <div class="event-host">Online · Free for subscribers</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

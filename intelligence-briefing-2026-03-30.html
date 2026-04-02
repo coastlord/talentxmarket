@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TalentX Intelligence Briefing — 30 March 2026</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #e8d49a;
+      --gold-pale: #faf6ec;
+      --black: #0A0A0A;
+      --gray-900: #111111;
+      --gray-700: #333333;
+      --gray-500: #666666;
+      --gray-300: #CCCCCC;
+      --gray-100: #F5F5F5;
+      --white: #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: var(--white);
+      color: var(--black);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--black);
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 2px solid var(--gold);
+    }
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--gold);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--black);
+      font-family: 'Arial', sans-serif;
+      letter-spacing: -0.5px;
+    }
+    .logo-text {
+      font-family: 'Arial', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.5px;
+    }
+    .logo-text span { color: var(--gold); }
+    .header-right {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      color: var(--gray-300);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--black);
+      color: var(--white);
+      padding: 64px 40px 56px;
+      border-bottom: 1px solid #222;
+    }
+    .hero-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .hero-eyebrow {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hero-eyebrow::after {
+      content: '';
+      display: inline-block;
+      width: 36px;
+      height: 1px;
+      background: var(--gold);
+    }
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--gold);
+    }
+    .hero-meta {
+      font-family: 'Arial', sans-serif;
+      font-size: 13px;
+      color: var(--gray-300);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .hero-meta-item { display: flex; align-items: center; gap: 6px; }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold); display: inline-block;
+    }
+    .status-badge {
+      background: #1a1a1a;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Arial', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 3px;
+    }
+
+    /* ── SUMMARY BAR ── */
+    .summary-bar {
+      background: var(--gold-pale);
+      border-bottom: 1px solid var(--gold-light);
+      padding: 20px 40px;
+    }
+    .summary-bar-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .summary-stat {
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      color: var(--gray-700);
+    }
+    .summary-stat strong {
+      font-size: 22px;
+      color: var(--black);
+      display: block;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .summary-divider {
+      width: 1px; height: 36px;
+      background: var(--gold-light);
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 56px 40px 80px;
+    }
+
+    /* ── SECTION HEADERS ── */
+    .section-label {
+      font-family: 'Arial', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 28px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--gray-300);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label .section-count {
+      background: var(--black);
+      color: var(--white);
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 2px;
+    }
+
+    /* ── CARDS GRID ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+      gap: 24px;
+      margin-bottom: 56px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-top: 3px solid var(--gold);
+      padding: 28px 28px 24px;
+      transition: box-shadow 0.2s ease;
+    }
+    .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 10px;
+    }
+    .card-tag {
+      font-family: 'Arial', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+    }
+    .tag-enforcement { background: #fff0f0; color: #b91c1c; border: 1px solid #fecaca; }
+    .tag-regulatory  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .tag-sanctions   { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .tag-insight     { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .tag-aml         { background: #fdf4ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+
+    .priority-badge {
+      font-family: 'Arial', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .priority-high   { color: #b91c1c; }
+    .priority-medium { color: var(--gray-500); }
+
+    .card h2 {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 12px;
+      color: var(--black);
+      font-family: 'Arial', sans-serif;
+    }
+    .card p {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--gray-700);
+      margin-bottom: 18px;
+    }
+    .card-source {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--gray-100);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .source-text {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+    .source-link {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .source-link:hover { text-decoration: underline; }
+
+    /* ── ADDITIONAL SIGNALS ── */
+    .signals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 56px;
+    }
+    .signal-card {
+      background: var(--gray-100);
+      border-left: 3px solid var(--gold);
+      padding: 18px 18px 16px;
+    }
+    .signal-card h3 {
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 8px;
+      letter-spacing: 0.2px;
+    }
+    .signal-card p {
+      font-size: 13px;
+      color: var(--gray-700);
+      line-height: 1.65;
+    }
+
+    /* ── MARKET PULSE ── */
+    .pulse-section {
+      background: var(--black);
+      color: var(--white);
+      padding: 40px 40px;
+      margin: 0 -40px;
+    }
+    .pulse-inner { max-width: 1080px; margin: 0 auto; }
+    .pulse-label {
+      font-family: 'Arial', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 28px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #222;
+    }
+    .pulse-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .pulse-card {
+      border: 1px solid #222;
+      border-top: 2px solid var(--gold);
+      padding: 24px;
+      background: #111;
+    }
+    .pulse-card h3 {
+      font-family: 'Arial', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .pulse-card p {
+      font-size: 13px;
+      color: #cccccc;
+      line-height: 1.75;
+    }
+    .data-point-tag {
+      display: inline-block;
+      margin-top: 10px;
+      font-family: 'Arial', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid #333;
+      padding: 2px 7px;
+      border-radius: 2px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--gray-100);
+      border-top: 1px solid var(--gray-300);
+      padding: 28px 40px;
+    }
+    .footer-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-left {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+    .footer-left strong { color: var(--black); }
+    .footer-right {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 680px) {
+      header, .hero, .summary-bar, main, footer { padding-left: 20px; padding-right: 20px; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .signals-grid { grid-template-columns: 1fr 1fr; }
+      .pulse-section { margin: 0 -20px; padding: 32px 20px; }
+      .pulse-grid { grid-template-columns: 1fr; }
+      .summary-bar-inner { gap: 20px; }
+      .summary-divider { display: none; }
+      .hero-meta { gap: 14px; }
+    }
+    @media (max-width: 440px) {
+      .signals-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <a href="https://talentxmarket.com" class="logo">
+        <div class="logo-mark">TX</div>
+        <span class="logo-text">Talent<span>X</span> Market</span>
+      </a>
+      <span class="header-right">Compliance Intelligence Hub</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Intelligence Briefing</div>
+      <h1>Global Compliance &amp; Financial Crime<br><em>Weekly Briefing</em></h1>
+      <div class="hero-meta">
+        <div class="hero-meta-item"><span class="dot"></span> Monday, 30 March 2026</div>
+        <div class="hero-meta-item"><span class="dot"></span> AML &bull; Sanctions &bull; Regulatory &bull; Enforcement</div>
+        <div class="hero-meta-item"><span class="dot"></span> Southeast Asia Focus</div>
+        <span class="status-badge">Published</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY BAR -->
+  <div class="summary-bar">
+    <div class="summary-bar-inner">
+      <div class="summary-stat"><strong>6</strong>Stories this week</div>
+      <div class="summary-divider"></div>
+      <div class="summary-stat"><strong>4</strong>High Priority</div>
+      <div class="summary-divider"></div>
+      <div class="summary-stat"><strong>$80M</strong>Largest fine this week</div>
+      <div class="summary-divider"></div>
+      <div class="summary-stat"><strong>4</strong>Jurisdictions covered</div>
+      <div class="summary-divider"></div>
+      <div class="summary-stat"><strong>3</strong>Market Pulse signals</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- INTELLIGENCE CARDS -->
+    <div class="section-label">
+      Intelligence Cards <span class="section-count">6</span>
+    </div>
+
+    <div class="cards-grid">
+
+      <!-- CARD 1 -->
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-enforcement">Enforcement</span>
+          <span class="priority-badge priority-high">&#9679; High Priority</span>
+        </div>
+        <h2>FinCEN Imposes Record $80M Penalty on Canaccord Genuity for AML Failures</h2>
+        <p>On 6 March 2026, FinCEN assessed an $80 million civil money penalty against broker-dealer Canaccord Genuity LLC — the largest BSA enforcement action ever brought against a broker-dealer. The action stems from willful failure to implement an effective AML programme between 2018 and 2024, including unreviewed surveillance reports. Compliance professionals in broker-dealer and wealth management sectors should review their own transaction monitoring backlogs and AML programme adequacy immediately.</p>
+        <div class="card-source">
+          <span class="source-text">FinCEN &middot; Holland &amp; Knight</span>
+          <a href="https://www.hklaw.com/en/insights/publications/2026/03/fincen-imposes-record-penalty-on-broker-dealer" target="_blank" rel="noopener" class="source-link">Read full story &rarr;</a>
+        </div>
+      </div>
+
+      <!-- CARD 2 -->
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-regulatory">Regulatory</span>
+          <span class="priority-badge priority-high">&#9679; High Priority</span>
+        </div>
+        <h2>UK Lays Draft Regulations to Overhaul AML Framework, Tightens Crypto Rules</h2>
+        <p>On 25 March 2026, HM Treasury laid the Money Laundering and Terrorist Financing (Amendment) Regulations 2026 before Parliament. Key changes include narrowing the "high-risk third countries" definition to FATF black-list-only jurisdictions, updating enhanced due diligence triggers, and requiring crypto firms to apply EDD to correspondent relationships while banning relationships with shell banks. Implementation expected May–June 2026. Compliance teams at UK-regulated firms should begin gap analyses now.</p>
+        <div class="card-source">
+          <span class="source-text">HM Treasury &middot; AML Intelligence</span>
+          <a href="https://www.amlintelligence.com/2026/03/latest-uk-to-overhaul-aml-rules-here-are-the-main-changes/" target="_blank" rel="noopener" class="source-link">Read full story &rarr;</a>
+        </div>
+      </div>
+
+      <!-- CARD 3 -->
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-sanctions">Sanctions</span>
+          <span class="priority-badge priority-high">&#9679; High Priority</span>
+        </div>
+        <h2>OFAC Issues Iran &amp; Russia Oil General Licenses, Settles with TradeStation for $1.1M</h2>
+        <p>On 20 March 2026, OFAC issued General License U authorising wind-down transactions for Iranian-origin crude oil shipments, mirroring Russia-related GL 134 from 12 March. Separately, TradeStation Securities agreed to pay $1,110,661 to settle 481 apparent OFAC violations for providing brokerage services to persons in Iran, Syria, and Crimea. Sanctions compliance teams should review exposure to energy sector clients and ensure screening processes capture geographic risk indicators.</p>
+        <div class="card-source">
+          <span class="source-text">OFAC &middot; Steptoe</span>
+          <a href="https://www.steptoe.com/en/news-publications/international-compliance-blog/weekly-sanctions-update-march-23-2026.html" target="_blank" rel="noopener" class="source-link">Read full story &rarr;</a>
+        </div>
+      </div>
+
+      <!-- CARD 4 -->
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-enforcement">Enforcement</span>
+          <span class="priority-badge priority-high">&#9679; High Priority</span>
+        </div>
+        <h2>FCA Opens AML Probe into MFS Amid £1.3Bn Mortgage Scandal</h2>
+        <p>The UK Financial Conduct Authority has opened a formal enforcement investigation into Market Financial Solutions (MFS), the lender at the centre of a £1.3 billion mortgage scandal. MFS is supervised by the FCA solely for AML compliance as an Annex 1 business. This case underscores the FCA's sharpening focus on financial crime — AML-related investigations now account for 74% of FCA enforcement caseload. MLROs and compliance officers at non-bank lenders should take note.</p>
+        <div class="card-source">
+          <span class="source-text">FCA &middot; AML Intelligence</span>
+          <a href="https://www.amlintelligence.com/2026/03/breaking-fca-opens-aml-probe-into-mfs-lender-at-centre-of-1-3bn-mortgage-scandal/" target="_blank" rel="noopener" class="source-link">Read full story &rarr;</a>
+        </div>
+      </div>
+
+      <!-- CARD 5 -->
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-regulatory">Regulatory</span>
+          <span class="priority-badge priority-medium">&#9675; Medium Priority</span>
+        </div>
+        <h2>EU Anti-Money Laundering Authority Launches First Consultations on CDD Standards</h2>
+        <p>The EU's new Anti-Money Laundering Authority (AMLA), which assumed rule-setting powers from the European Banking Authority in January 2026, has launched two consultations — one refining customer due diligence standards and another addressing linked transaction detection. This marks a major step toward harmonised AML/CFT supervision across EU member states. Firms operating cross-border in Europe should monitor these consultations closely as they will shape compliance requirements for 2027 onward.</p>
+        <div class="card-source">
+          <span class="source-text">AMLA &middot; RegTech Analyst</span>
+          <a href="https://regtechanalyst.com/global-financial-crime-compliance-key-signals-for-march-2026/" target="_blank" rel="noopener" class="source-link">Read full story &rarr;</a>
+        </div>
+      </div>
+
+      <!-- CARD 6 -->
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-enforcement">Enforcement</span>
+          <span class="priority-badge priority-medium">&#9675; Medium Priority</span>
+        </div>
+        <h2>MAS Issues 16-Year Ban on Ex-Banker Linked to Singapore Money Laundering Case</h2>
+        <p>In March 2026, the Monetary Authority of Singapore issued Prohibition Orders against two former relationship managers connected to the major August 2023 money laundering case — a 16-year ban for Wang Qiming and a 7-year ban for Liu Kai. This follows MAS's stated intent to take robust enforcement action where financial institutions and individuals fail AML/CFT obligations. Compliance teams in Singapore should use this as a case study for staff training on personal accountability.</p>
+        <div class="card-source">
+          <span class="source-text">Monetary Authority of Singapore</span>
+          <a href="https://www.mas.gov.sg/regulation/enforcement/enforcement-actions/2026/mas-issues-prohibition-orders-against-former-relationship-managers-wang-qiming-and-liu-kai" target="_blank" rel="noopener" class="source-link">Read full story &rarr;</a>
+        </div>
+      </div>
+
+    </div><!-- /cards-grid -->
+
+    <!-- ADDITIONAL SIGNALS -->
+    <div class="section-label">
+      Additional Signals <span class="section-count">4</span>
+    </div>
+
+    <div class="signals-grid">
+
+      <div class="signal-card">
+        <h3>FATF — Grey List Update</h3>
+        <p>Kuwait and Papua New Guinea added to FATF increased monitoring list at February 2026 Plenary. Myanmar faces potential countermeasures by June 2026 if no progress.</p>
+      </div>
+
+      <div class="signal-card">
+        <h3>Bank Negara Malaysia — AML Fines</h3>
+        <p>Four entities fined RM1.07M for AML/CFT failures: MBSB Bank (RM560K) and SME Bank (RM460K) for delayed STR reporting, plus two corporate services firms.</p>
+      </div>
+
+      <div class="signal-card">
+        <h3>FinCEN — Real Estate Rule Live</h3>
+        <p>Residential real estate reporting requirements for non-financed transfers to legal entities and trusts took effect 1 March 2026. All relevant parties must comply.</p>
+      </div>
+
+      <div class="signal-card">
+        <h3>ACAMS — AI Risk at Record High</h3>
+        <p>75% of respondents rate malicious use of generative AI as a high or very high risk to financial crime programmes — top external risk for the third consecutive year.</p>
+      </div>
+
+    </div><!-- /signals-grid -->
+
+  </main><!-- /main -->
+
+  <!-- MARKET PULSE -->
+  <div class="pulse-section">
+    <div class="pulse-inner">
+      <div class="pulse-label">Market Pulse &mdash; Southeast Asia Hiring &amp; Salary Signals</div>
+      <div class="pulse-grid">
+
+        <div class="pulse-card">
+          <h3>Malaysia Compliance Hiring — Surging Demand</h3>
+          <p>Over 20,000 open compliance roles in Malaysia as of February 2026. Digital bank launches and Bank Negara's expanding regulatory perimeter (digital assets, open banking, cross-border payments) are the primary drivers. CAMS and ACAMS certifications give candidates a strong competitive edge.</p>
+          <span class="data-point-tag">Data Point &middot; Glassdoor, Net2Source</span>
+        </div>
+
+        <div class="pulse-card">
+          <h3>Singapore MLRO — Premium for Crypto &amp; VASP Experience</h3>
+          <p>Active MLRO and Compliance Officer roles increasingly require 6+ years plus crypto/VASP regulatory knowledge, reflecting MAS's expanding digital asset oversight. Average AML Analyst salary sits around SGD 59,500, with senior roles (8+ years) reaching ~SGD 74,000.</p>
+          <span class="data-point-tag">Data Point &middot; Glassdoor, SalaryExpert, Robert Walters</span>
+        </div>
+
+        <div class="pulse-card">
+          <h3>Regional Trend — Compliance as a Strategic Hire</h3>
+          <p>Across Southeast Asia, banks and fintechs are repositioning compliance roles as strategic hires contributing to growth, not overhead. ESG compliance and digital banking compliance are emerging as premium specialisations in Malaysia and Singapore.</p>
+          <span class="data-point-tag">Data Point &middot; Robert Walters, Morgan McKinley</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <strong>TalentX Market</strong> &mdash; Intelligence Briefing &mdash; 30 March 2026<br>
+        Connecting compliance, AML, risk, and financial crime professionals to opportunity.
+      </div>
+      <div class="footer-right">
+        &copy; 2026 TalentX Market &middot;
+        <a href="https://talentxmarket.com" style="color: var(--gold); text-decoration: none;">talentxmarket.com</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
