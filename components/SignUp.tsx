@@ -1,65 +1,23 @@
 'use client';
 
-import { useEffect } from 'react';
-
-declare global {
-  interface Window {
-    Tally?: {
-      loadEmbeds: () => void;
-    };
-  }
-}
-
-// ─────────────────────────────────────────────
-// 🔧 REPLACE these with your real Tally form IDs
-// Get them from: tally.so → your form → Share → Embed
-// ─────────────────────────────────────────────
-const PROFESSIONAL_FORM_ID = 'wkPzVB'; // Replace with your "Open to Work" form ID
-const EMPLOYER_FORM_ID = 'mYkOja';     // Replace with your "Hiring" form ID
-
 function TallyEmbed({ formId, title }: { formId: string; title: string }) {
   return (
-    <div className="tally-container">
+    <div style={{ width: '100%' }}>
       <iframe
-        data-tally-src={`https://tally.so/embed/${formId}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1`}
-        loading="lazy"
+        src={`https://tally.so/embed/${formId}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1`}
         width="100%"
-        height="500"
-        frameBorder="0"
+        height="600"
+        frameBorder={0}
         marginHeight={0}
         marginWidth={0}
         title={title}
-        className="min-h-[400px]"
+        style={{ minHeight: '500px' }}
       />
     </div>
   );
 }
 
 export default function SignUp() {
-  // Load Tally embed script once
-  useEffect(() => {
-    const loadTally = () => {
-      if (typeof window.Tally !== 'undefined') {
-        window.Tally.loadEmbeds();
-      } else {
-        document
-          .querySelectorAll<HTMLIFrameElement>('iframe[data-tally-src]:not([src])')
-          .forEach((el) => {
-            el.src = el.dataset.tallySrc || '';
-          });
-      }
-    };
-
-    if (document.getElementById('tally-js')) {
-      loadTally();
-    } else {
-      const script = document.createElement('script');
-      script.id = 'tally-js';
-      script.src = 'https://tally.so/widgets/embed.js';
-      script.onload = loadTally;
-      document.body.appendChild(script);
-    }
-  }, []);
 
   return (
     <div>
