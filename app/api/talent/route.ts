@@ -47,7 +47,7 @@ export async function GET() {
         initials: getInitials(record.fields?.Name || ''),
         specialism: record.fields?.Specialism || 'Compliance',
         seniority: record.fields?.Seniority || '',
-        experience: record.fields?.Experience || '',
+        experience: record.fields?.['Years of Experience'] || record.fields?.Experience || '',
         location: record.fields?.Location || '',
         remote: record.fields?.Remote || false,
         type: record.fields?.['Employment Type'] || '',
