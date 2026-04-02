@@ -12,7 +12,6 @@ export async function GET() {
     const token = process.env.AIRTABLE_TOKEN;
     const baseId = process.env.AIRTABLE_BASE_ID;
     const tableId = 'tblFf2SRxXXSruwZu';
-
     const formula = encodeURIComponent("AND({Status}='Active')");
     const url = `https://api.airtable.com/v0/${baseId}/${tableId}?filterByFormula=${formula}`;
 
@@ -33,8 +32,15 @@ export async function GET() {
       const certifications = Array.isArray(rawCerts)
         ? rawCerts.filter(Boolean)
         : typeof rawCerts === 'string'
-          ? rawCerts.split(',').map((c: string) => c.trim()).filter(Boolean)
-          : [];
+        ? rawCerts.split(',').map((c: string) => c.trim()).filter(Boolean)
+        : [];
+
+      const rawSkills = record.fields?.Skills;
+      const skills = Array.isArray(rawSkills)
+        ? rawSkills.filter(Boolean)
+        : typeof rawSkills === 'string'
+        ? rawSkills.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : [];
 
       return {
         id: record.id || String(i),
@@ -45,10 +51,9 @@ export async function GET() {
         location: record.fields?.Location || '',
         remote: record.fields?.Remote || false,
         type: record.fields?.['Employment Type'] || '',
+        industry: record.fields?.Industry || '',
         availability: record.fields?.Availability === 'Available Now' ? 'now' : 'soon',
-        skills: record.fields?.Skills
-          ? record.fields.Skills.split(',').map((s: string) => s.trim()).filter(Boolean)
-          : [],
+        skills,
         certifications,
       };
     });
