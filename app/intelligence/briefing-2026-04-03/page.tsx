@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Navbar from '../../../components/Navbar';
-import { ArrowLeft } from 'lucide-react';
 
 const briefingDate = "3 April 2026";
 
@@ -139,7 +138,7 @@ export default function BriefingPage() {
               href="/intelligence"
               className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-brand-gold transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <span>&#8592;</span>
               Back to Intelligence Hub
             </Link>
             <Link
