@@ -23,16 +23,16 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-28">
+        <div className="flex items-center justify-between h-36">
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center group -ml-2">
+          {/* Logo — Capture-logo.PNG (logo-icon.png) */}
+          <Link href="/" className="flex items-center group">
             <Image
               src="/logo-icon.png"
               alt="TalentX Market"
-              width={120}
-              height={120}
-              className="w-24 h-24 object-contain"
+              width={160}
+              height={160}
+              className="w-36 h-36 object-contain"
               priority
             />
           </Link>
@@ -89,7 +89,6 @@ export default function Navbar() {
           {/* CTA / Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             {isLoaded && isSignedIn ? (
-              // Logged-in state: Dashboard link + User avatar
               <>
                 <Link
                   href="/dashboard"
@@ -108,7 +107,6 @@ export default function Navbar() {
                 />
               </>
             ) : (
-              // Logged-out state: Original CTAs + Sign In
               <>
                 <a
                   href="#open-to-work"
