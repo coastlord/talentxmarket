@@ -328,7 +328,7 @@ export default function BriefingPage() {
               ← Back to Intelligence Hub
             </Link>
             <p className="text-xs text-brand-gray/60">
-              Next briefing: Saturday, 5 April 2026
+              Next briefing: Sunday, 5 April 2026
             </p>
           </div>
         </section>
