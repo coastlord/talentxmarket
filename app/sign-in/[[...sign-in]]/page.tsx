@@ -61,7 +61,7 @@ export default function SignInPage() {
         {/* Logo */}
         <div className="relative z-10">
           <Image
-            src="/logo-dark.png"
+            src="/logo-icon.png"
             alt="TalentX Market"
             width={200}
             height={60}
@@ -104,7 +104,7 @@ export default function SignInPage() {
         {/* Mobile logo */}
         <div className="lg:hidden mb-10 text-center">
           <Image
-            src="/logo-dark.png"
+            src="/logo-icon.png"
             alt="TalentX Market"
             width={160}
             height={48}
