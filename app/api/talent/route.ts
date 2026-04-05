@@ -56,6 +56,7 @@ export async function GET() {
         experience: record.fields?.['Years of Experience'] || '',
         skills,
         certifications,
+        headline: record.fields?.['Professional Summary'] || record.fields?.['Headline'] || record.fields?.['Bio'] || '',
       };
     });
 
