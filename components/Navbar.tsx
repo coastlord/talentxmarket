@@ -103,7 +103,7 @@ export default function Navbar() {
                   I&apos;m a Professional
                 </a>
                 <a
-                  href="#hiring"
+                  href="/talent"
                   className="px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-black rounded-lg hover:bg-brand-gold-light transition-all duration-200"
                 >
                   I&apos;m Hiring
@@ -158,7 +158,7 @@ export default function Navbar() {
                     <a href="#open-to-work" className="btn-secondary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
                       I&apos;m a Professional
                     </a>
-                    <a href="#hiring" className="btn-primary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
+                    <a href="/talent" className="btn-primary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
                       I&apos;m Hiring
                     </a>
                     <Link href="/sign-in" className="text-center text-sm text-white/60 hover:text-white py-2" onClick={() => setMenuOpen(false)}>
