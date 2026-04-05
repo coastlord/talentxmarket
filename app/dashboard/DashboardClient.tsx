@@ -139,6 +139,35 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
 
         {/* ── PROFILE VIEW ── */}
         {view === 'profile' && (
+          <div>
+            {/* ── DEMAND SIGNAL BANNER ── */}
+            <div className="bg-[#0A0A0A] rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-[#C9A84C] animate-pulse" />
+                  <span className="text-[#C9A84C] text-[10px] font-bold uppercase tracking-widest">Live Demand</span>
+                </div>
+                <p className="text-white text-sm font-semibold leading-snug">
+                  14 employers visited TalentX this month — actively hiring compliance professionals.
+                </p>
+                <p className="text-white/50 text-xs mt-1">Complete your profile to appear in employer searches and get matched.</p>
+              </div>
+              <div className="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
+                <div className="flex gap-3">
+                  {[
+                    { label: 'AML / FinCrime', hot: true },
+                    { label: 'MLRO', hot: true },
+                    { label: 'KYC', hot: false },
+                  ].map(role => (
+                    <span key={role.label} className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${role.hot ? 'bg-[#C9A84C] text-[#0A0A0A]' : 'bg-white/10 text-white/60'}`}>
+                      {role.hot ? '🔥 ' : ''}{role.label}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-white/40 text-[10px]">Roles in demand right now</p>
+              </div>
+            </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {/* Left column — profile card */}
@@ -364,6 +393,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                 Confidential &amp; Secure · Managed by TalentX Market
               </p>
             </div>
+          </div>
           </div>
         )}
 
