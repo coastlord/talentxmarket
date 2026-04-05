@@ -81,11 +81,25 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
 
   const handleSave = async () => {
     setIsSaving(true);
-    await new Promise(r => setTimeout(r, 1000));
-    setIsSaving(false);
-    setSaved(true);
-    setView('profile');
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      const res = await fetch('/api/candidate/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...profile, isVisible }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        console.error('Profile save failed:', err);
+      }
+    } catch (err) {
+      console.error('Profile save error:', err);
+    } finally {
+      setIsSaving(false);
+      setSaved(true);
+      setView('profile');
+      setTimeout(() => setSaved(false), 3000);
+    }
   };
 
   const profileComplete = [
