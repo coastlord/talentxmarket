@@ -23,16 +23,16 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-36">
+        <div className="flex items-center justify-between h-28">
 
-          {/* Logo — Capture-logo.PNG (logo-icon.png) */}
-          <Link href="/" className="flex items-center group">
+          {/* Logo */}
+          <Link href="/" className="flex items-center group -ml-2">
             <Image
-              src="/logo-icon.png"
+              src="/tx-icon-black.png"
               alt="TalentX Market"
-              width={160}
-              height={160}
-              className="w-36 h-36 object-contain"
+              width={120}
+              height={120}
+              className="w-24 h-24 object-contain"
               priority
             />
           </Link>
@@ -70,25 +70,12 @@ export default function Navbar() {
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
               Browse Talent
             </Link>
-            <Link
-              href="/jobs"
-              className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-semibold"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Browse Jobs
-            </Link>
-            <Link
-              href="/intelligence"
-              className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-semibold"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-              Intelligence Hub
-            </Link>
           </div>
 
           {/* CTA / Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             {isLoaded && isSignedIn ? (
+              // Logged-in state: Dashboard link + User avatar
               <>
                 <Link
                   href="/dashboard"
@@ -107,6 +94,7 @@ export default function Navbar() {
                 />
               </>
             ) : (
+              // Logged-out state: Original CTAs + Sign In
               <>
                 <a
                   href="#open-to-work"
@@ -159,14 +147,6 @@ export default function Navbar() {
               <Link href="/talent" className="flex items-center gap-1.5 text-brand-gold text-sm font-semibold" onClick={() => setMenuOpen(false)}>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                 Browse Talent
-              </Link>
-              <Link href="/jobs" className="flex items-center gap-1.5 text-brand-gold text-sm font-semibold" onClick={() => setMenuOpen(false)}>
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                Browse Jobs
-              </Link>
-              <Link href="/intelligence" className="flex items-center gap-1.5 text-brand-gold text-sm font-semibold" onClick={() => setMenuOpen(false)}>
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                Intelligence Hub
               </Link>
               <div className="flex flex-col gap-3 pt-2 border-t border-white/10">
                 {isLoaded && isSignedIn ? (
