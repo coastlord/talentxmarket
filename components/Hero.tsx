@@ -47,9 +47,7 @@ export default function Hero() {
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           {/* PRIMARY: Get Matched */}
           <a
-            href="https://tally.so/r/GxLk2O"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#hiring"
             className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-brand-gold text-brand-black font-bold rounded-xl hover:bg-brand-gold-light transition-all duration-200 text-base shadow-xl shadow-brand-gold/20 hover:-translate-y-0.5"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
