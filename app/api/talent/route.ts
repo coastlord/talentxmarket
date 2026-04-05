@@ -20,8 +20,6 @@ export async function GET() {
     }
 
     const sanitized = (data.records || []).map((record: any, i: number) => {
-      // Derive initials from Full Name — never expose the full name
-      // Airtable may store as 'Name' (default field) or 'Full Name' depending on Tally mapping
       const fullName: string = record.fields?.['Full Name'] || record.fields?.['Name'] || '';
       const nameParts = fullName.trim().split(' ').filter(Boolean);
       let initials = 'TX';
@@ -29,7 +27,6 @@ export async function GET() {
       else if (nameParts.length >= 2)
         initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
 
-      // Skills — Airtable multi-select returns array
       const rawSkills = record.fields?.['Skills'];
       const skills: string[] = Array.isArray(rawSkills)
         ? rawSkills
@@ -37,7 +34,6 @@ export async function GET() {
         ? rawSkills.split(',').map((s: string) => s.trim()).filter(Boolean)
         : [];
 
-      // Certifications — multi-select
       const rawCerts = record.fields?.['Professional Certifications'];
       const certifications: string[] = Array.isArray(rawCerts)
         ? rawCerts
@@ -56,6 +52,7 @@ export async function GET() {
         experience: record.fields?.['Years of Experience'] || '',
         skills,
         certifications,
+        headline: record.fields?.['Professional Summary'] || record.fields?.['Headline'] || record.fields?.['Bio'] || '',
       };
     });
 
