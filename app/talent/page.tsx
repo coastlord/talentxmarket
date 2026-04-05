@@ -17,6 +17,7 @@ interface Professional {
   experience: string;
   skills: string[];
   certifications: string[];
+  headline: string;
 }
 
 // ─── Icons (inline SVG helpers) ─────────────────────────────────────────────
@@ -150,6 +151,16 @@ function ProfessionalCard({ pro, onUnlock }: { pro: Professional; onUnlock: (pro
 
       {/* Divider */}
       <div className="border-t border-gray-100 mb-3" />
+
+      {/* ── ROLE TITLE + PROOF LINE ── */}
+      <div className="mb-3">
+        <p className="text-sm font-bold text-brand-black leading-snug">{pro.role}</p>
+        {pro.headline ? (
+          <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2 italic">&ldquo;{pro.headline}&rdquo;</p>
+        ) : (
+          <p className="text-xs text-gray-400 mt-1 italic">Compliance professional — profile details locked</p>
+        )}
+      </div>
 
       {/* ── META ROWS ── */}
       <div className="space-y-2 mb-3">
