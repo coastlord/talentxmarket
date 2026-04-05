@@ -587,6 +587,24 @@ export default function TalentPage() {
             <p className="text-white/60 max-w-xl leading-relaxed">
               Pre-screened compliance professionals — AML, MLRO, Risk, KYC, Trust & Safety — available now or open to offers. Unlock profiles to connect directly.
             </p>
+
+            {/* Get Matched CTA strip */}
+            <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
+              <a
+                href="https://tally.so/r/GxLk2O"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-brand-gold text-brand-black font-bold rounded-xl hover:bg-brand-gold/90 transition-all duration-200 text-sm shadow-lg shadow-brand-gold/20 hover:-translate-y-0.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Get Matched in 48 Hours
+              </a>
+              <p className="text-white/40 text-sm">
+                Prefer not to browse? Tell us your role and we&apos;ll send you 2–3 vetted candidates.
+              </p>
+            </div>
           </div>
         </div>
 
