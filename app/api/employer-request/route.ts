@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     const token = process.env.AIRTABLE_TOKEN;
     const baseId = process.env.AIRTABLE_BASE_ID;
-    const tableId = process.env.AIRTABLE_EMPLOYER_REQUESTS_TABLE || 'Employer Requests';
+    const tableId = process.env.AIRTABLE_EMPLOYER_REQUESTS_TABLE || 'Employers';
 
     if (!token || !baseId) {
       console.error('Missing Airtable env vars');
@@ -32,12 +32,13 @@ export async function POST(req: Request) {
           {
             fields: {
               'Company Name': companyName,
-              'Work Email': workEmail,
-              'Role Hiring For': roleHiringFor,
+              'Email': workEmail,
+              'Job Title / Role Hiring For': roleHiringFor,
               'Urgency': urgency || 'Not specified',
               'Candidate ID': candidateId || '',
               'Candidate Role': candidateRole || '',
               'Status': 'New',
+              'Request Type': 'Profile Unlock',
             },
           },
         ],
