@@ -75,17 +75,17 @@ export default function SignUpPage() {
           {/* Left: Brand messaging */}
           <div className="lg:flex-1 text-center lg:text-left lg:pt-6">
 
-            {/* Invitation badge */}
+            {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-[#C9A84C]/10 border border-[#C9A84C]/25 rounded-full px-4 py-1.5 mb-7">
               <span className="w-1.5 h-1.5 rounded-full bg-[#C9A84C] animate-pulse" />
               <span className="text-[#C9A84C] text-xs font-semibold tracking-wider uppercase">
-                Invitation Only
+                Compliance Professionals
               </span>
             </div>
 
             {/* Headline */}
             <h1 className="text-4xl sm:text-5xl font-bold text-[#0A0A0A] leading-tight mb-5">
-              You've been<br className="hidden lg:block" /> selected.
+              Your next role<br className="hidden lg:block" /> starts here.
             </h1>
 
             {/* Gold rule */}
@@ -93,7 +93,7 @@ export default function SignUpPage() {
 
             {/* Description */}
             <p className="text-gray-500 text-base leading-relaxed mb-9 max-w-sm mx-auto lg:mx-0">
-              Welcome to TalentX Market — the compliance talent marketplace for AML, Risk, MLRO, and Trust &amp; Safety professionals.
+              Join TalentX Market — the specialist marketplace for AML, Risk, MLRO, Compliance, and Trust &amp; Safety professionals.
             </p>
 
             {/* Feature list */}
@@ -124,8 +124,8 @@ export default function SignUpPage() {
             {/* Divider + platform note */}
             <div className="mt-10 pt-8 border-t border-gray-100 hidden lg:block">
               <p className="text-xs text-gray-400 leading-relaxed max-w-xs">
-                TalentX Market is a curated network. Every profile is manually
-                reviewed before being made visible to employers.
+                Every profile is reviewed by the TalentX team before becoming
+                visible to employers. Your details stay private until you're ready.
               </p>
             </div>
           </div>
@@ -140,16 +140,20 @@ export default function SignUpPage() {
                   Create your account
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Complete setup to access your candidate dashboard.
+                  Sign up to build your profile and get matched with top employers.
                 </p>
               </div>
 
-              <SignUp appearance={clerkAppearance} />
+              <SignUp
+                appearance={clerkAppearance}
+                afterSignUpUrl="/dashboard"
+                redirectUrl="/dashboard"
+              />
             </div>
 
             {/* Sub-note */}
             <p className="text-center text-xs text-gray-400 mt-4">
-              If you received this link in error, please disregard.
+              Free to join. Your profile won't be visible until approved by our team.
             </p>
           </div>
 
