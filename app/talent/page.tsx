@@ -349,9 +349,9 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
-              <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest">Request Access</span>
+              <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest">Request Introduction</span>
             </div>
-            <h2 className="text-white text-lg font-bold">Unlock This Profile</h2>
+            <h2 className="text-white text-lg font-bold">Get Introduced to This Candidate</h2>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,7 +388,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                 <span className="text-white font-bold text-sm">{pro.initials}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-400 font-medium mb-0.5">You are requesting access to</p>
+                <p className="text-xs text-gray-400 font-medium mb-0.5">You are requesting an introduction to</p>
                 <p className="text-sm font-bold text-brand-black">{pro.role}</p>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
                   {pro.location && <span className="text-xs text-gray-500">{pro.location}</span>}
@@ -483,6 +483,17 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                 <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">{errorMsg}</p>
               )}
 
+              {/* Trust bullets */}
+              <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 space-y-2">
+                {[
+                  '✅ Pre-vetted by TalentX Market',
+                  '✅ Available for interviews within 48h',
+                  '✅ Personally matched to your role before introduction',
+                ].map(line => (
+                  <p key={line} className="text-xs text-gray-600 font-medium">{line}</p>
+                ))}
+              </div>
+
               <button
                 type="submit"
                 disabled={status === 'loading'}
@@ -499,7 +510,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                 ) : (
                   <>
                     <UnlockIcon />
-                    Request Access
+                    Request Introduction
                   </>
                 )}
               </button>
@@ -576,6 +587,22 @@ export default function TalentPage() {
             <p className="text-white/60 max-w-xl leading-relaxed">
               Pre-screened compliance professionals — AML, MLRO, Risk, KYC, Trust & Safety — available now or open to offers. Unlock profiles to connect directly.
             </p>
+
+            {/* Get Matched CTA strip */}
+            <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
+              <a
+                href="/#hiring"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-brand-gold text-brand-black font-bold rounded-xl hover:bg-brand-gold/90 transition-all duration-200 text-sm shadow-lg shadow-brand-gold/20 hover:-translate-y-0.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Get Matched in 48 Hours
+              </a>
+              <p className="text-white/40 text-sm">
+                Prefer not to browse? Tell us your role and we&apos;ll send you 2–3 vetted candidates.
+              </p>
+            </div>
           </div>
         </div>
 

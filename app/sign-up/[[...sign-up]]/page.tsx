@@ -52,7 +52,7 @@ export default function SignUpPage() {
       <header className="px-6 sm:px-10 py-5 flex items-center justify-between border-b border-gray-100">
         <Link href="/" className="flex items-center">
           <Image
-            src="/logo-dark.png"
+            src="/logo-icon.png"
             alt="TalentX Market"
             width={160}
             height={48}

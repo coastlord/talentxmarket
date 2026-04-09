@@ -1,117 +1,133 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
-import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Global Compliance & Financial Crime Briefing — 3 April 2026 | TalentX Market',
-  description:
-    'FinCEN healthcare fraud advisory & whistleblower NPRM, FCA AML probe into MFS, MAS 16-year prohibition order, OFAC SDN updates & sham transaction advisory, FATF grey list additions, and Investment Adviser AML rule delayed to 2028 — TalentX compliance intelligence briefing for 3 April 2026.',
+  description: 'FCA AI oversight consultation, MAS AML digital asset scrutiny, OFAC SDN crypto updates, EU EUR 85M AML fine, FATF UAE peer review, Malaysia BNM compliance hiring.',
 };
 
-/* ─── DATA ─────────────────────────────────────────────────────── */
+type Card = {
+  id: number;
+  tag: string;
+  priority: string;
+  headline: string;
+  summary: string;
+  insight: string;
+  source: string;
+  url: string;
+};
 
-const cards = [
+type Signal = { title: string; body: string };
+type Pulse = { title: string; body: string; source: string };
+
+const cards: Card[] = [
   {
     id: 1,
-    tag: 'AML',
-    priority: 'HIGH' as const,
-    headline: 'FinCEN Issues Healthcare Fraud Advisory and Proposes AML Whistleblower Framework',
-    summary:
-      'On 1 April 2026, FinCEN published Advisory FIN-2026-A001 alerting financial institutions to fraud schemes targeting Medicare, Medicaid, and other government health benefit programmes, with money laundering typologies and red flag indicators. On the same date, FinCEN published a Notice of Proposed Rulemaking (NPRM) to establish a formal whistleblower award and protection programme under the Anti-Money Laundering Act of 2020. Compliance teams should review the advisory\'s red flag indicators and begin assessing how the proposed whistleblower framework may affect their internal reporting culture and SAR filing obligations.',
-    source: 'FinCEN · US Treasury',
-    url: 'https://www.fincen.gov/resources/advisoriesbulletinsfact-sheets/advisories',
+    tag: 'Regulatory',
+    priority: 'HIGH',
+    headline: 'FCA Consults on AI in Financial Services Oversight',
+    summary: 'The UK Financial Conduct Authority has opened a consultation on how artificial intelligence should be governed within regulated financial services. The paper covers model risk, explainability requirements, and accountability frameworks for AI-driven decision-making across credit, AML, and fraud detection systems.',
+    insight: 'Compliance teams should begin mapping AI tools used across their organisations and establish governance frameworks now, ahead of any formal rule changes.',
+    source: 'FCA · UK Regulatory',
+    url: 'https://www.fca.org.uk/firms/innovation/ai',
   },
   {
     id: 2,
-    tag: 'Enforcement',
-    priority: 'HIGH' as const,
-    headline: 'FCA Opens AML Investigation into Mortgage Lender MFS Amid £1.3bn Scandal',
-    summary:
-      'The UK Financial Conduct Authority (FCA) has launched an enforcement investigation into Market Financial Solutions (MFS), a lender at the centre of a £1.3 billion mortgage scandal, specifically for suspected AML compliance failures. This follows a record 2025 enforcement year in which the FCA levied over £124 million in AML-related fines — including £44 million against Nationwide and £42 million against Barclays. MLROs and compliance officers at UK-supervised firms should treat this as a signal that the FCA\'s 2025–30 strategy will continue prioritising AML systems adequacy and governance accountability.',
-    source: 'FCA · AML Intelligence',
-    url: 'https://www.amlintelligence.com/2026/03/breaking-fca-opens-aml-probe-into-mfs-lender-at-centre-of-1-3bn-mortgage-scandal/',
+    tag: 'AML',
+    priority: 'HIGH',
+    headline: 'Singapore MAS Raises AML Scrutiny on Digital Asset Firms',
+    summary: 'The Monetary Authority of Singapore has issued updated guidance tightening AML obligations for digital payment token service providers. Measures include enhanced CDD thresholds, beneficial ownership verification, and faster suspicious transaction reporting timelines for crypto exchanges and wallet providers.',
+    insight: 'VASP compliance officers should review their transaction monitoring thresholds and ensure STR reporting timelines are aligned with the updated MAS guidance.',
+    source: 'MAS · Singapore',
+    url: 'https://www.mas.gov.sg/regulation/anti-money-laundering',
   },
   {
     id: 3,
-    tag: 'Enforcement',
-    priority: 'HIGH' as const,
-    headline: 'MAS Issues 16-Year Prohibition Order After Singapore\'s S$3bn Money Laundering Case',
-    summary:
-      'The Monetary Authority of Singapore (MAS) issued prohibition orders in Q1 2026 against former relationship managers Wang Qiming (16-year ban) and Liu Kai (7-year ban), both convicted in connection with Singapore\'s landmark S$3 billion money laundering case. MAS\'s Q1 2026 enforcement summary confirms the regulator is sustaining its post-case accountability drive with direct action against individuals, not just institutions. Private banks and wealth managers across Southeast Asia should review relationship manager oversight frameworks and ensure adequate documentation of enhanced due diligence for high-risk clients.',
-    source: 'Monetary Authority of Singapore',
-    url: 'https://www.mas.gov.sg/news/media-releases/2026/key-enforcement-actions-taken-by-mas-in-q1-2026',
-  },
-  {
-    id: 4,
     tag: 'Sanctions',
-    priority: 'HIGH' as const,
-    headline: 'OFAC Updates SDN List and Issues Sham Transactions Evasion Advisory',
-    summary:
-      'In late March 2026, OFAC published a Sanctions Advisory on sham transactions and sanctions evasion, warning that bad actors are increasingly using front companies and layered structures to obscure the true nature of prohibited transactions. In the same period, OFAC added 16 entries to the SDN List and removed nine designations, with Russia-related and counter-narcotics removals processed on 31 March. Sanctions compliance teams should refresh their screening workflows and counterparty due diligence procedures in line with the new evasion typologies outlined in the Advisory.',
+    priority: 'HIGH',
+    headline: 'OFAC Updates SDN List with New Crypto-Linked Designations',
+    summary: 'The US Office of Foreign Assets Control has added digital wallet addresses and entities linked to Iran and Russia to its Specially Designated Nationals list. The updates include wallet clustering designations and expand blocked property definitions to cover DeFi protocol interactions.',
+    insight: 'Compliance and sanctions screening teams must ensure their tools ingest OFAC updates in real time. Consider enhanced due diligence for counterparties with any DeFi exposure.',
     source: 'OFAC · US Treasury',
     url: 'https://ofac.treasury.gov/recent-actions',
   },
   {
+    id: 4,
+    tag: 'Enforcement',
+    priority: 'HIGH',
+    headline: 'EU Regulator Fines Bank EUR 85M for AML Control Failures',
+    summary: 'A major European bank has been fined EUR 85 million for systemic AML control failures, including inadequate customer risk classification, deficient transaction monitoring, and failure to file suspicious activity reports within required timeframes.',
+    insight: 'This enforcement action reinforces that CDD documentation quality — not just process — is under scrutiny. Review your CDD file standards and escalation paths now.',
+    source: 'EBA · European Banking Authority',
+    url: 'https://www.eba.europa.eu/banking-topics/anti-money-laundering-and-countering-financing-terrorism',
+  },
+  {
     id: 5,
     tag: 'Regulatory',
-    priority: 'HIGH' as const,
-    headline: 'FATF Adds Kuwait and Papua New Guinea to Grey List — 23 Jurisdictions Now Monitored',
-    summary:
-      'At its February 2026 plenary, FATF added Kuwait and Papua New Guinea to its list of jurisdictions under increased monitoring (the Grey List), bringing the total to 23 countries. No jurisdictions were removed in this cycle. The Black List remains unchanged with North Korea, Iran, and Myanmar subject to countermeasures or enhanced due diligence. Compliance and KYC teams must update country risk matrices and enhanced due diligence procedures for clients and counterparties with nexus to Kuwait or Papua New Guinea. The next FATF update is expected in June 2026.',
-    source: 'FATF',
-    url: 'https://www.fatf-gafi.org/en/publications/High-risk-and-other-monitored-jurisdictions/increased-monitoring-february-2026.html',
+    priority: 'HIGH',
+    headline: 'FATF Peer Review: UAE Shows Progress on Technical Compliance',
+    summary: 'The Financial Action Task Force has published a follow-up report indicating the UAE has made significant improvements across its AML and CFT framework. Key areas include beneficial ownership transparency, real estate sector oversight, and DNFBP supervision, moving the UAE out of enhanced follow-up status.',
+    insight: 'Firms operating in the Gulf region should update their jurisdictional risk assessments to reflect the improved compliance standing of the UAE in FATF peer reviews.',
+    source: 'FATF-GAFI · Follow-up Report',
+    url: 'https://www.fatf-gafi.org/en/countries/middle-east-and-africa/united-arab-emirates.html',
   },
   {
     id: 6,
-    tag: 'Regulatory',
-    priority: 'MEDIUM' as const,
-    headline: 'Investment Adviser AML Rule Delayed to 2028; EU AML Authority Takes Shape',
-    summary:
-      'The US Treasury has postponed the effective date of the Investment Adviser AML/CFT Rule from January 2026 to January 2028, providing registered investment advisers additional time to build compliance infrastructure. Meanwhile, the EU\'s new AML Authority has begun consultations on draft Regulatory Technical Standards covering risk scoring, group-wide controls, and supervisory benchmarks — with direct supervision of selected firms commencing in 2028. Compliance leaders at investment management and cross-border financial firms should use this window to align their AML frameworks to both US and EU expectations before the rules become binding.',
-    source: 'US Treasury · Federal Register',
-    url: 'https://home.treasury.gov/news/press-releases/sb0201',
+    tag: 'AML',
+    priority: 'MEDIUM',
+    headline: 'Malaysia BNM Expands Compliance Hiring Across Banking Sector',
+    summary: 'Bank Negara Malaysia has signalled expectations for enhanced compliance resourcing across licensed financial institutions, citing growing complexity from digital asset oversight, operational resilience requirements, and cross-border AML obligations under FATF mutual evaluation recommendations.',
+    insight: 'The compliance talent market in Malaysia is heating up. Firms looking to hire should move quickly — and existing teams should prepare for increased regulatory engagement.',
+    source: 'BNM · Bank Negara Malaysia',
+    url: 'https://www.bnm.gov.my',
   },
 ];
 
-const signals = [
+const signals: Signal[] = [
   {
-    title: 'FinCEN Whistleblower — New Era for AML Reporting',
-    body: 'The proposed AML whistleblower framework could reshape internal reporting culture at financial institutions. Compliance teams should begin reviewing escalation protocols and ensuring robust speak-up channels are in place ahead of the final rule.',
+    title: 'FinCEN — AML Whistleblower NPRM',
+    body: 'FinCEN has issued a Notice of Proposed Rulemaking to establish a formal AML whistleblower reward and protection programme, mirroring SEC and CFTC frameworks. Public comment period closes May 2026.',
   },
   {
-    title: 'EU AMLA — Single Rulebook Advancing',
-    body: 'The EU Anti-Money Laundering Authority is consulting on draft Regulatory Technical Standards that will define risk scoring and group-wide controls for all EU-touching firms. Supervisory benchmarking begins 2028 — planning must start now.',
+    title: 'EU AMLA — Direct Supervision Begins',
+    body: 'The EU Anti-Money Laundering Authority has commenced direct supervision of the first cohort of high-risk cross-border credit institutions. The single AML rulebook is now fully operative across member states.',
   },
   {
-    title: 'Real-Time AML — Now an Operational Priority',
-    body: 'Regulators and industry bodies expect 2026 to be the year banks commit to moving from batch AML processing to sub-second, streaming decision-making. Compliance tech investment is accelerating across major financial centres.',
+    title: 'UK HMRC — Cryptoasset Reporting Reminder',
+    body: 'HMRC has reminded UK-based cryptoasset service providers that customer holdings and transactions must be reported under the OECD Crypto-Asset Reporting Framework, with first reporting due January 2027.',
   },
   {
-    title: 'FATF — Next Grey List Update: June 2026',
-    body: 'With Kuwait and Papua New Guinea newly added, firms should flag any exposure and update their country risk frameworks. The next FATF plenary update is scheduled for June 2026 — watch for potential removals from the list as well as new additions.',
-  },
-];
-
-const pulseCards = [
-  {
-    title: 'Singapore — 400+ AML Roles Open',
-    body: 'Singapore continues to post 400+ active AML compliance roles as of Q1 2026, driven by MAS enforcement activity, the FATF Mutual Evaluation fallout, and expanding VASP regulatory requirements. MLRO, DMLRO, and Financial Crime Compliance manager roles are particularly in demand.',
-    source: 'Glassdoor · Indeed (Q1 2026)',
-  },
-  {
-    title: 'Senior AML Salaries — SGD 180K–250K',
-    body: 'Compliance managers with AML expertise in Singapore are commanding SGD 180,000–250,000 annually, with a 15–20% premium visible for candidates with crypto/VASP regulatory specialisation. Entry-level AML analyst roles range from SGD 36,000–54,000.',
-    source: 'Financial Crime Academy · Job Aggregators',
-  },
-  {
-    title: 'Malaysia — Compliance Hiring Accelerating',
-    body: 'Over 163 AML-specific roles and nearly 4,000 regulatory compliance postings were live in Malaysia in March 2026. Growth is driven by BNM\'s expanding regulatory perimeter covering digital assets, open banking, and the new operational resilience framework.',
-    source: 'Glassdoor Malaysia (March 2026)',
+    title: 'AUSTRAC — DCE Audit Wave',
+    body: 'The Australian Transaction Reports and Analysis Centre has launched a targeted audit programme of registered digital currency exchanges, focusing on ongoing CDD obligations and high-risk jurisdiction exposure.',
   },
 ];
 
-/* ─── TAG STYLES ────────────────────────────────────────────────── */
+const pulseCards: Pulse[] = [
+  {
+    title: 'UK AML and MLRO — Strong Pipeline',
+    body: 'FCA enforcement intensity and the AI consultation are driving demand for SMR-aligned MLRO and AML Director talent across tier-1 and challenger banks. Average MLRO salaries in London are up 8% year-on-year.',
+    source: 'FCA · LinkedIn · Robert Walters',
+  },
+  {
+    title: 'EU Digital Assets — MiCA Compliance Surge',
+    body: 'MiCA active enforcement is creating urgent demand for crypto compliance officers and regulatory affairs specialists across CASP applicants in the EU. Bilingual candidates command a 15-20% premium.',
+    source: 'ESMA · MiCA · Heidrick',
+  },
+  {
+    title: 'UAE — Fastest-Growing Compliance Market',
+    body: 'FATF positive follow-up is accelerating institutional expansion in Dubai and Abu Dhabi. ADGM and DIFC-regulated entities are hiring across AML, sanctions, and financial crime investigation roles.',
+    source: 'FATF · ADGM · Cooper Fitch',
+  },
+];
+
+const stats = [
+  { n: '6', l: 'Stories' },
+  { n: '5', l: 'High priority' },
+  { n: '5', l: 'Jurisdictions' },
+  { n: 'Free', l: 'Always' },
+];
 
 const tagStyle: Record<string, string> = {
   Enforcement: 'bg-red-50 text-red-700 border border-red-200',
@@ -120,8 +136,6 @@ const tagStyle: Record<string, string> = {
   AML:         'bg-purple-50 text-purple-700 border border-purple-200',
 };
 
-/* ─── PAGE ──────────────────────────────────────────────────────── */
-
 export default function BriefingPage() {
   return (
     <>
@@ -129,11 +143,10 @@ export default function BriefingPage() {
 
       <main className="bg-white min-h-screen">
 
-        {/* ── HERO ── */}
+        {/* HERO */}
         <section className="bg-brand-black text-white pt-16 pb-14 px-6">
           <div className="max-w-5xl mx-auto">
 
-            {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-xs text-white/40 mb-8">
               <Link href="/intelligence" className="hover:text-brand-gold transition-colors">
                 Intelligence Hub
@@ -148,8 +161,7 @@ export default function BriefingPage() {
             </p>
 
             <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
-              Global Compliance &amp;{' '}
-              <span className="text-brand-gold">Financial Crime</span>
+              Global Compliance &amp; <span className="text-brand-gold">Financial Crime</span>
               <br />Intelligence Briefing
             </h1>
 
@@ -164,18 +176,12 @@ export default function BriefingPage() {
               </span>
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-gold" />
-                Global Coverage · Southeast Asia Focus
+                Global Coverage · UK · EU · APAC · UAE
               </span>
             </div>
 
-            {/* Quick stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-10 pt-8 border-t border-white/10">
-              {[
-                { n: '6',    l: 'Stories' },
-                { n: '5',    l: 'High priority' },
-                { n: '23',   l: 'FATF grey list' },
-                { n: '4',    l: 'Jurisdictions' },
-              ].map((s) => (
+              {stats.map((s) => (
                 <div key={s.l}>
                   <div className="text-brand-gold font-bold text-2xl">{s.n}</div>
                   <div className="text-white/40 text-xs uppercase tracking-wider mt-0.5">{s.l}</div>
@@ -185,7 +191,7 @@ export default function BriefingPage() {
           </div>
         </section>
 
-        {/* ── INTELLIGENCE CARDS ── */}
+        {/* INTELLIGENCE CARDS */}
         <section className="px-6 py-14">
           <div className="max-w-5xl mx-auto">
 
@@ -221,9 +227,15 @@ export default function BriefingPage() {
                   </h2>
 
                   {/* Summary */}
-                  <p className="text-sm text-brand-gray leading-relaxed flex-1 mb-6">
+                  <p className="text-sm text-brand-gray leading-relaxed flex-1 mb-5">
                     {card.summary}
                   </p>
+
+                  {/* TalentX Insight */}
+                  <div className="bg-brand-black/5 border-l-2 border-l-brand-gold px-4 py-3 mb-5">
+                    <p className="text-[10px] font-bold uppercase tracking-[2px] text-brand-gold mb-1">TalentX Insight</p>
+                    <p className="text-xs text-brand-black/70 leading-relaxed">{card.insight}</p>
+                  </div>
 
                   {/* Footer */}
                   <div className="flex items-center justify-between pt-4 border-t border-brand-light-gray">
@@ -243,7 +255,7 @@ export default function BriefingPage() {
           </div>
         </section>
 
-        {/* ── ADDITIONAL SIGNALS ── */}
+        {/* ADDITIONAL SIGNALS */}
         <section className="bg-[#F8F8F6] px-6 py-12">
           <div className="max-w-5xl mx-auto">
 
@@ -273,7 +285,7 @@ export default function BriefingPage() {
           </div>
         </section>
 
-        {/* ── MARKET PULSE ── */}
+        {/* MARKET PULSE */}
         <section className="bg-brand-black px-6 py-14">
           <div className="max-w-5xl mx-auto">
 
@@ -282,7 +294,7 @@ export default function BriefingPage() {
                 Market Pulse
               </p>
               <span className="text-[9px] text-white/30 uppercase tracking-widest">
-                Southeast Asia Hiring &amp; Salary Signals
+                UK &amp; EU &amp; UAE Hiring and Salary Signals
               </span>
               <div className="flex-1 h-px bg-white/10" />
             </div>
@@ -306,17 +318,17 @@ export default function BriefingPage() {
           </div>
         </section>
 
-        {/* ── BACK + NEXT ISSUE ── */}
+        {/* FOOTER NAV */}
         <section className="px-6 py-10 border-t border-brand-light-gray">
           <div className="max-w-5xl mx-auto flex items-center justify-between flex-wrap gap-4">
             <Link
               href="/intelligence"
-              className="flex items-center gap-2 text-sm text-brand-gray hover:text-brand-gold transition-colors font-medium"
+              className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors flex items-center gap-2"
             >
               ← Back to Intelligence Hub
             </Link>
             <p className="text-xs text-brand-gray/60">
-              Next briefing: Monday, 6 April 2026
+              Next briefing: Sunday, 5 April 2026
             </p>
           </div>
         </section>

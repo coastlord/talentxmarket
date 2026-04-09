@@ -26,7 +26,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-12">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center group">
+          <Link href="/" className="flex items-center group -ml-2">
             <Image
               src="/logo-dark.png"
               alt="TalentX Market"
