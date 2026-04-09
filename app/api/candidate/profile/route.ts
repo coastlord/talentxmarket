@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 // ─── GET /api/candidate/profile ───────────────────────────────────────────────
 // Load the signed-in candidate's saved profile from Supabase
 export async function GET() {

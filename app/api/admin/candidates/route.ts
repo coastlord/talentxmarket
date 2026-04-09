@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 // Admin-only Clerk user IDs — add your Clerk user ID here
 const ADMIN_USER_IDS = (process.env.ADMIN_CLERK_USER_IDS || '').split(',').map(id => id.trim());
 
