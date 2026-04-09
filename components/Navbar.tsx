@@ -113,6 +113,12 @@ export default function Navbar() {
                 >
                   Sign In
                 </Link>
+                <Link
+                  href="/sign-up"
+                  className="px-4 py-2.5 text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg hover:bg-brand-gold/10 hover:border-brand-gold transition-all duration-200"
+                >
+                  Sign Up
+                </Link>
               </>
             )}
           </div>
@@ -162,6 +168,9 @@ export default function Navbar() {
                     </a>
                     <Link href="/sign-in" className="text-center text-sm text-white/60 hover:text-white py-2" onClick={() => setMenuOpen(false)}>
                       Sign In
+                    </Link>
+                    <Link href="/sign-up" className="text-center text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg py-3 hover:bg-brand-gold/10 transition-all duration-200" onClick={() => setMenuOpen(false)}>
+                      Sign Up
                     </Link>
                   </>
                 )}
