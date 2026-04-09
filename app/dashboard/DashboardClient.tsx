@@ -45,6 +45,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
   const [isVisible, setIsVisible] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   const [profile, setProfile] = useState({
@@ -116,6 +117,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
 
   const handleSave = async () => {
     setIsSaving(true);
+    setSaveError('');
     try {
       const res = await fetch('/api/candidate/profile', {
         method: 'POST',
@@ -123,17 +125,22 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
         body: JSON.stringify({ ...profile, isVisible }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const err = await res.json();
-        console.error('Profile save failed:', err);
+        console.error('Profile save failed:', data);
+        setSaveError(data?.error || 'Save failed. Please try again.');
+        return;
       }
-    } catch (err) {
-      console.error('Profile save error:', err);
-    } finally {
-      setIsSaving(false);
+
       setSaved(true);
       setView('profile');
       setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error('Profile save error:', err);
+      setSaveError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -460,6 +467,9 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                   {isSaving ? 'Saving…' : saved ? '✓ Saved' : 'Save Profile'}
                 </button>
               </div>
+              {saveError && (
+                <p className="text-red-500 text-sm mt-2 text-right">{saveError}</p>
+              )}
             </div>
 
             <div className="space-y-5">
@@ -612,6 +622,9 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                   {isSaving ? 'Saving…' : saved ? '✓ Saved' : 'Save Profile'}
                 </button>
               </div>
+              {saveError && (
+                <p className="text-red-500 text-sm mt-2 text-right">{saveError}</p>
+              )}
             </div>
           </div>
         )}

@@ -29,16 +29,20 @@ export function getSupabaseAdmin(): SupabaseClient {
   return _supabaseAdmin;
 }
 
-// Convenience aliases (backwards-compatible for any direct imports)
+// Convenience aliases — Proxy with correct method binding so 'this' is preserved
 export const supabase = new Proxy({} as SupabaseClient, {
   get(_, prop) {
-    return (getSupabase() as any)[prop];
+    const client = getSupabase();
+    const value = (client as any)[prop];
+    return typeof value === 'function' ? value.bind(client) : value;
   },
 });
 
 export const supabaseAdmin = new Proxy({} as SupabaseClient, {
   get(_, prop) {
-    return (getSupabaseAdmin() as any)[prop];
+    const client = getSupabaseAdmin();
+    const value = (client as any)[prop];
+    return typeof value === 'function' ? value.bind(client) : value;
   },
 });
 
