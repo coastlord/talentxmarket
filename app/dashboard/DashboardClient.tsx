@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UserButton, useClerk } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -45,6 +45,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
   const [isVisible, setIsVisible] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [profile, setProfile] = useState({
     title: '',
@@ -61,6 +62,40 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
     previousCompany: '',
     education: '',
   });
+
+  // Load saved profile from Supabase on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/candidate/profile');
+        if (res.ok) {
+          const data = await res.json();
+          if (data) {
+            setProfile({
+              title:           data.job_title         || '',
+              experience:      data.years_experience  || '',
+              location:        data.location          || '',
+              specialisms:     data.specialisms        || [],
+              certifications:  data.certifications     || [],
+              salaryAmount:    data.salary_amount      || '',
+              salaryCurrency:  data.salary_currency    || 'GBP',
+              salaryPeriod:    data.salary_period      || 'Year',
+              workPreference:  data.work_preference    || 'Both',
+              bio:             data.bio                || '',
+              currentCompany:  data.current_company    || '',
+              previousCompany: data.previous_company   || '',
+              education:       data.education          || '',
+            });
+            setIsVisible(data.is_visible ?? true);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load profile:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, []);
 
   const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Your Name';
   const initials = [firstName?.[0], lastName?.[0]].filter(Boolean).join('').toUpperCase() || 'TX';
@@ -81,11 +116,25 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
 
   const handleSave = async () => {
     setIsSaving(true);
-    await new Promise(r => setTimeout(r, 1000));
-    setIsSaving(false);
-    setSaved(true);
-    setView('profile');
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      const res = await fetch('/api/candidate/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...profile, isVisible }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        console.error('Profile save failed:', err);
+      }
+    } catch (err) {
+      console.error('Profile save error:', err);
+    } finally {
+      setIsSaving(false);
+      setSaved(true);
+      setView('profile');
+      setTimeout(() => setSaved(false), 3000);
+    }
   };
 
   const profileComplete = [
@@ -93,6 +142,17 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
     profile.specialisms.length > 0, profile.bio,
   ].filter(Boolean).length;
   const completePct = Math.round((profileComplete / 5) * 100);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <div className="text-center">
+          <div className="w-10 h-10 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-gray-500 font-medium">Loading your profile…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]" style={{ fontFamily: 'Inter, sans-serif' }}>

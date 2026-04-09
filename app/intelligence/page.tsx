@@ -11,6 +11,18 @@ export const metadata: Metadata = {
 
 const briefings = [
   {
+    slug: 'briefing-2026-04-03',
+    date: 'Friday, 3 April 2026',
+    shortDate: '3 Apr 2026',
+    title: 'Global Compliance & Financial Crime Intelligence Briefing',
+    summary:
+      'FinCEN healthcare fraud advisory & AML whistleblower NPRM, FCA opens AML probe into MFS mortgage lender, MAS 16-year prohibition order after S$3bn money laundering case, OFAC SDN updates & sham transaction advisory, FATF grey list adds Kuwait and Papua New Guinea (23 jurisdictions), and Investment Adviser AML rule delayed to 2028.',
+    cardCount: 6,
+    tags: ['AML', 'Enforcement', 'Sanctions', 'Regulatory'],
+    priority: 'HIGH',
+    isLatest: true,
+  },
+  {
     slug: 'briefing-2026-04-01',
     date: 'Wednesday, 1 April 2026',
     shortDate: '1 Apr 2026',
@@ -20,7 +32,7 @@ const briefings = [
     cardCount: 6,
     tags: ['Sanctions', 'Regulatory', 'AML'],
     priority: 'HIGH',
-    isLatest: true,
+    isLatest: false,
   },
   {
     slug: 'briefing-2026-03-30',

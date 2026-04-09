@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TalentX Market — Ad Kit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #f0f0f0;
+      font-family: 'Inter', sans-serif;
+      padding: 40px 20px;
+    }
+
+    .page-title {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .page-heading {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      color: #0A0A0A;
+      margin-bottom: 6px;
+    }
+
+    .page-sub {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 60px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 16px;
+      margin-top: 60px;
+    }
+
+    .ad-wrapper {
+      margin-bottom: 60px;
+    }
+
+    .ad-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .ad-badge {
+      background: #0A0A0A;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 3px;
+    }
+
+    .ad-size {
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* ============================================================
+       AD 1: LINKEDIN — 1200×627
+    ============================================================ */
+    .linkedin-ad {
+      width: 1200px;
+      height: 627px;
+      background: #ffffff;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid #e0e0e0;
+    }
+
+    .linkedin-left {
+      width: 55%;
+      padding: 64px 70px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2;
+    }
+
+    .linkedin-right {
+      width: 45%;
+      background: #0A0A0A;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .linkedin-right::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: -60px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      border: 40px solid #C9A84C;
+      opacity: 0.15;
+    }
+
+    .linkedin-right::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      right: -40px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 30px solid #C9A84C;
+      opacity: 0.1;
+    }
+
+    .linkedin-right-inner {
+      padding: 50px 60px;
+      text-align: left;
+      position: relative;
+      z-index: 2;
+    }
+
+    .tag-line {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #C9A84C;
+      margin-bottom: 20px;
+    }
+
+    .linkedin-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      font-weight: 800;
+      color: #0A0A0A;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .linkedin-headline span {
+      color: #C9A84C;
+    }
+
+    .linkedin-body {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #444;
+      margin-bottom: 40px;
+      max-width: 420px;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      background: #C9A84C;
+      color: #0A0A0A;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0A0A0A;
+      letter-spacing: 0.05em;
+    }
+
+    .logo-mark span {
+      color: #C9A84C;
+    }
+
+    /* Right panel content */
+    .roles-list {
+      list-style: none;
+    }
+
+    .roles-list li {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffffff;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .roles-list li:last-child {
+      border-bottom: none;
+    }
+
+    .role-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #C9A84C;
+      flex-shrink: 0;
+    }
+
+    .right-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: #fff;
+      margin-bottom: 28px;
+      line-height: 1.3;
+    }
+
+    .right-headline span { color: #C9A84C; }
+
+    .right-url {
+      margin-top: 32px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+    }
+
+    /* ============================================================
+       AD 2: X/TWITTER — 1200×675
+    ============================================================ */
+    .twitter-ad {
+      width: 1200px;
+      height: 675px;
+      background: #ffffff;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+    }
+
+    .twitter-bg-stripe {
+      position: absolute;
+      top: 0; right: 0;
+      width: 40%;
+      height: 100%;
+      background: #C9A84C;
+      clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
+    }
+
+    .twitter-content {
+      position: relative;
+      z-index: 2;
+      padding: 70px 80px;
+      width: 65%;
+    }
+
+    .twitter-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #C9A84C;
+      margin-bottom: 20px;
+    }
+
+    .twitter-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 58px;
+      font-weight: 800;
+      color: #0A0A0A;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .twitter-headline span { color: #C9A84C; }
+
+    .twitter-sub {
+      font-size: 17px;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 40px;
+      max-width: 440px;
+    }
+
+    .twitter-cta {
+      display: inline-block;
+      background: #0A0A0A;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 4px;
+    }
+
+    .twitter-right-content {
+      position: absolute;
+      right: 0;
+      width: 40%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      padding: 40px;
+      clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
+    }
+
+    .twitter-stat {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .twitter-stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 64px;
+      font-weight: 800;
+      color: #0A0A0A;
+      line-height: 1;
+    }
+
+    .twitter-stat-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0A0A0A;
+      opacity: 0.7;
+      letter-spacing: 0.05em;
+      margin-top: 4px;
+    }
+
+    .twitter-divider {
+      width: 40px;
+      height: 2px;
+      background: #0A0A0A;
+      opacity: 0.2;
+      margin: 20px auto;
+    }
+
+    /* ============================================================
+       AD 3: INSTAGRAM SQUARE — 1080×1080 (shown at 540×540)
+    ============================================================ */
+    .insta-square-wrapper {
+      transform-origin: top left;
+      transform: scale(0.5);
+      margin-bottom: -270px;
+    }
+
+    .insta-square {
+      width: 1080px;
+      height: 1080px;
+      background: #0A0A0A;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .insta-gold-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 8px;
+      background: #C9A84C;
+    }
+
+    .insta-gold-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 8px;
+      background: #C9A84C;
+    }
+
+    .insta-circle-bg {
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      border: 100px solid #C9A84C;
+      opacity: 0.06;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .insta-logo {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.1em;
+      margin-bottom: 50px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .insta-logo span { color: #C9A84C; }
+
+    .insta-eyebrow {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #C9A84C;
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .insta-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 76px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 30px;
+      max-width: 800px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .insta-headline span { color: #C9A84C; }
+
+    .insta-roles {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .insta-role-pill {
+      background: rgba(201,168,76,0.15);
+      border: 1px solid rgba(201,168,76,0.4);
+      color: #C9A84C;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+    }
+
+    .insta-cta {
+      background: #C9A84C;
+      color: #0A0A0A;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 22px 60px;
+      border-radius: 6px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .insta-url {
+      position: absolute;
+      bottom: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      z-index: 2;
+    }
+
+    /* ============================================================
+       AD 3B: INSTAGRAM SQUARE — VARIANT B (white bg)
+    ============================================================ */
+    .insta-square-b {
+      width: 1080px;
+      height: 1080px;
+      background: #ffffff;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 80px;
+    }
+
+    .insta-b-accent {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 340px;
+      background: #0A0A0A;
+    }
+
+    .insta-b-gold-line {
+      position: absolute;
+      top: 340px; left: 0; right: 0;
+      height: 6px;
+      background: #C9A84C;
+    }
+
+    .insta-b-logo {
+      position: absolute;
+      top: 50px;
+      left: 80px;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.1em;
+      z-index: 2;
+    }
+
+    .insta-b-logo span { color: #C9A84C; }
+
+    .insta-b-top-text {
+      position: absolute;
+      top: 120px;
+      left: 80px;
+      right: 80px;
+      z-index: 2;
+    }
+
+    .insta-b-top-eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 16px;
+    }
+
+    .insta-b-top-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+    }
+
+    .insta-b-top-headline span { color: #C9A84C; }
+
+    .insta-b-bottom {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+    }
+
+    .insta-b-roles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+
+    .insta-b-role-tag {
+      background: #f4f4f4;
+      border: 1px solid #e0e0e0;
+      color: #0A0A0A;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 4px;
+    }
+
+    .insta-b-headline2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 800;
+      color: #0A0A0A;
+      line-height: 1.2;
+      margin-bottom: 32px;
+    }
+
+    .insta-b-headline2 span { color: #C9A84C; }
+
+    .insta-b-cta {
+      background: #C9A84C;
+      color: #0A0A0A;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 18px 50px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* ============================================================
+       AD 4: INSTAGRAM STORY — 1080×1920 (shown at 270×480)
+    ============================================================ */
+    .insta-story-wrapper {
+      transform-origin: top left;
+      transform: scale(0.25);
+      margin-bottom: -1440px;
+    }
+
+    .insta-story {
+      width: 1080px;
+      height: 1920px;
+      background: #0A0A0A;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .story-gold-bar-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 10px;
+      background: #C9A84C;
+    }
+
+    .story-gold-bar-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 10px;
+      background: #C9A84C;
+    }
+
+    .story-circle1 {
+      position: absolute;
+      width: 900px;
+      height: 900px;
+      border-radius: 50%;
+      border: 120px solid #C9A84C;
+      opacity: 0.07;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .story-circle2 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      border: 60px solid #C9A84C;
+      opacity: 0.05;
+      top: 15%;
+      right: -100px;
+    }
+
+    .story-inner {
+      position: relative;
+      z-index: 2;
+      padding: 0 100px;
+    }
+
+    .story-logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.1em;
+      margin-bottom: 80px;
+    }
+
+    .story-logo span { color: #C9A84C; }
+
+    .story-eyebrow {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #C9A84C;
+      margin-bottom: 36px;
+    }
+
+    .story-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 88px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 50px;
+    }
+
+    .story-headline span { color: #C9A84C; }
+
+    .story-divider {
+      width: 60px;
+      height: 3px;
+      background: #C9A84C;
+      margin: 0 auto 50px;
+    }
+
+    .story-body {
+      font-size: 28px;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.6;
+      margin-bottom: 80px;
+    }
+
+    .story-roles {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 80px;
+    }
+
+    .story-role {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 26px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .story-role-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #C9A84C;
+      flex-shrink: 0;
+    }
+
+    .story-cta {
+      background: #C9A84C;
+      color: #0A0A0A;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 30px 80px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-bottom: 60px;
+    }
+
+    .story-url {
+      font-size: 18px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.1em;
+    }
+
+    /* Variant label */
+    .variant-tag {
+      display: inline-block;
+      background: #C9A84C;
+      color: #0A0A0A;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 3px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* Scroll container for oversized ads */
+    .ad-scroll {
+      overflow-x: auto;
+      padding-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <p class="page-title">TalentX Market</p>
+  <h1 class="page-heading">Social Media Ad Kit</h1>
+  <p class="page-sub">Compliance Professionals · Drive Sign-Ups · Brand: White · Gold · Black</p>
+
+  <!-- ============================================================
+       AD 1 — LINKEDIN
+  ============================================================ -->
+  <div class="ad-wrapper">
+    <p class="section-label">LinkedIn</p>
+    <div class="ad-meta">
+      <span class="ad-badge">LinkedIn</span>
+      <span class="ad-size">1200 × 627 px</span>
+    </div>
+    <div class="ad-scroll">
+      <div class="linkedin-ad">
+        <!-- LEFT PANEL -->
+        <div class="linkedin-left">
+          <div class="logo-mark">Talent<span>X</span> Market</div>
+
+          <div>
+            <p class="tag-line">For Compliance Professionals</p>
+            <h2 class="linkedin-headline">Your next<br/>role is<br/><span>waiting.</span></h2>
+            <p class="linkedin-body">Post your availability. Get discovered by top firms. AML, MLRO, Risk, Trust & Safety — all in one place.</p>
+            <a class="cta-btn" href="https://talentxmarket.com">Join Free →</a>
+          </div>
+
+          <p style="font-size:12px;color:#bbb;letter-spacing:0.05em;">talentxmarket.com</p>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="linkedin-right">
+          <div class="linkedin-right-inner">
+            <p class="right-headline">Built for<br/>the world's<br/><span>compliance</span><br/>talent.</p>
+            <ul class="roles-list">
+              <li><span class="role-dot"></span> AML Analyst & Manager</li>
+              <li><span class="role-dot"></span> MLRO / Deputy MLRO</li>
+              <li><span class="role-dot"></span> Risk & Compliance Officer</li>
+              <li><span class="role-dot"></span> Trust & Safety Lead</li>
+              <li><span class="role-dot"></span> Regulatory Affairs</li>
+            </ul>
+            <p class="right-url">talentxmarket.com</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       AD 2 — X / TWITTER
+  ============================================================ -->
+  <div class="ad-wrapper">
+    <p class="section-label">X / Twitter</p>
+    <div class="ad-meta">
+      <span class="ad-badge">X / Twitter</span>
+      <span class="ad-size">1200 × 675 px</span>
+    </div>
+    <div class="ad-scroll">
+      <div class="twitter-ad">
+        <div class="twitter-bg-stripe"></div>
+
+        <!-- LEFT TEXT -->
+        <div class="twitter-content">
+          <p class="twitter-tag">Compliance Talent Platform</p>
+          <h2 class="twitter-headline">Be seen.<br/>Get <span>hired.</span></h2>
+          <p class="twitter-sub">The only platform built exclusively for AML, Risk, MLRO, and Trust & Safety professionals. Post your availability today.</p>
+          <a class="twitter-cta" href="https://talentxmarket.com">Join TalentX Market →</a>
+        </div>
+
+        <!-- RIGHT STATS -->
+        <div class="twitter-right-content">
+          <div class="twitter-stat">
+            <div class="twitter-stat-num">#1</div>
+            <div class="twitter-stat-label">Compliance Talent Hub</div>
+          </div>
+          <div class="twitter-divider"></div>
+          <div class="twitter-stat">
+            <div class="twitter-stat-num" style="font-size:40px;">AML</div>
+            <div class="twitter-stat-label">Risk · MLRO · Trust & Safety</div>
+          </div>
+          <div class="twitter-divider"></div>
+          <div class="twitter-stat">
+            <div class="twitter-stat-num" style="font-size:24px;">Free<br/>to Join</div>
+            <div class="twitter-stat-label">talentxmarket.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       AD 3A — INSTAGRAM SQUARE (Dark)
+  ============================================================ -->
+  <div class="ad-wrapper">
+    <p class="section-label">Instagram Square <span class="variant-tag">Variant A — Dark</span></p>
+    <div class="ad-meta">
+      <span class="ad-badge">Instagram</span>
+      <span class="ad-size">1080 × 1080 px (shown at 50%)</span>
+    </div>
+    <div style="width:540px;height:540px;overflow:hidden;border:1px solid #e0e0e0;">
+      <div class="insta-square-wrapper">
+        <div class="insta-square">
+          <div class="insta-gold-top"></div>
+          <div class="insta-gold-bottom"></div>
+          <div class="insta-circle-bg"></div>
+
+          <p class="insta-logo">Talent<span>X</span> Market</p>
+          <p class="insta-eyebrow">Compliance · AML · Risk · MLRO</p>
+          <h2 class="insta-headline">Your compliance<br/>career, <span>elevated.</span></h2>
+          <div class="insta-roles">
+            <span class="insta-role-pill">AML</span>
+            <span class="insta-role-pill">MLRO</span>
+            <span class="insta-role-pill">Risk</span>
+            <span class="insta-role-pill">Trust & Safety</span>
+            <span class="insta-role-pill">Regulatory</span>
+          </div>
+          <a class="insta-cta" href="https://talentxmarket.com">Join Free — talentxmarket.com</a>
+          <p class="insta-url">talentxmarket.com</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       AD 3B — INSTAGRAM SQUARE (Light / White bg)
+  ============================================================ -->
+  <div class="ad-wrapper">
+    <p class="section-label">Instagram Square <span class="variant-tag">Variant B — Light</span></p>
+    <div class="ad-meta">
+      <span class="ad-badge">Instagram</span>
+      <span class="ad-size">1080 × 1080 px (shown at 50%)</span>
+    </div>
+    <div style="width:540px;height:540px;overflow:hidden;border:1px solid #e0e0e0;">
+      <div class="insta-square-wrapper">
+        <div class="insta-square-b">
+          <div class="insta-b-accent"></div>
+          <div class="insta-b-gold-line"></div>
+
+          <div class="insta-b-logo">Talent<span>X</span> Market</div>
+
+          <div class="insta-b-top-text">
+            <p class="insta-b-top-eyebrow">For Compliance Professionals</p>
+            <h2 class="insta-b-top-headline">Post your<br/>availability.<br/>Get <span>hired.</span></h2>
+          </div>
+
+          <div class="insta-b-bottom">
+            <div class="insta-b-roles">
+              <span class="insta-b-role-tag">AML Analyst</span>
+              <span class="insta-b-role-tag">MLRO</span>
+              <span class="insta-b-role-tag">Risk Officer</span>
+              <span class="insta-b-role-tag">Trust & Safety</span>
+              <span class="insta-b-role-tag">Compliance Manager</span>
+            </div>
+            <h3 class="insta-b-headline2">One platform.<br/><span>Every compliance role.</span></h3>
+            <a class="insta-b-cta" href="https://talentxmarket.com">Join Free →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       AD 4 — INSTAGRAM STORY
+  ============================================================ -->
+  <div class="ad-wrapper">
+    <p class="section-label">Instagram Story</p>
+    <div class="ad-meta">
+      <span class="ad-badge">Instagram Story</span>
+      <span class="ad-size">1080 × 1920 px (shown at 25%)</span>
+    </div>
+    <div style="width:270px;height:480px;overflow:hidden;border:1px solid #e0e0e0;">
+      <div class="insta-story-wrapper">
+        <div class="insta-story">
+          <div class="story-gold-bar-top"></div>
+          <div class="story-gold-bar-bottom"></div>
+          <div class="story-circle1"></div>
+          <div class="story-circle2"></div>
+
+          <div class="story-inner">
+            <p class="story-logo">Talent<span>X</span> Market</p>
+            <p class="story-eyebrow">Compliance Professionals</p>
+            <h2 class="story-headline">Your next<br/><span>role</span><br/>starts here.</h2>
+            <div class="story-divider"></div>
+            <p class="story-body">The unified platform for compliance, AML, risk & trust professionals.</p>
+            <div class="story-roles">
+              <div class="story-role"><span class="story-role-dot"></span> AML Analyst & Manager</div>
+              <div class="story-role"><span class="story-role-dot"></span> MLRO / Deputy MLRO</div>
+              <div class="story-role"><span class="story-role-dot"></span> Risk & Compliance</div>
+              <div class="story-role"><span class="story-role-dot"></span> Trust & Safety Lead</div>
+            </div>
+            <a class="story-cta" href="https://talentxmarket.com">Join Free Today →</a>
+            <p class="story-url">talentxmarket.com</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

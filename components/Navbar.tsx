@@ -23,16 +23,17 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-12">
 
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <Image
               src="/logo-dark.png"
               alt="TalentX Market"
-              width={220}
-              height={64}
-              className="h-14 w-auto object-contain invert"
+              width={160}
+              height={48}
+              className="h-8 w-auto object-contain"
+              style={{ filter: 'invert(1)', mixBlendMode: 'screen' }}
               priority
             />
           </Link>
@@ -70,26 +71,11 @@ export default function Navbar() {
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
               Browse Talent
             </Link>
-            <Link
-              href="/jobs"
-              className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-semibold"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Browse Jobs
-            </Link>
-            <Link
-              href="/intelligence"
-              className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-semibold"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-              Intelligence Hub
-            </Link>
           </div>
 
           {/* CTA / Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             {isLoaded && isSignedIn ? (
-              // Logged-in state: Dashboard link + User avatar
               <>
                 <Link
                   href="/dashboard"
@@ -108,7 +94,6 @@ export default function Navbar() {
                 />
               </>
             ) : (
-              // Logged-out state: Original CTAs + Sign In
               <>
                 <a
                   href="#open-to-work"
@@ -117,7 +102,7 @@ export default function Navbar() {
                   I&apos;m a Professional
                 </a>
                 <a
-                  href="#hiring"
+                  href="/talent"
                   className="px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-black rounded-lg hover:bg-brand-gold-light transition-all duration-200"
                 >
                   I&apos;m Hiring
@@ -162,14 +147,6 @@ export default function Navbar() {
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                 Browse Talent
               </Link>
-              <Link href="/jobs" className="flex items-center gap-1.5 text-brand-gold text-sm font-semibold" onClick={() => setMenuOpen(false)}>
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                Browse Jobs
-              </Link>
-              <Link href="/intelligence" className="flex items-center gap-1.5 text-brand-gold text-sm font-semibold" onClick={() => setMenuOpen(false)}>
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                Intelligence Hub
-              </Link>
               <div className="flex flex-col gap-3 pt-2 border-t border-white/10">
                 {isLoaded && isSignedIn ? (
                   <Link href="/dashboard" className="btn-secondary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
@@ -180,7 +157,7 @@ export default function Navbar() {
                     <a href="#open-to-work" className="btn-secondary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
                       I&apos;m a Professional
                     </a>
-                    <a href="#hiring" className="btn-primary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
+                    <a href="/talent" className="btn-primary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
                       I&apos;m Hiring
                     </a>
                     <Link href="/sign-in" className="text-center text-sm text-white/60 hover:text-white py-2" onClick={() => setMenuOpen(false)}>

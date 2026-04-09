@@ -61,11 +61,12 @@ export default function SignInPage() {
         {/* Logo */}
         <div className="relative z-10">
           <Image
-            src="/logo-dark.png"
+            src="/logo-icon.png"
             alt="TalentX Market"
-            width={200}
-            height={60}
-            className="h-12 w-auto object-contain"
+            width={80}
+            height={80}
+            className="h-14 w-auto object-contain"
+            style={{ filter: 'invert(1)', mixBlendMode: 'multiply' }}
             priority
           />
           <p className="text-black/70 text-xs font-bold tracking-[0.22em] uppercase mt-3">
@@ -104,11 +105,12 @@ export default function SignInPage() {
         {/* Mobile logo */}
         <div className="lg:hidden mb-10 text-center">
           <Image
-            src="/logo-dark.png"
+            src="/logo-icon.png"
             alt="TalentX Market"
-            width={160}
-            height={48}
-            className="h-10 w-auto object-contain mx-auto"
+            width={60}
+            height={60}
+            className="h-12 w-auto object-contain mx-auto"
+            style={{ filter: 'invert(1)' }}
             priority
           />
           <p className="text-[#C9A84C] text-[10px] font-bold tracking-[0.18em] uppercase mt-2">

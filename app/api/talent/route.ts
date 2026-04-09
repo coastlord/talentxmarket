@@ -1,68 +1,54 @@
 import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET() {
   try {
-    const token = process.env.AIRTABLE_TOKEN;
-    const baseId = process.env.AIRTABLE_BASE_ID;
-    const tableId = process.env.AIRTABLE_TABLE_ID || 'Professionals';
-    const url = `https://api.airtable.com/v0/${baseId}/${tableId}`;
+    // Only return candidates that are approved + visible
+    const { data, error } = await supabaseAdmin
+      .from('candidates')
+      .select(
+        'id, full_name, job_title, location, years_experience, specialisms, certifications, bio, availability_status, work_preference, salary_amount, salary_currency, salary_period, is_anonymous, status, is_visible'
+      )
+      .eq('status', 'approved')
+      .eq('is_visible', true)
+      .order('approved_at', { ascending: false });
 
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error('Airtable error:', data);
-      return NextResponse.json({ error: data }, { status: 500 });
+    if (error) {
+      console.error('Supabase talent fetch error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const sanitized = (data.records || []).map((record: any, i: number) => {
-      // Derive initials from Full Name — never expose the full name
-      // Airtable may store as 'Name' (default field) or 'Full Name' depending on Tally mapping
-      const fullName: string = record.fields?.['Full Name'] || record.fields?.['Name'] || '';
+    // Shape the data for the talent card UI
+    const sanitized = (data || []).map((candidate) => {
+      // Derive initials — never expose the actual name on the public card
+      const fullName: string = candidate.full_name || '';
       const nameParts = fullName.trim().split(' ').filter(Boolean);
       let initials = 'TX';
       if (nameParts.length === 1) initials = nameParts[0].slice(0, 2).toUpperCase();
       else if (nameParts.length >= 2)
         initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
 
-      // Skills — Airtable multi-select returns array
-      const rawSkills = record.fields?.['Skills'];
-      const skills: string[] = Array.isArray(rawSkills)
-        ? rawSkills
-        : typeof rawSkills === 'string'
-        ? rawSkills.split(',').map((s: string) => s.trim()).filter(Boolean)
-        : [];
-
-      // Certifications — multi-select
-      const rawCerts = record.fields?.['Professional Certifications'];
-      const certifications: string[] = Array.isArray(rawCerts)
-        ? rawCerts
-        : typeof rawCerts === 'string'
-        ? rawCerts.split(',').map((s: string) => s.trim()).filter(Boolean)
-        : [];
-
       return {
-        id: record.id || String(i),
+        id:                 candidate.id,
         initials,
-        availabilityStatus: record.fields?.['Availability Status'] || 'Available Now',
-        role: record.fields?.['Role'] || record.fields?.['Job Title'] || 'Compliance Professional',
-        location: record.fields?.['Location'] || '',
-        industry: record.fields?.['Industry'] || '',
-        employmentType: record.fields?.['Employment Type'] || '',
-        experience: record.fields?.['Years of Experience'] || '',
-        skills,
-        certifications,
-        headline: record.fields?.['Professional Summary'] || record.fields?.['Headline'] || record.fields?.['Bio'] || '',
+        availabilityStatus: candidate.availability_status || 'Available Now',
+        role:               candidate.job_title           || 'Compliance Professional',
+        location:           candidate.location            || '',
+        experience:         candidate.years_experience    || '',
+        skills:             candidate.specialisms         || [],
+        certifications:     candidate.certifications      || [],
+        headline:           candidate.bio                 || '',
+        workPreference:     candidate.work_preference     || '',
+        salaryAmount:       candidate.salary_amount       || '',
+        salaryCurrency:     candidate.salary_currency     || 'GBP',
+        salaryPeriod:       candidate.salary_period       || 'Year',
+        isAnonymous:        candidate.is_anonymous        ?? true,
       };
     });
 
     return NextResponse.json(sanitized);
   } catch (err) {
-    console.error('Fetch error:', err);
+    console.error('Talent fetch error:', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
