@@ -24,6 +24,11 @@ export function getSupabaseAdmin(): SupabaseClient {
         autoRefreshToken: false,
         persistSession: false,
       },
+            // Force Next.js fetch cache to never cache Supabase responses
+                  global: {
+                          fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+                                    fetch(input, { ...init, cache: 'no-store' }),
+                                          },
     });
   }
   return _supabaseAdmin;
