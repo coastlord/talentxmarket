@@ -102,3 +102,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
+
+// ─── PATCH /api/candidate/profile ─────────────────────────────────────────────
+// Immediately update a single field — used by the visibility toggle
+export async function PATCH(req: NextRequest) {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
+    }
+
+    const body = await req.json();
+
+    const { error } = await supabaseAdmin
+      .from('candidates')
+      .update({
+        is_visible: body.isVisible,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('clerk_user_id', user.id);
+
+    if (error) {
+      console.error('Supabase PATCH error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('Profile PATCH error:', err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
+}

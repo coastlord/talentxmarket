@@ -43,6 +43,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
   const { signOut } = useClerk();
   const [view, setView] = useState<View>('profile');
   const [isVisible, setIsVisible] = useState(true);
+  const [isVisibilityUpdating, setIsVisibilityUpdating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -113,6 +114,26 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
       ...p,
       certifications: p.certifications.includes(c) ? p.certifications.filter(x => x !== c) : [...p.certifications, c],
     }));
+  };
+
+  const handleVisibilityToggle = async () => {
+    const newValue = !isVisible;
+    setIsVisible(newValue); // optimistic update
+    setIsVisibilityUpdating(true);
+    try {
+      const res = await fetch('/api/candidate/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isVisible: newValue }),
+      });
+      if (!res.ok) {
+        setIsVisible(!newValue); // revert on failure
+      }
+    } catch {
+      setIsVisible(!newValue); // revert on failure
+    } finally {
+      setIsVisibilityUpdating(false);
+    }
   };
 
   const handleSave = async () => {
@@ -272,8 +293,9 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                     </p>
                   </div>
                   <button
-                    onClick={() => setIsVisible(!isVisible)}
-                    className={`relative w-11 h-6 rounded-full transition-all duration-300 ${isVisible ? 'bg-[#C9A84C]' : 'bg-gray-200'}`}
+                    onClick={handleVisibilityToggle}
+                    disabled={isVisibilityUpdating}
+                    className={`relative w-11 h-6 rounded-full transition-all duration-300 ${isVisible ? 'bg-[#C9A84C]' : 'bg-gray-200'} ${isVisibilityUpdating ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 ${isVisible ? 'left-6' : 'left-1'}`} />
                   </button>
