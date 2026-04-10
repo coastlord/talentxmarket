@@ -3,13 +3,8 @@ import Link from 'next/link';
 export default function Hero() {
   return (
     <section className="relative min-h-screen bg-brand-black overflow-hidden flex items-center justify-center">
-      {/* Solid black base */}
       <div className="absolute inset-0 bg-brand-black" />
-
-      {/* Subtle gold glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-brand-gold/5 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Fine gold grid overlay */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
@@ -18,49 +13,25 @@ export default function Hero() {
           backgroundSize: '60px 60px',
         }}
       />
-
-      {/* Content */}
       <div className="relative w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-32 pt-40 text-center">
-
-        {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-brand-gold/10 border border-brand-gold/30 rounded-full px-4 py-2 mb-8">
           <span className="w-2 h-2 rounded-full bg-brand-gold animate-pulse" />
           <span className="text-brand-gold text-sm font-medium">
             Pre-vetted Compliance Talent · Introductions in 48 Hours
           </span>
         </div>
-
-        {/* Headline */}
         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight">
           Hire Vetted
           <span className="block text-brand-gold">AML &amp; Compliance</span>
           <span className="block">Talent in 48 Hours</span>
         </h1>
-
-        {/* Sub-copy */}
         <p className="mt-8 text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
-          No job postings. No recruiters. Tell us your role — we match you with
-          pre-qualified AML, MLRO, Risk &amp; KYC professionals.
+          No job postings. No recruiters. Browse pre-qualified AML, MLRO, Risk &amp; KYC professionals — unlock the profile when you find the right person.
         </p>
-
-        {/* CTA Buttons */}
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-          {/* PRIMARY: Get Matched */}
-          <a
-            href="#hiring"
-            className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-brand-gold text-brand-black font-bold rounded-xl hover:bg-brand-gold-light transition-all duration-200 text-base shadow-xl shadow-brand-gold/20 hover:-translate-y-0.5"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Get Matched
-            <span className="text-xs font-normal opacity-70">→</span>
-          </a>
-
-          {/* SECONDARY: Browse Talent */}
           <Link
             href="/talent"
-            className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 text-white font-bold rounded-xl border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-200 text-base backdrop-blur-sm hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-brand-gold text-brand-black font-bold rounded-xl hover:bg-brand-gold-light transition-all duration-200 text-base shadow-xl shadow-brand-gold/20 hover:-translate-y-0.5"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -68,17 +39,23 @@ export default function Hero() {
             Browse Talent
             <span className="text-xs font-normal opacity-70">→</span>
           </Link>
-        </div>
-
-        {/* Also open to work CTA */}
-        <p className="mt-6 text-white/40 text-sm">
-          Compliance professional?{' '}
-          <a href="#open-to-work" className="text-brand-gold hover:underline font-medium">
-            Post your availability →
+          <a
+            href="#open-to-work"
+            className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 text-white font-bold rounded-xl border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-200 text-base backdrop-blur-sm hover:-translate-y-0.5"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Post Your Availability
+            <span className="text-xs font-normal opacity-70">→</span>
           </a>
+        </div>
+        <p className="mt-6 text-white/40 text-sm">
+          Employer? Browse profiles free —{' '}
+          <Link href="/talent" className="text-brand-gold hover:underline font-medium">
+            unlock when you find the right person →
+          </Link>
         </p>
-
-        {/* Trust strip */}
         <div className="mt-10 flex items-center gap-6 justify-center flex-wrap">
           {[
             { icon: '✔', text: 'Pre-vetted professionals' },
@@ -92,8 +69,6 @@ export default function Hero() {
           ))}
         </div>
       </div>
-
-      {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
         <p className="text-white/30 text-xs uppercase tracking-widest">Scroll</p>
         <svg className="w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -310,7 +310,7 @@ const INDUSTRIES = ['All', 'Banking', 'FinTech', 'Insurance', 'Asset Management'
 const URGENCY_OPTIONS = ['Within 1 week', '2–4 weeks', '1–3 months', 'No urgency / exploring'];
 
 function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void }) {
-  const [form, setForm] = useState({ companyName: '', workEmail: '', roleHiringFor: '', urgency: '' });
+  const [form, setForm] = useState({ contactName: '', companyName: '', workEmail: '', roleHiringFor: '', urgency: '' });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -349,9 +349,9 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
-              <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest">Request Introduction</span>
+              <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest">Employer Access</span>
             </div>
-            <h2 className="text-white text-lg font-bold">Get Introduced to This Candidate</h2>
+            <h2 className="text-white text-lg font-bold">Unlock This Profile</h2>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -369,8 +369,12 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
               </svg>
             </div>
             <h3 className="text-xl font-bold text-brand-black mb-2">Request Received</h3>
-            <p className="text-gray-500 text-sm leading-relaxed max-w-sm mx-auto mb-6">
-              We&apos;ll review your request and introduce you to this professional within <strong>24–48 hours</strong>.
+            <p className="text-gray-500 text-sm leading-relaxed max-w-sm mx-auto mb-2">
+              Your employer account has been created. We&apos;ll verify your details and send you
+              access within <strong>24 hours</strong>.
+            </p>
+            <p className="text-gray-400 text-xs max-w-xs mx-auto mb-6">
+              Check your inbox at <span className="font-semibold text-brand-black">{form.workEmail}</span> for next steps.
             </p>
             <button
               onClick={onClose}
@@ -388,7 +392,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                 <span className="text-white font-bold text-sm">{pro.initials}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-400 font-medium mb-0.5">You are requesting an introduction to</p>
+                <p className="text-xs text-gray-400 font-medium mb-0.5">Unlocking access to</p>
                 <p className="text-sm font-bold text-brand-black">{pro.role}</p>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
                   {pro.location && <span className="text-xs text-gray-500">{pro.location}</span>}
@@ -430,7 +434,19 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Row 1: Name + Company */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-brand-black mb-1.5">Your Name <span className="text-red-400">*</span></label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. James Reid"
+                    value={form.contactName}
+                    onChange={(e) => setForm({ ...form, contactName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
+                  />
+                </div>
                 <div>
                   <label className="block text-xs font-semibold text-brand-black mb-1.5">Company Name <span className="text-red-400">*</span></label>
                   <input
@@ -442,57 +458,55 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                     className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-brand-black mb-1.5">Work Email <span className="text-red-400">*</span></label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="you@company.com"
-                    value={form.workEmail}
-                    onChange={(e) => setForm({ ...form, workEmail: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
-                  />
-                </div>
               </div>
 
+              {/* Row 2: Work email */}
               <div>
-                <label className="block text-xs font-semibold text-brand-black mb-1.5">Role You Are Hiring For <span className="text-red-400">*</span></label>
+                <label className="block text-xs font-semibold text-brand-black mb-1.5">Work Email <span className="text-red-400">*</span></label>
                 <input
-                  type="text"
+                  type="email"
                   required
-                  placeholder="e.g. Senior MLRO, AML Analyst"
-                  value={form.roleHiringFor}
-                  onChange={(e) => setForm({ ...form, roleHiringFor: e.target.value })}
+                  placeholder="you@company.com"
+                  value={form.workEmail}
+                  onChange={(e) => setForm({ ...form, workEmail: e.target.value })}
                   className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-brand-black mb-1.5">Hiring Urgency</label>
-                <select
-                  value={form.urgency}
-                  onChange={(e) => setForm({ ...form, urgency: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold bg-white"
-                >
-                  <option value="">Select urgency (optional)</option>
-                  {URGENCY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
+              {/* Row 3: Role + Urgency */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-brand-black mb-1.5">Role Hiring For <span className="text-red-400">*</span></label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Senior MLRO"
+                    value={form.roleHiringFor}
+                    onChange={(e) => setForm({ ...form, roleHiringFor: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-brand-black mb-1.5">Hiring Urgency</label>
+                  <select
+                    value={form.urgency}
+                    onChange={(e) => setForm({ ...form, urgency: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold bg-white"
+                  >
+                    <option value="">Optional</option>
+                    {URGENCY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
               </div>
 
               {status === 'error' && (
                 <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">{errorMsg}</p>
               )}
 
-              {/* Trust bullets */}
-              <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 space-y-2">
-                {[
-                  '✅ Pre-vetted by TalentX Market',
-                  '✅ Available for interviews within 48h',
-                  '✅ Personally matched to your role before introduction',
-                ].map(line => (
-                  <p key={line} className="text-xs text-gray-600 font-medium">{line}</p>
-                ))}
-              </div>
+              <p className="text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 leading-relaxed">
+                🔒 Submitting this creates your <strong className="text-brand-black">employer account</strong> on TalentX Market.
+                We&apos;ll verify your details and send profile access to your work email within 24 hours.
+              </p>
 
               <button
                 type="submit"
@@ -505,18 +519,18 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Submitting…
+                    Creating account…
                   </>
                 ) : (
                   <>
                     <UnlockIcon />
-                    Request Introduction
+                    Unlock Profile
                   </>
                 )}
               </button>
 
               <p className="text-center text-xs text-gray-400">
-                We&apos;ll introduce you within 24–48 hours. No spam, no agency fees.
+                No subscription required yet. We&apos;ll be in touch within 24 hours.
               </p>
             </form>
           </div>
@@ -712,3 +726,4 @@ export default function TalentPage() {
     </div>
   );
 }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              

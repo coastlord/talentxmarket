@@ -1,58 +1,54 @@
 import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { companyName, workEmail, roleHiringFor, urgency, candidateId, candidateRole } = body;
+    const { contactName, companyName, workEmail, roleHiringFor, urgency, candidateId, candidateRole } = body;
 
-    // Validate required fields
-    if (!companyName || !workEmail || !roleHiringFor) {
+    if (!contactName || !companyName || !workEmail || !roleHiringFor) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const token = process.env.AIRTABLE_TOKEN;
-    const baseId = process.env.AIRTABLE_BASE_ID;
-    const tableId = process.env.AIRTABLE_EMPLOYER_REQUESTS_TABLE || 'Employers';
+    // 1. Upsert employer record — update if email already exists
+    const { data: employer, error: employerError } = await supabaseAdmin
+      .from('employers')
+      .upsert(
+        {
+          email: workEmail,
+          company_name: companyName,
+          contact_name: contactName,
+          status: 'pending',
+          subscription_status: 'free',
+        },
+        { onConflict: 'email', ignoreDuplicates: false }
+      )
+      .select('id')
+      .single();
 
-    if (!token || !baseId) {
-      console.error('Missing Airtable env vars');
-      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    if (employerError || !employer) {
+      console.error('Supabase employer upsert error:', employerError);
+      return NextResponse.json({ error: 'Failed to create employer account' }, { status: 500 });
     }
 
-    const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableId)}`;
+    // 2. Log unlock request as a job_request for full audit trail
+    const { error: jobError } = await supabaseAdmin
+      .from('job_requests')
+      .insert({
+        employer_id: employer.id,
+        role_title: roleHiringFor,
+        urgency: urgency || null,
+        description: candidateId
+          ? `Unlock request for candidate ${candidateId} (${candidateRole || 'Unknown role'})`
+          : `Unlock request — role: ${roleHiringFor}`,
+        status: 'pending',
+      });
 
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        records: [
-          {
-            fields: {
-              'Company Name': companyName,
-              'Email': workEmail,
-              'Job Title / Role Hiring For': roleHiringFor,
-              'Urgency': urgency || 'Not specified',
-              'Candidate ID': candidateId || '',
-              'Candidate Role': candidateRole || '',
-              'Status': 'New',
-              'Request Type': 'Profile Unlock',
-            },
-          },
-        ],
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error('Airtable error:', JSON.stringify(data));
-      return NextResponse.json({ error: 'Failed to record request' }, { status: 500 });
+    if (jobError) {
+      console.error('Supabase job_request insert error:', jobError);
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, employerId: employer.id });
   } catch (err) {
     console.error('Employer request error:', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
