@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { UserButton, useClerk } from '@clerk/nextjs';
+import { UserButton, useClerk, useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -41,6 +41,8 @@ type View = 'profile' | 'edit';
 
 export default function DashboardClient({ firstName, lastName, email, imageUrl }: DashboardClientProps) {
   const { signOut } = useClerk();
+  const { user } = useUser();
+  const isAdmin = user?.emailAddresses[0]?.emailAddress === 'soa.tidjani@gmail.com';
   const [view, setView] = useState<View>('profile');
   const [isVisible, setIsVisible] = useState(true);
   const [isVisibilityUpdating, setIsVisibilityUpdating] = useState(false);
@@ -204,7 +206,21 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
             >
               Sign Out
             </button>
-            <UserButton afterSignOutUrl="/" appearance={{ variables: { colorPrimary: '#C9A84C' }, elements: { avatarBox: 'w-8 h-8' } }} />
+            <UserButton afterSignOutUrl="/" appearance={{ variables: { colorPrimary: '#C9A84C' }, elements: { avatarBox: 'w-8 h-8' } }}>
+              {isAdmin && (
+                <UserButton.MenuItems>
+                  <UserButton.Link
+                    label="Admin Panel"
+                    labelIcon={
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    }
+                    href="/admin"
+                  />
+                </UserButton.MenuItems>
+              )}
+            </UserButton>
           </div>
         </div>
       </nav>
