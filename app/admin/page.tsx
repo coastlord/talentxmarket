@@ -364,29 +364,21 @@ export default function AdminPage() {
                       {isExpanded && (
                         <div className="border-t border-gray-100 px-5 py-4 bg-[#FAFAFA]">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
-
-                            {/* Unlocked Profiles */}
                             <div>
-                              <p className="font-semibold text-[#0A0A0A] mb-2">
-                                Unlocked Profiles ({emp.unlocks?.length || 0})
-                              </p>
-                              {emp.unlocks?.length === 0 ? (
+                              <p className="font-semibold text-[#0A0A0A] mb-2">Unlocked Profiles ({emp.unlocks?.length || 0})</p>
+                              {!emp.unlocks?.length ? (
                                 <p className="text-gray-400">No profiles unlocked yet.</p>
                               ) : (
                                 <div className="space-y-2">
                                   {emp.unlocks.map(u => (
                                     <div key={u.id} className="bg-white border border-gray-200 rounded-lg px-3 py-2">
-                                      <p className="font-semibold text-[#0A0A0A]">
-                                        {u.candidates?.job_title || 'Unknown role'}
-                                      </p>
+                                      <p className="font-semibold text-[#0A0A0A]">{u.candidates?.job_title || 'Unknown role'}</p>
                                       <p className="text-gray-500 mt-0.5">
                                         {u.candidates?.location || '—'}
                                         {u.candidates?.years_experience ? ` · ${u.candidates.years_experience}` : ''}
                                       </p>
                                       {u.candidates?.certifications?.length ? (
-                                        <p className="text-[#C9A84C] font-semibold mt-0.5">
-                                          {u.candidates.certifications.join(', ')}
-                                        </p>
+                                        <p className="text-[#C9A84C] font-semibold mt-0.5">{u.candidates.certifications.join(', ')}</p>
                                       ) : null}
                                       <p className="text-gray-400 mt-0.5">
                                         Unlocked {new Date(u.unlocked_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -396,13 +388,9 @@ export default function AdminPage() {
                                 </div>
                               )}
                             </div>
-
-                            {/* Role Requests */}
                             <div>
-                              <p className="font-semibold text-[#0A0A0A] mb-2">
-                                Role Requests ({emp.job_requests?.length || 0})
-                              </p>
-                              {emp.job_requests?.length === 0 ? (
+                              <p className="font-semibold text-[#0A0A0A] mb-2">Role Requests ({emp.job_requests?.length || 0})</p>
+                              {!emp.job_requests?.length ? (
                                 <p className="text-gray-400">No role requests submitted.</p>
                               ) : (
                                 <div className="space-y-2">
@@ -431,193 +419,171 @@ export default function AdminPage() {
 
         {/* ══ CANDIDATES TAB ══ */}
         {activeTab === 'candidates' && <>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
-          {(['all', 'pending', 'approved', 'rejected', 'suspended'] as FilterStatus[]).map(s => (
-            <button key={s} onClick={() => setFilter(s)}
-              className={`bg-white rounded-xl p-4 text-left border-2 transition-all ${filter === s ? 'border-[#C9A84C]' : 'border-transparent hover:border-gray-200'}`}>
-              <p className="text-2xl font-bold text-[#0A0A0A]">{counts[s]}</p>
-              <p className="text-xs text-gray-500 capitalize mt-0.5 font-medium">{s === 'all' ? 'Total' : s}</p>
-            </button>
-          ))}
-        </div>
-
-        {/* Search + Filter */}
-        <div className="bg-white rounded-xl p-4 mb-4 flex flex-col sm:flex-row gap-3 shadow-sm">
-          <input
-            type="text"
-            placeholder="Search by name, email, role, location, skill…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="flex-1 px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]"
-          />
-          <div className="flex gap-2 flex-wrap">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
             {(['all', 'pending', 'approved', 'rejected', 'suspended'] as FilterStatus[]).map(s => (
               <button key={s} onClick={() => setFilter(s)}
-                className={`px-3 py-2 text-xs font-semibold rounded-lg capitalize transition-all ${
-                  filter === s ? 'bg-[#0A0A0A] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}>
-                {s === 'all' ? 'All' : s} {s !== 'all' && `(${counts[s]})`}
+                className={`bg-white rounded-xl p-4 text-left border-2 transition-all ${filter === s ? 'border-[#C9A84C]' : 'border-transparent hover:border-gray-200'}`}>
+                <p className="text-2xl font-bold text-[#0A0A0A]">{counts[s]}</p>
+                <p className="text-xs text-gray-500 capitalize mt-0.5 font-medium">{s === 'all' ? 'Total' : s}</p>
               </button>
             ))}
           </div>
-        </div>
 
-        {/* Error */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-sm text-red-700">{error}</div>
-        )}
-
-        {/* Loading */}
-        {loading && (
-          <div className="flex items-center justify-center py-16">
-            <div className="w-8 h-8 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin" />
+          <div className="bg-white rounded-xl p-4 mb-4 flex flex-col sm:flex-row gap-3 shadow-sm">
+            <input
+              type="text"
+              placeholder="Search by name, email, role, location, skill…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="flex-1 px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]"
+            />
+            <div className="flex gap-2 flex-wrap">
+              {(['all', 'pending', 'approved', 'rejected', 'suspended'] as FilterStatus[]).map(s => (
+                <button key={s} onClick={() => setFilter(s)}
+                  className={`px-3 py-2 text-xs font-semibold rounded-lg capitalize transition-all ${
+                    filter === s ? 'bg-[#0A0A0A] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}>
+                  {s === 'all' ? 'All' : s} {s !== 'all' && `(${counts[s]})`}
+                </button>
+              ))}
+            </div>
           </div>
-        )}
 
-        {/* Candidate List */}
-        {!loading && !error && (
-          <div className="space-y-3">
-            {filtered.length === 0 && (
-              <div className="bg-white rounded-xl p-12 text-center shadow-sm">
-                <p className="text-gray-400 text-sm">No candidates match this filter.</p>
-              </div>
-            )}
-            {filtered.map(c => {
-              const isExpanded = expandedId === c.id;
-              const initials = (() => {
-                const parts = (c.full_name || '').trim().split(' ').filter(Boolean);
-                if (parts.length === 0) return 'TX';
-                if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-              })();
+          {error && <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-sm text-red-700">{error}</div>}
+          {loading && <div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin" /></div>}
 
-              return (
-                <div key={c.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-                  {/* Row */}
-                  <div className="p-5 flex items-start gap-4">
+          {!loading && !error && (
+            <div className="space-y-3">
+              {filtered.length === 0 && (
+                <div className="bg-white rounded-xl p-12 text-center shadow-sm">
+                  <p className="text-gray-400 text-sm">No candidates match this filter.</p>
+                </div>
+              )}
+              {filtered.map(c => {
+                const isExpanded = expandedId === c.id;
+                const initials = (() => {
+                  const parts = (c.full_name || '').trim().split(' ').filter(Boolean);
+                  if (parts.length === 0) return 'TX';
+                  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+                  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+                })();
 
-                    {/* Avatar */}
-                    <div className="w-11 h-11 rounded-xl bg-[#0A0A0A] flex items-center justify-center flex-shrink-0">
-                      <span className="text-[#C9A84C] text-sm font-bold">{initials}</span>
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h3 className="text-sm font-bold text-[#0A0A0A]">{c.full_name || 'No name'}</h3>
-                        <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold capitalize ${STATUS_STYLES[c.status] || ''}`}>
-                          {c.status}
-                        </span>
-                        {c.profile_completion > 0 && (
-                          <span className="text-xs text-gray-400">{c.profile_completion}% complete</span>
-                        )}
+                return (
+                  <div key={c.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                    <div className="p-5 flex items-start gap-4">
+                      <div className="w-11 h-11 rounded-xl bg-[#0A0A0A] flex items-center justify-center flex-shrink-0">
+                        <span className="text-[#C9A84C] text-sm font-bold">{initials}</span>
                       </div>
-                      <p className="text-xs text-gray-500 mb-1">{c.email}</p>
-                      <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-gray-500">
-                        {c.job_title && <span>🧑‍💼 {c.job_title}</span>}
-                        {c.location && <span>📍 {c.location}</span>}
-                        {c.years_experience && <span>⏱ {c.years_experience}</span>}
-                        {c.work_preference && <span>🏢 {c.work_preference}</span>}
-                      </div>
-                      {c.specialisms?.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          {c.specialisms.slice(0, 4).map(s => (
-                            <span key={s} className="text-xs px-2 py-0.5 bg-[#F5F5F5] text-[#0A0A0A] rounded-full border border-gray-200 font-medium">{s}</span>
-                          ))}
-                          {c.specialisms.length > 4 && (
-                            <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">+{c.specialisms.length - 4} more</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <h3 className="text-sm font-bold text-[#0A0A0A]">{c.full_name || 'No name'}</h3>
+                          <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold capitalize ${STATUS_STYLES[c.status] || ''}`}>
+                            {c.status}
+                          </span>
+                          {c.profile_completion > 0 && (
+                            <span className="text-xs text-gray-400">{c.profile_completion}% complete</span>
                           )}
                         </div>
-                      )}
-                      {c.certifications?.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mt-1.5">
-                          {c.certifications.map(cert => (
-                            <span key={cert} className="text-xs px-2 py-0.5 bg-[#C9A84C]/10 text-[#0A0A0A] border border-[#C9A84C]/30 rounded-full font-semibold">{cert}</span>
-                          ))}
+                        <p className="text-xs text-gray-500 mb-1">{c.email}</p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-gray-500">
+                          {c.job_title && <span>🧑‍💼 {c.job_title}</span>}
+                          {c.location && <span>📍 {c.location}</span>}
+                          {c.years_experience && <span>⏱ {c.years_experience}</span>}
+                          {c.work_preference && <span>🏢 {c.work_preference}</span>}
                         </div>
-                      )}
-                      <p className="text-xs text-gray-400 mt-2">
-                        Signed up {new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        {c.approved_at && ` · Approved ${new Date(c.approved_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
-                      </p>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex flex-col gap-2 flex-shrink-0">
-                      {c.status === 'pending' && (
-                        <>
-                          <button onClick={() => handleAction(c.id, 'approve')}
-                            disabled={actionLoading === c.id + 'approve'}
-                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
-                            {actionLoading === c.id + 'approve' ? '…' : '✓ Approve'}
+                        {c.specialisms?.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {c.specialisms.slice(0, 4).map(s => (
+                              <span key={s} className="text-xs px-2 py-0.5 bg-[#F5F5F5] text-[#0A0A0A] rounded-full border border-gray-200 font-medium">{s}</span>
+                            ))}
+                            {c.specialisms.length > 4 && (
+                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">+{c.specialisms.length - 4} more</span>
+                            )}
+                          </div>
+                        )}
+                        {c.certifications?.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            {c.certifications.map(cert => (
+                              <span key={cert} className="text-xs px-2 py-0.5 bg-[#C9A84C]/10 text-[#0A0A0A] border border-[#C9A84C]/30 rounded-full font-semibold">{cert}</span>
+                            ))}
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-400 mt-2">
+                          Signed up {new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          {c.approved_at && ` · Approved ${new Date(c.approved_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-2 flex-shrink-0">
+                        {c.status === 'pending' && (
+                          <>
+                            <button onClick={() => handleAction(c.id, 'approve')}
+                              disabled={actionLoading === c.id + 'approve'}
+                              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
+                              {actionLoading === c.id + 'approve' ? '…' : '✓ Approve'}
+                            </button>
+                            <button onClick={() => handleAction(c.id, 'reject')}
+                              disabled={actionLoading === c.id + 'reject'}
+                              className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
+                              {actionLoading === c.id + 'reject' ? '…' : '✕ Reject'}
+                            </button>
+                          </>
+                        )}
+                        {c.status === 'approved' && (
+                          <button onClick={() => handleAction(c.id, 'suspend')}
+                            disabled={actionLoading === c.id + 'suspend'}
+                            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
+                            {actionLoading === c.id + 'suspend' ? '…' : 'Suspend'}
                           </button>
-                          <button onClick={() => handleAction(c.id, 'reject')}
-                            disabled={actionLoading === c.id + 'reject'}
-                            className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
-                            {actionLoading === c.id + 'reject' ? '…' : '✕ Reject'}
+                        )}
+                        {(c.status === 'rejected' || c.status === 'suspended') && (
+                          <button onClick={() => handleAction(c.id, 'restore')}
+                            disabled={actionLoading === c.id + 'restore'}
+                            className="px-4 py-2 bg-[#C9A84C] hover:bg-[#b8963e] text-[#0A0A0A] text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
+                            {actionLoading === c.id + 'restore' ? '…' : 'Restore'}
                           </button>
-                        </>
-                      )}
-                      {c.status === 'approved' && (
-                        <button onClick={() => handleAction(c.id, 'suspend')}
-                          disabled={actionLoading === c.id + 'suspend'}
-                          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
-                          {actionLoading === c.id + 'suspend' ? '…' : 'Suspend'}
+                        )}
+                        <button onClick={() => setExpandedId(isExpanded ? null : c.id)}
+                          className="px-4 py-2 border border-gray-200 hover:border-gray-300 text-gray-500 text-xs font-medium rounded-lg transition-colors">
+                          {isExpanded ? 'Less ↑' : 'More ↓'}
                         </button>
-                      )}
-                      {(c.status === 'rejected' || c.status === 'suspended') && (
-                        <button onClick={() => handleAction(c.id, 'restore')}
-                          disabled={actionLoading === c.id + 'restore'}
-                          className="px-4 py-2 bg-[#C9A84C] hover:bg-[#b8963e] text-[#0A0A0A] text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
-                          {actionLoading === c.id + 'restore' ? '…' : 'Restore'}
-                        </button>
-                      )}
-                      <button onClick={() => setExpandedId(isExpanded ? null : c.id)}
-                        className="px-4 py-2 border border-gray-200 hover:border-gray-300 text-gray-500 text-xs font-medium rounded-lg transition-colors">
-                        {isExpanded ? 'Less ↑' : 'More ↓'}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Expanded Detail */}
-                  {isExpanded && (
-                    <div className="border-t border-gray-100 px-5 py-4 bg-[#FAFAFA]">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                        <div>
-                          <p className="font-semibold text-[#0A0A0A] mb-1">Professional Summary</p>
-                          <p className="text-gray-600 leading-relaxed">{c.bio || 'Not provided'}</p>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-[#0A0A0A] mb-1">Salary Expectation</p>
-                          <p className="text-gray-600">
-                            {c.salary_amount
-                              ? `${c.salary_currency} ${Number(c.salary_amount).toLocaleString()} / ${c.salary_period}`
-                              : 'Not provided'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-[#0A0A0A] mb-1">Visibility</p>
-                          <p className="text-gray-600">
-                            {c.is_visible ? '🟢 Visible on talent page' : '🔴 Hidden from talent page'}
-                            {' · '}
-                            {c.is_anonymous ? '🔒 Anonymous' : '👤 Not anonymous'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-[#0A0A0A] mb-1">Supabase Record ID</p>
-                          <p className="text-gray-400 font-mono text-xs break-all">{c.id}</p>
-                        </div>
                       </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-        </> }
+                    {isExpanded && (
+                      <div className="border-t border-gray-100 px-5 py-4 bg-[#FAFAFA]">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                          <div>
+                            <p className="font-semibold text-[#0A0A0A] mb-1">Professional Summary</p>
+                            <p className="text-gray-600 leading-relaxed">{c.bio || 'Not provided'}</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[#0A0A0A] mb-1">Salary Expectation</p>
+                            <p className="text-gray-600">
+                              {c.salary_amount
+                                ? `${c.salary_currency} ${Number(c.salary_amount).toLocaleString()} / ${c.salary_period}`
+                                : 'Not provided'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[#0A0A0A] mb-1">Visibility</p>
+                            <p className="text-gray-600">
+                              {c.is_visible ? '🟢 Visible on talent page' : '🔴 Hidden from talent page'}
+                              {' · '}
+                              {c.is_anonymous ? '🔒 Anonymous' : '👤 Not anonymous'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[#0A0A0A] mb-1">Supabase Record ID</p>
+                            <p className="text-gray-400 font-mono text-xs break-all">{c.id}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>}
 
       </div>
     </div>

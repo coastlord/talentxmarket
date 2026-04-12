@@ -15,23 +15,23 @@ export function getSupabase(): SupabaseClient {
 }
 
 export function getSupabaseAdmin(): SupabaseClient {
-    if (!_supabaseAdmin) {
-          const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-          const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-          if (!url || !key) throw new Error('Missing Supabase admin env vars');
-          _supabaseAdmin = createClient(url, key, {
-                  auth: {
-                            autoRefreshToken: false,
-                            persistSession: false,
-                  },
-                  // Force Next.js fetch cache to never cache Supabase responses
-                  global: {
-                            fetch: (input: RequestInfo | URL, init?: RequestInit) =>
-                                        fetch(input, { ...init, cache: 'no-store' }),
-                  },
-          });
-    }
-    return _supabaseAdmin;
+  if (!_supabaseAdmin) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) throw new Error('Missing Supabase admin env vars');
+    _supabaseAdmin = createClient(url, key, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+      // Force Next.js fetch cache to never cache Supabase responses
+      global: {
+        fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+          fetch(input, { ...init, cache: 'no-store' }),
+      },
+    });
+  }
+  return _supabaseAdmin;
 }
 
 // Convenience aliases — Proxy with correct method binding so 'this' is preserved
@@ -135,4 +135,3 @@ export interface Match {
     created_at?: string;
     updated_at?: string;
 }
-

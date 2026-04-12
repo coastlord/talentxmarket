@@ -631,22 +631,25 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                 <p className="text-xs text-gray-400 mb-4">Max 300 characters. Visible on your expanded profile.</p>
                 <textarea rows={4} maxLength={300} placeholder="Brief overview of your compliance expertise…"
                   value={profile.bio} onChange={e => setProfile({ ...profile, bio: e.target.value })}
-                  className="w-full px-3.5 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C] resize-none" />
+                  className="w-full px-3.5 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C] resize-none"
+                />
                 <p className="text-right text-xs text-gray-400 mt-1">{profile.bio.length}/300</p>
               </div>
 
+              {/* Save */}
               <div className="flex justify-end pb-6 gap-3">
-                <button onClick={() => setView('profile')} className="px-5 py-3 border border-gray-200 text-sm font-medium rounded-xl hover:border-gray-300 transition-colors">
+                <button onClick={() => setView('profile')}
+                  className="px-5 py-3 border border-gray-200 text-sm font-medium rounded-xl hover:border-gray-300 transition-colors">
                   Cancel
                 </button>
                 <button onClick={handleSave} disabled={isSaving}
-                  className={`px-8 py-3 text-sm font-semibold rounded-xl transition-all ${saved ? 'bg-green-500 text-white' : 'bg-[#0A0A0A] hover:bg-[#1a1a1a] text-white'} disabled:opacity-60`}>
-                  {isSaving ? 'Saving…' : saved ? '✓ Saved' : 'Save Profile'}
+                  className="px-6 py-3 bg-[#0A0A0A] text-white text-sm font-bold rounded-xl hover:bg-[#C9A84C] hover:text-[#0A0A0A] transition-all duration-200 disabled:opacity-50 flex items-center gap-2">
+                  {isSaving ? (
+                    <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Saving…</>
+                  ) : saved ? '✓ Saved' : 'Save Profile'}
                 </button>
               </div>
-              {saveError && (
-                <p className="text-red-500 text-sm mt-2 text-right">{saveError}</p>
-              )}
+              {saveError && <p className="text-red-500 text-xs text-right pb-4">{saveError}</p>}
             </div>
           </div>
         )}
