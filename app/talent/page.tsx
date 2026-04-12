@@ -305,30 +305,57 @@ function Skeleton() {
 const EMP_TYPES = ['All', 'Permanent', 'Contract', 'Interim', 'Advisory', 'Freelance'];
 const INDUSTRIES = ['All', 'Banking', 'FinTech', 'Insurance', 'Asset Management', 'Payments', 'Crypto / Web3', 'Consulting', 'Other'];
 
-// ─── Page ────────────────────────────────────────────────────────────────────
 // ─── Unlock Modal ────────────────────────────────────────────────────────────
 const URGENCY_OPTIONS = ['Within 1 week', '2–4 weeks', '1–3 months', 'No urgency / exploring'];
 
+interface UnlockedProfile {
+  fullName: string | null;
+  contactEmail: string | null;
+  linkedinUrl: string | null;
+  role: string;
+  location: string;
+  experience: string;
+  skills: string[];
+  certifications: string[];
+  headline: string;
+  creditsRemaining: number;
+}
+
 function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void }) {
+  const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState({ contactName: '', companyName: '', workEmail: '', roleHiringFor: '', urgency: '' });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'no_credits'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [unlockedProfile, setUnlockedProfile] = useState<UnlockedProfile | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
     setErrorMsg('');
     try {
-      const res = await fetch('/api/employer-request', {
+      const res = await fetch(`/api/unlock/${pro.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          candidateId: pro.id,
-          candidateRole: pro.role,
-        }),
+        body: JSON.stringify({ ...form }),
       });
-      if (!res.ok) throw new Error('Request failed');
+      const data = await res.json();
+      if (res.status === 402) {
+        setStatus('no_credits');
+        return;
+      }
+      if (!res.ok) throw new Error(data?.error || 'Request failed');
+      setUnlockedProfile({
+        fullName:        data.profile.fullName,
+        contactEmail:    data.profile.contactEmail,
+        linkedinUrl:     data.profile.linkedinUrl,
+        role:            data.profile.role,
+        location:        data.profile.location,
+        experience:      data.profile.experience,
+        skills:          data.profile.skills,
+        certifications:  data.profile.certifications,
+        headline:        data.profile.headline,
+        creditsRemaining: data.creditsRemaining,
+      });
       setStatus('success');
     } catch {
       setStatus('error');
@@ -336,65 +363,185 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
     }
   };
 
+  const REVEAL_ITEMS = [
+    { icon: '👤', label: 'Full Name', sub: 'Hidden on public card' },
+    { icon: '📧', label: 'Contact Email', sub: 'Direct line to candidate' },
+    { icon: '🔗', label: 'LinkedIn Profile', sub: 'Verify experience instantly' },
+    { icon: '📄', label: 'CV / Resume', sub: 'Full work history' },
+  ];
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      style={{ background: 'rgba(10,10,10,0.75)', backdropFilter: 'blur(4px)' }}
+      style={{ background: 'rgba(10,10,10,0.80)', backdropFilter: 'blur(6px)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] overflow-y-auto">
 
-        {/* Modal header */}
-        <div className="bg-brand-black px-6 py-5 flex items-center justify-between">
+        {/* ── HEADER ── */}
+        <div className="bg-brand-black px-6 py-5 flex items-center justify-between sticky top-0 z-10">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
-              <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest">Employer Access</span>
+              <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest">
+                {status === 'success' ? 'Access Requested' : step === 1 ? 'Employer Access' : 'Step 2 of 2'}
+              </span>
             </div>
-            <h2 className="text-white text-lg font-bold">Unlock This Profile</h2>
+            <h2 className="text-white text-lg font-bold">
+              {status === 'success' ? 'You\'re on the list' : step === 1 ? 'Unlock This Profile' : 'Create Your Access'}
+            </h2>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0">
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {status === 'success' ? (
-          /* ── SUCCESS STATE ── */
+        {/* ── NO CREDITS ── */}
+        {status === 'no_credits' ? (
           <div className="px-6 py-10 text-center">
-            <div className="w-14 h-14 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-7 h-7 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            <div className="w-16 h-16 rounded-full bg-brand-gold/10 border-2 border-brand-gold/30 flex items-center justify-center mx-auto mb-5">
+              <svg className="w-8 h-8 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-brand-black mb-2">Request Received</h3>
-            <p className="text-gray-500 text-sm leading-relaxed max-w-sm mx-auto mb-2">
-              Your employer account has been created. We&apos;ll verify your details and send you
-              access within <strong>24 hours</strong>.
+            <h3 className="text-xl font-bold text-brand-black mb-2">Free Unlocks Used</h3>
+            <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto mb-6">
+              You&apos;ve used your 3 free unlocks. Upgrade to continue accessing vetted compliance talent.
             </p>
-            <p className="text-gray-400 text-xs max-w-xs mx-auto mb-6">
-              Check your inbox at <span className="font-semibold text-brand-black">{form.workEmail}</span> for next steps.
-            </p>
+            <a
+              href="mailto:hello@talentxmarket.com?subject=Employer Access Upgrade&body=Hi, I'd like to upgrade my TalentX employer access."
+              className="block w-full py-3.5 bg-brand-gold text-brand-black text-sm font-bold rounded-xl hover:bg-brand-gold/90 transition-all duration-200 text-center mb-3"
+            >
+              Contact Us to Upgrade
+            </a>
+            <button onClick={onClose} className="text-xs text-gray-400 hover:text-brand-black transition-colors">
+              Browse talent (limited view)
+            </button>
+          </div>
+
+        ) : status === 'success' && unlockedProfile ? (
+          /* ── PROFILE REVEALED ── */
+          <div className="px-6 py-6">
+
+            {/* Unlocked banner */}
+            <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-3 py-2 rounded-xl mb-5">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+              Profile unlocked · {unlockedProfile.creditsRemaining} free {unlockedProfile.creditsRemaining === 1 ? 'unlock' : 'unlocks'} remaining
+            </div>
+
+            {/* Full profile card */}
+            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-5">
+
+              {/* Avatar + name */}
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-14 h-14 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-base">{pro.initials}</span>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-brand-black leading-tight">
+                    {unlockedProfile.fullName || pro.role}
+                  </p>
+                  <p className="text-sm text-gray-500">{unlockedProfile.role}</p>
+                  {unlockedProfile.location && (
+                    <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+                      <PinIcon /> {unlockedProfile.location}
+                      {unlockedProfile.experience ? ` · ${unlockedProfile.experience}` : ''}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Contact details */}
+              <div className="space-y-2.5 mb-4">
+                {unlockedProfile.contactEmail && (
+                  <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-2.5">
+                    <span className="text-brand-gold"><MailIcon /></span>
+                    <a
+                      href={`mailto:${unlockedProfile.contactEmail}`}
+                      className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors"
+                    >
+                      {unlockedProfile.contactEmail}
+                    </a>
+                  </div>
+                )}
+                {unlockedProfile.linkedinUrl && (
+                  <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-2.5">
+                    <span className="text-brand-gold"><LinkedInIcon /></span>
+                    <a
+                      href={unlockedProfile.linkedinUrl.startsWith('http') ? unlockedProfile.linkedinUrl : `https://${unlockedProfile.linkedinUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors truncate"
+                    >
+                      View LinkedIn Profile
+                    </a>
+                    <svg className="w-3.5 h-3.5 text-gray-400 ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </div>
+                )}
+                {!unlockedProfile.contactEmail && !unlockedProfile.linkedinUrl && (
+                  <div className="flex items-center gap-3 bg-brand-gold/10 border border-brand-gold/20 rounded-xl px-4 py-2.5">
+                    <span className="text-brand-gold text-sm">ℹ️</span>
+                    <p className="text-xs text-gray-600">This candidate chose to be contacted via introduction only.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Skills */}
+              {unlockedProfile.skills.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {unlockedProfile.skills.slice(0, 6).map((s) => (
+                    <span key={s} className="text-[11px] bg-white border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full">{s}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Request Introduction CTA */}
+            <a
+              href={`https://tally.so/r/GxLk2O?candidateRole=${encodeURIComponent(pro.role)}&candidateId=${pro.id}&employerName=${encodeURIComponent(form.contactName)}&employerCompany=${encodeURIComponent(form.companyName)}&employerEmail=${encodeURIComponent(form.workEmail)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full py-3.5 bg-brand-gold text-brand-black text-sm font-bold rounded-xl hover:bg-brand-gold/90 transition-all duration-200 text-center mb-3"
+            >
+              Request Introduction →
+            </a>
             <button
               onClick={onClose}
-              className="px-6 py-2.5 bg-brand-black text-white text-sm font-semibold rounded-xl hover:bg-brand-gold hover:text-brand-black transition-all duration-200"
+              className="w-full py-2.5 border border-gray-200 text-gray-500 text-sm font-medium rounded-xl hover:border-brand-black hover:text-brand-black transition-all duration-200"
             >
               Browse More Talent
             </button>
+
+            <p className="text-center text-[11px] text-gray-400 mt-3">
+              Introducing yourself opens a conversation · Candidate can accept or decline
+            </p>
           </div>
-        ) : (
+
+        ) : step === 1 ? (
+          /* ── STEP 1: VALUE PROP ── */
           <div className="px-6 py-6">
 
-            {/* Candidate preview */}
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 mb-6 flex items-center gap-4">
+            {/* Free unlocks badge */}
+            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              First 3 unlocks free — no subscription needed
+            </div>
+
+            {/* Candidate preview card */}
+            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 mb-5 flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-bold text-sm">{pro.initials}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-400 font-medium mb-0.5">Unlocking access to</p>
-                <p className="text-sm font-bold text-brand-black">{pro.role}</p>
-                <div className="flex items-center gap-3 mt-1 flex-wrap">
+                <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-0.5">You are unlocking</p>
+                <p className="text-sm font-bold text-brand-black truncate">{pro.role}</p>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
                   {pro.location && <span className="text-xs text-gray-500">{pro.location}</span>}
                   {pro.experience && <span className="text-xs text-gray-400">· {pro.experience}</span>}
                   {pro.certifications[0] && (
@@ -405,42 +552,92 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                 </div>
               </div>
               <div className="flex-shrink-0">
-                <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-2 py-1 rounded-full">
+                <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-[10px] font-semibold px-2 py-1 rounded-full whitespace-nowrap">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                   {pro.availabilityStatus || 'Available'}
                 </div>
               </div>
             </div>
 
-            {/* What you get */}
-            <div className="flex items-center gap-6 mb-6 px-1">
-              {[
-                { icon: '👤', label: 'Full Name' },
-                { icon: '📧', label: 'Contact' },
-                { icon: '📄', label: 'CV / LinkedIn' },
-              ].map((item) => (
-                <div key={item.label} className="flex items-center gap-1.5 text-xs text-gray-500">
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
+            {/* What you unlock */}
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">What you get access to</p>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {REVEAL_ITEMS.map((item) => (
+                <div key={item.label} className="flex items-start gap-3 bg-gray-50 border border-gray-100 rounded-xl p-3">
+                  <span className="text-lg leading-none">{item.icon}</span>
+                  <div>
+                    <p className="text-xs font-bold text-brand-black">{item.label}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{item.sub}</p>
+                  </div>
                 </div>
               ))}
-              <div className="ml-auto text-xs text-brand-gold font-semibold flex items-center gap-1">
+            </div>
+
+            {/* Trust line */}
+            <div className="flex items-center gap-2 mb-5 px-1">
+              <svg className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <p className="text-[11px] text-gray-400">All profiles are manually verified · Candidate has consented to contact</p>
+            </div>
+
+            {/* CTA */}
+            <button
+              onClick={() => setStep(2)}
+              className="w-full py-3.5 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              <UnlockIcon />
+              Continue to Unlock
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            <p className="text-center text-[11px] text-gray-400 mt-3">
+              Takes 30 seconds · No credit card required
+            </p>
+          </div>
+
+        ) : (
+          /* ── STEP 2: EMPLOYER DETAILS FORM ── */
+          <div className="px-6 py-6">
+
+            {/* Back + progress */}
+            <div className="flex items-center gap-3 mb-5">
+              <button onClick={() => setStep(1)} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-black transition-colors">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                Verified only
+                Back
+              </button>
+              <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-brand-gold rounded-full w-full transition-all duration-500" />
               </div>
+            </div>
+
+            {/* Mini candidate reminder */}
+            <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 mb-5">
+              <div className="w-8 h-8 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-xs">{pro.initials}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-brand-black truncate">{pro.role}</p>
+                <p className="text-[10px] text-gray-400">{pro.location}{pro.experience ? ` · ${pro.experience}` : ''}</p>
+              </div>
+              <span className="text-[10px] font-semibold text-brand-gold bg-brand-black px-2 py-0.5 rounded-full flex-shrink-0">
+                FREE
+              </span>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Row 1: Name + Company */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-brand-black mb-1.5">Your Name <span className="text-red-400">*</span></label>
                   <input
                     type="text"
                     required
+                    autoFocus
                     placeholder="e.g. James Reid"
                     value={form.contactName}
                     onChange={(e) => setForm({ ...form, contactName: e.target.value })}
@@ -448,7 +645,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-brand-black mb-1.5">Company Name <span className="text-red-400">*</span></label>
+                  <label className="block text-xs font-semibold text-brand-black mb-1.5">Company <span className="text-red-400">*</span></label>
                   <input
                     type="text"
                     required
@@ -460,7 +657,6 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                 </div>
               </div>
 
-              {/* Row 2: Work email */}
               <div>
                 <label className="block text-xs font-semibold text-brand-black mb-1.5">Work Email <span className="text-red-400">*</span></label>
                 <input
@@ -473,7 +669,6 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                 />
               </div>
 
-              {/* Row 3: Role + Urgency */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-brand-black mb-1.5">Role Hiring For <span className="text-red-400">*</span></label>
@@ -487,7 +682,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-brand-black mb-1.5">Hiring Urgency</label>
+                  <label className="block text-xs font-semibold text-brand-black mb-1.5">Urgency</label>
                   <select
                     value={form.urgency}
                     onChange={(e) => setForm({ ...form, urgency: e.target.value })}
@@ -503,11 +698,6 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                 <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">{errorMsg}</p>
               )}
 
-              <p className="text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 leading-relaxed">
-                🔒 Submitting this creates your <strong className="text-brand-black">employer account</strong> on TalentX Market.
-                We&apos;ll verify your details and send profile access to your work email within 24 hours.
-              </p>
-
               <button
                 type="submit"
                 disabled={status === 'loading'}
@@ -519,18 +709,18 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Creating account…
+                    Submitting…
                   </>
                 ) : (
                   <>
                     <UnlockIcon />
-                    Unlock Profile
+                    Unlock Profile Now
                   </>
                 )}
               </button>
 
-              <p className="text-center text-xs text-gray-400">
-                No subscription required yet. We&apos;ll be in touch within 24 hours.
+              <p className="text-center text-[11px] text-gray-400">
+                No subscription required · Full profile revealed instantly
               </p>
             </form>
           </div>
@@ -726,4 +916,3 @@ export default function TalentPage() {
     </div>
   );
 }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              

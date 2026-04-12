@@ -4,6 +4,40 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+// ─── Employer types ───────────────────────────────────────────────────────────
+interface UnlockedCandidate {
+  id: string;
+  unlocked_at: string;
+  candidates: {
+    id: string;
+    job_title: string;
+    location: string;
+    years_experience: string;
+    specialisms: string[];
+    certifications: string[];
+  } | null;
+}
+
+interface JobRequest {
+  role_title: string;
+  urgency: string;
+  status: string;
+  created_at: string;
+}
+
+interface Employer {
+  id: string;
+  email: string;
+  company_name: string;
+  contact_name: string;
+  status: string;
+  subscription_status: string;
+  unlock_credits: number;
+  created_at: string;
+  unlocks: UnlockedCandidate[];
+  job_requests: JobRequest[];
+}
+
 interface Candidate {
   id: string;
   full_name: string;
@@ -37,6 +71,9 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState<'candidates' | 'employers'>('candidates');
+
+  // ── Candidates state ──
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [search, setSearch] = useState('');
@@ -45,8 +82,17 @@ export default function AdminPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  // ── Employers state ──
+  const [employers, setEmployers] = useState<Employer[]>([]);
+  const [empLoading, setEmpLoading] = useState(false);
+  const [empError, setEmpError] = useState('');
+  const [empSearch, setEmpSearch] = useState('');
+  const [empExpanded, setEmpExpanded] = useState<string | null>(null);
+  const [empActionLoading, setEmpActionLoading] = useState<string | null>(null);
+
   useEffect(() => {
     fetchCandidates();
+    fetchEmployers();
   }, []);
 
   async function fetchCandidates() {
@@ -82,6 +128,49 @@ export default function AdminPage() {
       setActionLoading(null);
     }
   }
+
+  async function fetchEmployers() {
+    setEmpLoading(true);
+    try {
+      const res = await fetch('/api/admin/employers');
+      const data = await res.json();
+      if (Array.isArray(data)) setEmployers(data);
+      else setEmpError(data.error || 'Failed to load employers');
+    } catch (e) {
+      setEmpError('Network error: ' + String(e));
+    } finally {
+      setEmpLoading(false);
+    }
+  }
+
+  async function handleEmployerAction(employerId: string, action: string, credits?: number) {
+    setEmpActionLoading(employerId + action);
+    try {
+      const res = await fetch('/api/admin/employers', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employerId, action, credits }),
+      });
+      if (res.ok) await fetchEmployers();
+    } finally {
+      setEmpActionLoading(null);
+    }
+  }
+
+  const filteredEmployers = employers.filter(e => {
+    const q = empSearch.toLowerCase();
+    return !q ||
+      e.company_name?.toLowerCase().includes(q) ||
+      e.email?.toLowerCase().includes(q) ||
+      e.contact_name?.toLowerCase().includes(q);
+  });
+
+  const empCounts = {
+    total: employers.length,
+    active: employers.filter(e => e.status === 'active').length,
+    pending: employers.filter(e => e.status === 'pending').length,
+    unlocks: employers.reduce((sum, e) => sum + (e.unlocks?.length || 0), 0),
+  };
 
   const filtered = candidates.filter(c => {
     const matchStatus = filter === 'all' || c.status === filter;
@@ -126,11 +215,222 @@ export default function AdminPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#0A0A0A]">Candidate Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Review, approve, and manage all candidate profiles</p>
+        {/* Header + Tabs */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[#0A0A0A] mb-1">Admin Panel</h1>
+          <p className="text-sm text-gray-500 mb-5">Manage candidates, employers, and unlock activity</p>
+          <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit">
+            {(['candidates', 'employers'] as const).map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-5 py-2 text-sm font-semibold rounded-lg capitalize transition-all ${
+                  activeTab === tab ? 'bg-white text-[#0A0A0A] shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {tab === 'candidates' ? `Candidates (${candidates.length})` : `Employers (${employers.length})`}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* ══ EMPLOYERS TAB ══ */}
+        {activeTab === 'employers' && (
+          <div>
+            {/* Employer stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+              {[
+                { label: 'Total', value: empCounts.total },
+                { label: 'Active', value: empCounts.active },
+                { label: 'Pending', value: empCounts.pending },
+                { label: 'Total Unlocks', value: empCounts.unlocks },
+              ].map(stat => (
+                <div key={stat.label} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                  <p className="text-2xl font-bold text-[#0A0A0A]">{stat.value}</p>
+                  <p className="text-xs text-gray-500 mt-0.5 font-medium">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Search */}
+            <div className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+              <input
+                type="text"
+                placeholder="Search by company, name, or email…"
+                value={empSearch}
+                onChange={e => setEmpSearch(e.target.value)}
+                className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]"
+              />
+            </div>
+
+            {empError && <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-sm text-red-700">{empError}</div>}
+            {empLoading && <div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin" /></div>}
+
+            {!empLoading && (
+              <div className="space-y-3">
+                {filteredEmployers.length === 0 && (
+                  <div className="bg-white rounded-xl p-12 text-center shadow-sm">
+                    <p className="text-gray-400 text-sm">No employer registrations yet.</p>
+                  </div>
+                )}
+                {filteredEmployers.map(emp => {
+                  const isExpanded = empExpanded === emp.id;
+                  const statusStyle =
+                    emp.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' :
+                    emp.status === 'pending' ? 'bg-amber-100 text-amber-800 border-amber-200' :
+                    'bg-gray-100 text-gray-600 border-gray-200';
+
+                  return (
+                    <div key={emp.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                      <div className="p-5 flex items-start gap-4">
+
+                        {/* Avatar */}
+                        <div className="w-11 h-11 rounded-xl bg-[#0A0A0A] flex items-center justify-center flex-shrink-0">
+                          <span className="text-[#C9A84C] text-sm font-bold">
+                            {(emp.company_name || 'TX').slice(0, 2).toUpperCase()}
+                          </span>
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <h3 className="text-sm font-bold text-[#0A0A0A]">{emp.company_name || 'Unknown Company'}</h3>
+                            <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold capitalize ${statusStyle}`}>
+                              {emp.status || 'pending'}
+                            </span>
+                            <span className="text-xs bg-[#C9A84C]/10 text-[#0A0A0A] border border-[#C9A84C]/20 px-2 py-0.5 rounded-full font-semibold">
+                              {emp.unlock_credits ?? 0} credits left
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-1">{emp.contact_name} · {emp.email}</p>
+                          <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-gray-400">
+                            <span>🔓 {emp.unlocks?.length || 0} profiles unlocked</span>
+                            <span>📋 {emp.job_requests?.length || 0} role requests</span>
+                            <span>🕐 Registered {new Date(emp.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                          </div>
+
+                          {/* Interest summary — roles they unlocked */}
+                          {emp.unlocks?.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                              {emp.unlocks.slice(0, 3).map(u => u.candidates && (
+                                <span key={u.id} className="text-[10px] bg-gray-50 border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full">
+                                  {u.candidates.job_title || 'Unknown role'}{u.candidates.location ? ` · ${u.candidates.location}` : ''}
+                                </span>
+                              ))}
+                              {emp.unlocks.length > 3 && (
+                                <span className="text-[10px] text-gray-400 px-2 py-0.5">+{emp.unlocks.length - 3} more</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col gap-2 flex-shrink-0">
+                          {emp.status !== 'active' && (
+                            <button
+                              onClick={() => handleEmployerAction(emp.id, 'approve')}
+                              disabled={empActionLoading === emp.id + 'approve'}
+                              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+                            >
+                              {empActionLoading === emp.id + 'approve' ? '…' : '✓ Approve'}
+                            </button>
+                          )}
+                          {emp.status === 'active' && (
+                            <button
+                              onClick={() => handleEmployerAction(emp.id, 'suspend')}
+                              disabled={empActionLoading === emp.id + 'suspend'}
+                              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+                            >
+                              {empActionLoading === emp.id + 'suspend' ? '…' : 'Suspend'}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleEmployerAction(emp.id, 'add_credits', 5)}
+                            disabled={empActionLoading === emp.id + 'add_credits'}
+                            className="px-4 py-2 bg-[#C9A84C] hover:bg-[#b8963e] text-[#0A0A0A] text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            {empActionLoading === emp.id + 'add_credits' ? '…' : '+5 Credits'}
+                          </button>
+                          <button
+                            onClick={() => setEmpExpanded(isExpanded ? null : emp.id)}
+                            className="px-4 py-2 border border-gray-200 hover:border-gray-300 text-gray-500 text-xs font-medium rounded-lg transition-colors"
+                          >
+                            {isExpanded ? 'Less ↑' : 'Details ↓'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Expanded: full unlock history */}
+                      {isExpanded && (
+                        <div className="border-t border-gray-100 px-5 py-4 bg-[#FAFAFA]">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+
+                            {/* Unlocked Profiles */}
+                            <div>
+                              <p className="font-semibold text-[#0A0A0A] mb-2">
+                                Unlocked Profiles ({emp.unlocks?.length || 0})
+                              </p>
+                              {emp.unlocks?.length === 0 ? (
+                                <p className="text-gray-400">No profiles unlocked yet.</p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {emp.unlocks.map(u => (
+                                    <div key={u.id} className="bg-white border border-gray-200 rounded-lg px-3 py-2">
+                                      <p className="font-semibold text-[#0A0A0A]">
+                                        {u.candidates?.job_title || 'Unknown role'}
+                                      </p>
+                                      <p className="text-gray-500 mt-0.5">
+                                        {u.candidates?.location || '—'}
+                                        {u.candidates?.years_experience ? ` · ${u.candidates.years_experience}` : ''}
+                                      </p>
+                                      {u.candidates?.certifications?.length ? (
+                                        <p className="text-[#C9A84C] font-semibold mt-0.5">
+                                          {u.candidates.certifications.join(', ')}
+                                        </p>
+                                      ) : null}
+                                      <p className="text-gray-400 mt-0.5">
+                                        Unlocked {new Date(u.unlocked_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Role Requests */}
+                            <div>
+                              <p className="font-semibold text-[#0A0A0A] mb-2">
+                                Role Requests ({emp.job_requests?.length || 0})
+                              </p>
+                              {emp.job_requests?.length === 0 ? (
+                                <p className="text-gray-400">No role requests submitted.</p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {emp.job_requests.map((jr, i) => (
+                                    <div key={i} className="bg-white border border-gray-200 rounded-lg px-3 py-2">
+                                      <p className="font-semibold text-[#0A0A0A]">{jr.role_title}</p>
+                                      {jr.urgency && <p className="text-gray-500 mt-0.5">Urgency: {jr.urgency}</p>}
+                                      <p className="text-gray-400 mt-0.5">
+                                        {new Date(jr.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══ CANDIDATES TAB ══ */}
+        {activeTab === 'candidates' && <>
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
@@ -317,6 +617,8 @@ export default function AdminPage() {
             })}
           </div>
         )}
+        </> }
+
       </div>
     </div>
   );
