@@ -4,18 +4,17 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-// Admin-only Clerk user IDs — add your Clerk user ID here
-const ADMIN_USER_IDS = (process.env.ADMIN_CLERK_USER_IDS || '').split(',').map(id => id.trim());
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
 
-function isAdmin(userId: string): boolean {
-  return ADMIN_USER_IDS.includes(userId);
+function isAdmin(email: string): boolean {
+  return ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
 // GET /api/admin/candidates — fetch all candidates for admin panel
 export async function GET() {
   try {
     const user = await currentUser();
-    if (!user || !isAdmin(user.id)) {
+    if (!user || !isAdmin(user.emailAddresses[0]?.emailAddress ?? '')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -38,7 +37,7 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     const user = await currentUser();
-    if (!user || !isAdmin(user.id)) {
+    if (!user || !isAdmin(user.emailAddresses[0]?.emailAddress ?? '')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
