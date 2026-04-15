@@ -755,10 +755,10 @@ export default function TalentPage() {
     if (search) {
       const q = search.toLowerCase();
       if (
-        !p.role.toLowerCase().includes(q) &&
-        !p.location.toLowerCase().includes(q) &&
-        !p.industry.toLowerCase().includes(q) &&
-        !p.skills.some((s) => s.toLowerCase().includes(q))
+        !(p.role || '').toLowerCase().includes(q) &&
+        !(p.location || '').toLowerCase().includes(q) &&
+        !(p.industry || '').toLowerCase().includes(q) &&
+        !(p.skills || []).some((s) => (s || '').toLowerCase().includes(q))
       ) return false;
     }
     return true;
