@@ -37,28 +37,6 @@ const locationOptions = [
 
 const certOptions = ['CAMS', 'CKYC', 'CFE', 'ICA', 'ACAMS', 'CRCM', 'CGSS', 'CFCS'];
 
-const degreeTypes = [
-  'B.A. (Bachelor of Arts)',
-  'B.Sc. (Bachelor of Science)',
-  'B.Eng. (Bachelor of Engineering)',
-  'LLB (Bachelor of Laws)',
-  'B.Com (Bachelor of Commerce)',
-  'M.Sc. (Master of Science)',
-  'M.A. (Master of Arts)',
-  'MBA (Master of Business Administration)',
-  'M.Eng. (Master of Engineering)',
-  'LLM (Master of Laws)',
-  'PhD / DPhil',
-  'DBA (Doctor of Business Administration)',
-  'ICA Diploma',
-  'ICA Advanced Certificate',
-  'ICA Certificate',
-  'ACAMS Certification',
-  'HND (Higher National Diploma)',
-  'Foundation Degree',
-  'Other / Professional Qualification',
-];
-
 const currentYear = new Date().getFullYear();
 const graduationYears = Array.from({ length: currentYear - 1974 }, (_, i) => String(currentYear - i));
 const workStartYears = Array.from({ length: currentYear - 1989 }, (_, i) => String(currentYear - i));
@@ -629,7 +607,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                           <p className="text-sm text-gray-600 mt-0.5 font-medium">{profile.school}</p>
                         )}
                         {profile.graduationYear && (
-                          <p className="text-xs text-gray-400 mt-1">Class of {profile.graduationYear}</p>
+                          <p className="text-xs text-gray-400 mt-1">Graduated {profile.graduationYear}</p>
                         )}
                       </div>
                     </div>
@@ -847,15 +825,13 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="sm:col-span-1">
                     <label className="block text-xs font-medium text-gray-700 mb-1.5">Degree Type</label>
-                    <select value={profile.degreeType} onChange={e => setProfile({ ...profile, degreeType: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]">
-                      <option value="">Select degree</option>
-                      {degreeTypes.map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
+                    <input type="text" placeholder="e.g. M.Sc., MBA, LLB, PhD" value={profile.degreeType}
+                      onChange={e => setProfile({ ...profile, degreeType: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]" />
                   </div>
                   <div className="sm:col-span-1">
-                    <label className="block text-xs font-medium text-gray-700 mb-1.5">School / Institution</label>
-                    <input type="text" placeholder="e.g. University of London" value={profile.school}
+                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Course / Subject</label>
+                    <input type="text" placeholder="e.g. Financial Crime Prevention" value={profile.school}
                       onChange={e => setProfile({ ...profile, school: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]" />
                   </div>
