@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
@@ -357,6 +357,62 @@ const INDUSTRIES = ['All', 'Banking', 'FinTech', 'Insurance', 'Asset Management'
 
 // ─── Urgency options ─────────────────────────────────────────────────────────
 const URGENCY_OPTIONS = ['Within 1 week', '2–4 weeks', '1–3 months', 'No urgency / exploring'];
+
+// ─── OTP Input — 6 individual digit boxes ────────────────────────────────────
+function OtpInput({ value, onChange, disabled }: { value: string; onChange: (v: string) => void; disabled?: boolean }) {
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+
+  const handleChange = (index: number, char: string) => {
+    const digit = char.replace(/\D/g, '').slice(-1);
+    const digits = value.padEnd(6, '').split('');
+    digits[index] = digit;
+    const next = digits.join('').slice(0, 6);
+    onChange(next);
+    if (digit && index < 5) inputsRef.current[index + 1]?.focus();
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace') {
+      if (value[index]) {
+        const digits = value.padEnd(6, '').split('');
+        digits[index] = '';
+        onChange(digits.join('').slice(0, 6));
+      } else if (index > 0) {
+        inputsRef.current[index - 1]?.focus();
+      }
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    onChange(pasted.padEnd(6, '').slice(0, 6).trimEnd());
+    const focusIndex = Math.min(pasted.length, 5);
+    inputsRef.current[focusIndex]?.focus();
+  };
+
+  return (
+    <div className="flex gap-2 justify-center">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <input
+          key={i}
+          ref={(el) => { inputsRef.current[i] = el; }}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={value[i] || ''}
+          disabled={disabled}
+          onChange={(e) => handleChange(i, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(i, e)}
+          onPaste={handlePaste}
+          onFocus={(e) => e.target.select()}
+          className="w-11 h-13 text-center text-xl font-black border-2 rounded-xl focus:outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 text-brand-black disabled:opacity-50 transition-all"
+          style={{ height: '52px' }}
+        />
+      ))}
+    </div>
+  );
+}
 
 // ─── Full CV Modal ────────────────────────────────────────────────────────────
 function CandidateProfileModal({
@@ -734,7 +790,7 @@ function CandidateProfileModal({
 
 // ─── Unlock Modal ─────────────────────────────────────────────────────────────
 function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void }) {
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [form, setForm] = useState({ contactName: '', companyName: '', workEmail: '', roleHiringFor: '', urgency: '' });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'no_credits' | 'personal_email'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -742,8 +798,90 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
   const [showFullProfile, setShowFullProfile] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // OTP state
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // Countdown for resend button
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const t = setTimeout(() => setResendTimer((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendTimer]);
+
+  // ── Step 2 → send OTP (or skip if already verified / admin) ──────────────
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const res = await fetch('/api/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.workEmail }),
+      });
+      const data = await res.json();
+      if (data?.error === 'personal_email') {
+        setStatus('personal_email');
+        setOtpLoading(false);
+        return;
+      }
+      if (res.status === 429) {
+        setOtpError(data.message || 'Please wait before requesting another code.');
+        setOtpLoading(false);
+        return;
+      }
+      if (!res.ok) throw new Error(data?.error || 'Failed to send code');
+
+      if (data.alreadyVerified) {
+        // Email already verified in this session — go straight to unlock
+        await callUnlockApi();
+      } else {
+        // Show OTP entry step
+        setOtpCode('');
+        setResendTimer(60);
+        setStep(3);
+      }
+    } catch (err) {
+      setOtpError(String(err));
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // ── Step 3 → verify OTP then unlock ──────────────────────────────────────
+  const handleVerifyAndUnlock = async () => {
+    if (otpCode.replace(/\s/g, '').length < 6) {
+      setOtpError('Please enter all 6 digits.');
+      return;
+    }
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const confirmRes = await fetch('/api/verify-email/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.workEmail, code: otpCode }),
+      });
+      const confirmData = await confirmRes.json();
+      if (!confirmRes.ok) {
+        setOtpError(confirmData?.error || 'Incorrect code. Please try again.');
+        setOtpLoading(false);
+        return;
+      }
+      // OTP confirmed → call unlock
+      await callUnlockApi();
+    } catch (err) {
+      setOtpError(String(err));
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // ── Shared: call the actual unlock API ────────────────────────────────────
+  const callUnlockApi = useCallback(async () => {
     setStatus('loading');
     setErrorMsg('');
     try {
@@ -792,7 +930,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
       setStatus('error');
       setErrorMsg('Something went wrong. Please try again or email us at hello@talentxmarket.com');
     }
-  };
+  }, [form, pro.id]);
 
   const REVEAL_ITEMS = [
     { icon: '👤', label: 'Full Name', sub: 'Hidden on public card' },
@@ -816,11 +954,11 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
                 <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest">
-                  {status === 'success' ? 'Profile Unlocked' : step === 1 ? 'Employer Access' : 'Step 2 of 2'}
+                  {status === 'success' ? 'Profile Unlocked' : step === 1 ? 'Employer Access' : step === 2 ? 'Step 2 of 3' : 'Step 3 of 3 — Verify Email'}
                 </span>
               </div>
               <h2 className="text-white text-lg font-bold">
-                {status === 'success' ? 'You\'re on the list' : step === 1 ? 'Unlock This Profile' : 'Create Your Access'}
+                {status === 'success' ? 'You\'re on the list' : step === 1 ? 'Unlock This Profile' : step === 2 ? 'Create Your Access' : 'Check Your Inbox'}
               </h2>
             </div>
             <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0">
@@ -1039,7 +1177,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
               </p>
             </div>
 
-          ) : (
+          ) : step === 2 ? (
             /* ── STEP 2: EMPLOYER DETAILS FORM ── */
             <div className="px-6 py-6">
 
@@ -1071,7 +1209,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSendOtp} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-brand-black mb-1.5">Your Name <span className="text-red-400">*</span></label>
@@ -1139,33 +1277,112 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                   <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">{errorMsg}</p>
                 )}
 
+                {otpError && step === 2 && (
+                  <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">{otpError}</p>
+                )}
+
                 <button
                   type="submit"
-                  disabled={status === 'loading'}
+                  disabled={otpLoading}
                   className="w-full py-3.5 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2"
                 >
-                  {status === 'loading' ? (
+                  {otpLoading ? (
                     <>
                       <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      Submitting…
+                      Sending code…
                     </>
                   ) : (
                     <>
-                      <UnlockIcon />
-                      Unlock Profile Now
+                      <MailIcon size={13} />
+                      Send Verification Code
                     </>
                   )}
                 </button>
 
                 <p className="text-center text-[11px] text-gray-400">
-                  No subscription required · Full profile revealed instantly
+                  We&apos;ll send a 6-digit code to your work email to verify it&apos;s really you
                 </p>
               </form>
             </div>
-          )}
+
+          ) : step === 3 ? (
+            /* ── STEP 3: OTP VERIFICATION ── */
+            <div className="px-6 py-6">
+
+              {/* Back */}
+              <button onClick={() => { setStep(2); setOtpCode(''); setOtpError(''); }} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-black transition-colors mb-5">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+
+              {/* Sent notice */}
+              <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-6 flex items-start gap-3">
+                <svg className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+                <div>
+                  <p className="text-xs font-bold text-green-800">Code sent to your work email</p>
+                  <p className="text-xs text-green-600 mt-0.5 break-all">{form.workEmail}</p>
+                </div>
+              </div>
+
+              {/* OTP boxes */}
+              <div className="mb-2">
+                <p className="text-xs font-semibold text-brand-black text-center mb-4">Enter your 6-digit verification code</p>
+                <OtpInput value={otpCode} onChange={setOtpCode} disabled={otpLoading} />
+              </div>
+
+              {otpError && (
+                <p className="text-red-500 text-xs text-center bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-3">{otpError}</p>
+              )}
+
+              {/* Verify button */}
+              <button
+                onClick={handleVerifyAndUnlock}
+                disabled={otpLoading || otpCode.replace(/\s/g,'').length < 6}
+                className="mt-5 w-full py-3.5 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {otpLoading ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Verifying…
+                  </>
+                ) : (
+                  <>
+                    <UnlockIcon />
+                    Verify &amp; Unlock Profile
+                  </>
+                )}
+              </button>
+
+              {/* Resend */}
+              <div className="mt-4 text-center">
+                {resendTimer > 0 ? (
+                  <p className="text-xs text-gray-400">Resend code in {resendTimer}s</p>
+                ) : (
+                  <button
+                    onClick={() => handleSendOtp({ preventDefault: () => {} } as React.FormEvent)}
+                    disabled={otpLoading}
+                    className="text-xs text-brand-gold hover:underline font-semibold disabled:opacity-50"
+                  >
+                    Didn&apos;t receive it? Resend code
+                  </button>
+                )}
+              </div>
+
+              <p className="text-center text-[10px] text-gray-300 mt-3">
+                Code expires in 10 minutes · Check your spam folder if not received
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
 

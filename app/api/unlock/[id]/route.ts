@@ -114,7 +114,27 @@ export async function POST(
 
     const isNewUnlock = !alreadyUnlocked;
 
-    // ── 3. Check credits (admins always pass) ─────────────────────────────
+    // ── 3a. Require verified email (admins bypass) ────────────────────────
+    if (!isAdmin) {
+      const { data: verified } = await supabaseAdmin
+        .from('email_verifications')
+        .select('id')
+        .eq('email', normalisedEmail)
+        .eq('verified', true)
+        .gte('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!verified) {
+        return NextResponse.json(
+          { error: 'email_not_verified', message: 'Please verify your work email before unlocking.' },
+          { status: 403 }
+        );
+      }
+    }
+
+    // ── 3b. Check credits (admins always pass) ────────────────────────────
     if (!isAdmin && isNewUnlock && creditsRemaining <= 0) {
       return NextResponse.json(
         { error: 'no_credits', message: 'You have used all your free unlocks. Upgrade to continue.' },
