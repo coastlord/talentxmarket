@@ -23,17 +23,17 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-3">
+        <div className="flex items-center justify-between py-4">
 
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
             <Image
-              src="/logo-dark.png"
+              src="/tx-icon-gold.png"
               alt="TalentX Market"
-              width={1171}
-              height={264}
+              width={501}
+              height={302}
               className="w-auto object-contain"
-              style={{ height: '52px' }}
+              style={{ height: '120px' }}
               priority
             />
           </Link>
