@@ -4,6 +4,41 @@ import { supabaseAdmin } from '@/lib/supabase';
 const FREE_UNLOCKS = 2;
 const ADMIN_EMAILS = ['soa.tidjani@gmail.com'];
 
+// ── Blocked free / personal email domains ─────────────────────────────────────
+const FREE_EMAIL_DOMAINS = new Set([
+  // Google
+  'gmail.com', 'googlemail.com',
+  // Yahoo
+  'yahoo.com', 'yahoo.co.uk', 'yahoo.fr', 'yahoo.de', 'yahoo.es',
+  'yahoo.it', 'yahoo.ca', 'yahoo.com.au', 'yahoo.co.in', 'ymail.com',
+  // Microsoft
+  'hotmail.com', 'hotmail.co.uk', 'hotmail.fr', 'hotmail.de',
+  'outlook.com', 'outlook.co.uk', 'live.com', 'live.co.uk', 'msn.com',
+  // Apple
+  'icloud.com', 'me.com', 'mac.com',
+  // AOL
+  'aol.com', 'aol.co.uk',
+  // Privacy / encrypted
+  'protonmail.com', 'proton.me', 'pm.me', 'tutanota.com', 'tuta.io', 'hushmail.com',
+  // Generic free
+  'mail.com', 'email.com', 'inbox.com',
+  'gmx.com', 'gmx.net', 'gmx.de',
+  'fastmail.com', 'fastmail.fm',
+  'zoho.com', 'zohomail.com',
+  // Regional
+  'yandex.com', 'yandex.ru', 'qq.com', '163.com', '126.com',
+  // Disposable / throwaway
+  'mailinator.com', 'guerrillamail.com', 'temp-mail.org',
+  'throwam.com', 'sharklasers.com', 'guerrillamailblock.com',
+  'trashmail.com', 'tempmail.com', 'dispostable.com',
+]);
+
+function isPersonalEmail(email: string): boolean {
+  const domain = email.split('@')[1]?.toLowerCase();
+  return domain ? FREE_EMAIL_DOMAINS.has(domain) : false;
+}
+
+// ─── POST /api/unlock/[id] ────────────────────────────────────────────────────
 export async function POST(
   req: Request,
   { params }: { params: { id: string } }
@@ -17,14 +52,27 @@ export async function POST(
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // ── Admin bypass: unlimited unlocks ───────────────────────────────────────
-    const isAdmin = ADMIN_EMAILS.includes(workEmail.toLowerCase().trim());
+    const normalisedEmail = workEmail.toLowerCase().trim();
+
+    // ── Gate: reject personal / free email domains ─────────────────────────
+    if (isPersonalEmail(normalisedEmail) && !ADMIN_EMAILS.includes(normalisedEmail)) {
+      return NextResponse.json(
+        {
+          error: 'personal_email',
+          message: 'Please use your work email address. Personal email accounts (Gmail, Yahoo, Hotmail etc.) are not accepted.',
+        },
+        { status: 400 }
+      );
+    }
+
+    // ── Admin bypass: unlimited unlocks ────────────────────────────────────
+    const isAdmin = ADMIN_EMAILS.includes(normalisedEmail);
 
     // ── 1. Find or create employer ─────────────────────────────────────────
     const { data: existing } = await supabaseAdmin
       .from('employers')
       .select('id, unlock_credits, status')
-      .eq('email', workEmail)
+      .eq('email', normalisedEmail)
       .maybeSingle();
 
     let employerId: string;
@@ -34,11 +82,10 @@ export async function POST(
       employerId = existing.id;
       creditsRemaining = isAdmin ? 999 : (existing.unlock_credits ?? FREE_UNLOCKS);
     } else {
-      // New employer — create with free unlock credits
       const { data: created, error: createErr } = await supabaseAdmin
         .from('employers')
         .insert({
-          email: workEmail,
+          email: normalisedEmail,
           company_name: companyName,
           contact_name: contactName,
           status: 'active',
@@ -67,7 +114,7 @@ export async function POST(
 
     const isNewUnlock = !alreadyUnlocked;
 
-    // ── 3. Check credits if this is a new unlock (admins always pass) ──────
+    // ── 3. Check credits (admins always pass) ─────────────────────────────
     if (!isAdmin && isNewUnlock && creditsRemaining <= 0) {
       return NextResponse.json(
         { error: 'no_credits', message: 'You have used all your free unlocks. Upgrade to continue.' },
@@ -90,14 +137,13 @@ export async function POST(
       return NextResponse.json({ error: 'Candidate not found' }, { status: 404 });
     }
 
-    // ── 5. Record the unlock (if new) + deduct credit ──────────────────────
+    // ── 5. Record unlock + deduct credit ──────────────────────────────────
     if (isNewUnlock) {
       await supabaseAdmin.from('employer_unlocks').insert({
         employer_id: employerId,
         candidate_id: candidateId,
       });
 
-      // Admins: never deduct credits
       if (!isAdmin) {
         await supabaseAdmin
           .from('employers')
@@ -108,7 +154,7 @@ export async function POST(
       }
     }
 
-    // ── 6. Log job request for audit ───────────────────────────────────────
+    // ── 6. Log job request ────────────────────────────────────────────────
     if (roleHiringFor) {
       await supabaseAdmin.from('job_requests').insert({
         employer_id: employerId,
@@ -119,7 +165,7 @@ export async function POST(
       });
     }
 
-    // ── 7. Return full profile ─────────────────────────────────────────────
+    // ── 7. Build initials ─────────────────────────────────────────────────
     const fullName = candidate.full_name || '';
     const nameParts = fullName.trim().split(' ').filter(Boolean);
     let initials = 'TX';
@@ -127,9 +173,6 @@ export async function POST(
     else if (nameParts.length >= 2)
       initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
 
-    // Once unlocked (employer has paid / used a credit), all fields are revealed
-    // regardless of the candidate's is_anonymous flag — anonymity applies to
-    // the public talent board only, not to paying employers.
     return NextResponse.json({
       success: true,
       creditsRemaining: isAdmin ? 999 : creditsRemaining,
@@ -169,6 +212,43 @@ export async function POST(
     });
   } catch (err) {
     console.error('Unlock error:', err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
+}
+
+// ─── PATCH /api/unlock/[id] — toggle liked status ────────────────────────────
+export async function PATCH(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const candidateId = params.id;
+    const { workEmail, liked } = await req.json();
+
+    if (!workEmail) return NextResponse.json({ error: 'Missing workEmail' }, { status: 400 });
+
+    const { data: employer } = await supabaseAdmin
+      .from('employers')
+      .select('id')
+      .eq('email', workEmail.toLowerCase().trim())
+      .maybeSingle();
+
+    if (!employer) return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
+
+    const { error } = await supabaseAdmin
+      .from('employer_unlocks')
+      .update({ liked: !!liked })
+      .eq('employer_id', employer.id)
+      .eq('candidate_id', candidateId);
+
+    if (error) {
+      console.error('Like toggle error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, liked: !!liked });
+  } catch (err) {
+    console.error('PATCH unlock error:', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }

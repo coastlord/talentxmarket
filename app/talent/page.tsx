@@ -736,7 +736,7 @@ function CandidateProfileModal({
 function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void }) {
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState({ contactName: '', companyName: '', workEmail: '', roleHiringFor: '', urgency: '' });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'no_credits'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'no_credits' | 'personal_email'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [unlockedProfile, setUnlockedProfile] = useState<UnlockedProfile | null>(null);
   const [showFullProfile, setShowFullProfile] = useState(false);
@@ -753,10 +753,8 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
         body: JSON.stringify({ ...form }),
       });
       const data = await res.json();
-      if (res.status === 402) {
-        setStatus('no_credits');
-        return;
-      }
+      if (res.status === 402) { setStatus('no_credits'); return; }
+      if (data?.error === 'personal_email') { setStatus('personal_email'); return; }
       if (!res.ok) throw new Error(data?.error || 'Request failed');
       setIsAdmin(!!data.isAdmin);
       setUnlockedProfile({
@@ -832,8 +830,30 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
             </button>
           </div>
 
-          {/* ── NO CREDITS ── */}
-          {status === 'no_credits' ? (
+          {/* ── PERSONAL EMAIL BLOCKED ── */}
+          {status === 'personal_email' ? (
+            <div className="px-6 py-10 text-center">
+              <div className="w-16 h-16 rounded-full bg-red-50 border-2 border-red-200 flex items-center justify-center mx-auto mb-5">
+                <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-brand-black mb-2">Work Email Required</h3>
+              <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto mb-6">
+                Personal email addresses (Gmail, Yahoo, Hotmail etc.) are not accepted. Please use your company work email to unlock profiles.
+              </p>
+              <button
+                onClick={() => setStatus('idle')}
+                className="block w-full py-3.5 bg-brand-black text-white text-sm font-bold rounded-xl hover:bg-brand-gold hover:text-brand-black transition-all duration-200 text-center mb-3"
+              >
+                Try Again with Work Email
+              </button>
+              <button onClick={onClose} className="text-xs text-gray-400 hover:text-brand-black transition-colors">
+                Cancel
+              </button>
+            </div>
+
+          ) : status === 'no_credits' ? (
             <div className="px-6 py-10 text-center">
               <div className="w-16 h-16 rounded-full bg-brand-gold/10 border-2 border-brand-gold/30 flex items-center justify-center mx-auto mb-5">
                 <svg className="w-8 h-8 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -931,6 +951,17 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
               <p className="text-center text-[11px] text-gray-400 mt-3">
                 Full CV with experience, education and certifications revealed
               </p>
+
+              {/* Dashboard link */}
+              <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+                <Link
+                  href="/employers"
+                  className="text-xs text-brand-gold hover:underline font-semibold"
+                >
+                  View your employer dashboard →
+                </Link>
+                <p className="text-[10px] text-gray-300 mt-0.5">All your unlocked profiles in one place</p>
+              </div>
             </div>
 
           ) : step === 1 ? (
