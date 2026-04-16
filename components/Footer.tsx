@@ -12,12 +12,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Image
-              src="/logo-light.png"
+              src="/logo-dark.png"
               alt="TalentX Market"
-              width={420}
-              height={126}
+              width={1171}
+              height={264}
               className="w-auto mb-6"
-              style={{ height: '120px' }}
+              style={{ height: '96px' }}
             />
             <p className="text-white/50 text-sm leading-relaxed mb-6">
               The compliance talent marketplace. Connecting AML, Risk, MLRO, and

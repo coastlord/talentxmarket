@@ -30,10 +30,10 @@ export default function Navbar() {
             <Image
               src="/logo-dark.png"
               alt="TalentX Market"
-              width={400}
-              height={120}
+              width={1171}
+              height={264}
               className="w-auto object-contain"
-              style={{ height: '64px' }}
+              style={{ height: '52px' }}
               priority
             />
           </Link>
