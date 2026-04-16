@@ -788,6 +788,9 @@ function CandidateProfileModal({
   );
 }
 
+// ─── Admin emails — bypass all unlock steps ───────────────────────────────────
+const ADMIN_EMAILS = ['soa.tidjani@gmail.com'];
+
 // ─── Unlock Modal ─────────────────────────────────────────────────────────────
 function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void }) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -810,6 +813,23 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
     const t = setTimeout(() => setResendTimer((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [resendTimer]);
+
+  // ── Admin auto-unlock: bypass all steps on mount ──────────────────────────
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('tx_employer_email')?.toLowerCase().trim();
+    if (savedEmail && ADMIN_EMAILS.includes(savedEmail)) {
+      const adminForm = {
+        contactName: 'Admin',
+        companyName: 'TalentX Market',
+        workEmail: savedEmail,
+        roleHiringFor: '',
+        urgency: '',
+      };
+      setForm(adminForm);
+      callUnlockApi(adminForm);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Step 2 → send OTP (or skip if already verified / admin) ──────────────
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -881,14 +901,15 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
   };
 
   // ── Shared: call the actual unlock API ────────────────────────────────────
-  const callUnlockApi = useCallback(async () => {
+  const callUnlockApi = useCallback(async (formOverride?: { contactName: string; companyName: string; workEmail: string; roleHiringFor: string; urgency: string }) => {
     setStatus('loading');
     setErrorMsg('');
     try {
+      const payload = formOverride ?? form;
       const res = await fetch(`/api/unlock/${pro.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form }),
+        body: JSON.stringify({ ...payload }),
       });
       const data = await res.json();
       if (res.status === 402) { setStatus('no_credits'); return; }
