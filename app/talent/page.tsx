@@ -1512,7 +1512,7 @@ export default function TalentPage() {
       <main className="bg-gray-50 min-h-screen">
 
         {/* ── Hero ── */}
-        <div className="bg-brand-black pt-28 pb-16 px-4">
+        <div className="bg-brand-black pt-20 pb-16 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="inline-flex items-center gap-2 bg-brand-gold/10 text-brand-gold text-xs font-semibold px-3 py-1.5 rounded-full border border-brand-gold/20 mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
