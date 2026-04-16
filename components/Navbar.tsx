@@ -23,7 +23,7 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
@@ -64,7 +64,7 @@ export default function Navbar() {
               <>
                 <Link
                   href="/dashboard"
-                  className="px-4 py-1.5 text-sm font-medium text-brand-gold border border-brand-gold/30 rounded-lg hover:border-brand-gold hover:bg-brand-gold/5 transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium text-brand-gold border border-brand-gold/30 rounded-lg hover:border-brand-gold hover:bg-brand-gold/5 transition-all duration-200"
                 >
                   My Dashboard
                 </Link>
@@ -78,18 +78,18 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <a
-                  href="#open-to-work"
-                  className="px-4 py-1.5 text-sm font-medium text-white/80 hover:text-white transition-colors duration-200"
+                <Link
+                  href="/sign-in"
+                  className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors duration-200"
                 >
-                  Post Profile
-                </a>
-                <a
-                  href="/talent"
-                  className="px-4 py-1.5 text-sm font-semibold bg-brand-gold text-brand-black rounded-lg hover:bg-brand-gold/90 transition-all duration-200"
+                  Sign In
+                </Link>
+                <Link
+                  href="/sign-up"
+                  className="px-4 py-2 text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg hover:bg-brand-gold/10 hover:border-brand-gold transition-all duration-200"
                 >
-                  I&apos;m Hiring
-                </a>
+                  Sign Up
+                </Link>
               </>
             )}
           </div>
@@ -131,12 +131,12 @@ export default function Navbar() {
                   </Link>
                 ) : (
                   <>
-                    <a href="#open-to-work" className="text-center text-sm font-medium text-white/80 border border-white/20 rounded-lg py-2.5 hover:border-white/40 transition-all" onClick={() => setMenuOpen(false)}>
-                      Post Profile
-                    </a>
-                    <a href="/talent" className="text-center text-sm font-semibold bg-brand-gold text-brand-black rounded-lg py-2.5 hover:bg-brand-gold/90 transition-all" onClick={() => setMenuOpen(false)}>
-                      I&apos;m Hiring
-                    </a>
+                    <Link href="/sign-in" className="text-center text-sm font-medium text-white/70 hover:text-white py-2.5 border border-white/20 rounded-lg hover:border-white/40 transition-all" onClick={() => setMenuOpen(false)}>
+                      Sign In
+                    </Link>
+                    <Link href="/sign-up" className="text-center text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg py-2.5 hover:bg-brand-gold/10 hover:border-brand-gold transition-all" onClick={() => setMenuOpen(false)}>
+                      Sign Up
+                    </Link>
                   </>
                 )}
               </div>
