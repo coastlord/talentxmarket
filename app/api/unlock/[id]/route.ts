@@ -120,6 +120,9 @@ export async function POST(
     else if (nameParts.length >= 2)
       initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
 
+    // Once unlocked (employer has paid / used a credit), all fields are revealed
+    // regardless of the candidate's is_anonymous flag — anonymity applies to
+    // the public talent board only, not to paying employers.
     return NextResponse.json({
       success: true,
       creditsRemaining,
@@ -127,11 +130,11 @@ export async function POST(
       profile: {
         id:                 candidate.id,
         initials,
-        fullName:           candidate.is_anonymous ? null : candidate.full_name,
-        contactEmail:       candidate.is_anonymous ? null : candidate.email,
-        phone:              candidate.is_anonymous ? null : (candidate.phone_number || null),
-        linkedinUrl:        candidate.is_anonymous ? null : candidate.linkedin_url,
-        certificationLink:  candidate.certification_link || null,
+        fullName:           candidate.full_name           || null,
+        contactEmail:       candidate.email               || null,
+        phone:              candidate.phone_number        || null,
+        linkedinUrl:        candidate.linkedin_url        || null,
+        certificationLink:  candidate.certification_link  || null,
         role:               candidate.job_title           || 'Compliance Professional',
         location:           candidate.location            || '',
         experience:         candidate.years_experience    || '',

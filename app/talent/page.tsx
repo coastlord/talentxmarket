@@ -562,22 +562,26 @@ function CandidateProfileModal({
               )}
 
               {!profile.contactEmail && !profile.phone && !profile.linkedinUrl && (
-                <div className="col-span-2 flex items-center gap-3 bg-brand-gold/10 border border-brand-gold/20 rounded-xl px-4 py-3">
-                  <span className="text-brand-gold text-lg">ℹ️</span>
-                  <p className="text-xs text-gray-600">This candidate has opted for introduction-only contact.</p>
+                <div className="col-span-2 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                  <span className="text-gray-400 text-lg">ℹ️</span>
+                  <p className="text-xs text-gray-500">This candidate has not added contact details to their profile yet.</p>
                 </div>
               )}
             </div>
 
             {/* ── SEND EMAIL CTA ── */}
-            {profile.contactEmail && (
+            {profile.contactEmail ? (
               <a
-                href={`mailto:${profile.contactEmail}?subject=${encodeURIComponent('Opportunity via TalentX Market')}&body=${encodeURIComponent(`Hi,\n\nI came across your profile on TalentX Market and would love to connect regarding a ${pro.role} opportunity.\n\nLooking forward to hearing from you.\n\nKind regards`)}`}
+                href={`mailto:${profile.contactEmail}?subject=${encodeURIComponent('Opportunity via TalentX Market')}&body=${encodeURIComponent(`Hi ${profile.fullName ? profile.fullName.split(' ')[0] : ''},\n\nI came across your profile on TalentX Market and would love to connect regarding a ${pro.role} opportunity.\n\nLooking forward to hearing from you.\n\nKind regards`)}`}
                 className="mt-4 w-full flex items-center justify-center gap-2.5 bg-brand-gold hover:bg-brand-gold/90 text-brand-black text-sm font-bold py-3.5 rounded-xl transition-all duration-200 shadow-md shadow-brand-gold/20"
               >
                 <MailIcon size={14} />
                 Send Email to Candidate
               </a>
+            ) : (
+              <div className="mt-4 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center">
+                <p className="text-xs text-gray-500">No email address on file. Contact via LinkedIn or phone above.</p>
+              </div>
             )}
           </div>
 
@@ -896,9 +900,9 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                     </div>
                   )}
                   {!unlockedProfile.contactEmail && !unlockedProfile.linkedinUrl && (
-                    <div className="flex items-center gap-2.5 bg-brand-gold/10 border border-brand-gold/20 rounded-lg px-3 py-2">
-                      <span className="text-brand-gold text-sm">ℹ️</span>
-                      <p className="text-xs text-gray-600">Contact via introduction only.</p>
+                    <div className="flex items-center gap-2.5 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                      <span className="text-gray-400 text-sm">ℹ️</span>
+                      <p className="text-xs text-gray-500">No contact details added yet — view full profile for more.</p>
                     </div>
                   )}
                 </div>
