@@ -75,7 +75,7 @@ export async function POST(
     const { data: candidate, error: candErr } = await supabaseAdmin
       .from('candidates')
       .select(
-        'id, full_name, job_title, location, years_experience, specialisms, certifications, bio, availability_status, work_preference, salary_amount, salary_currency, salary_period, linkedin_url, email, is_anonymous'
+        'id, full_name, job_title, location, years_experience, specialisms, certifications, bio, availability_status, work_preference, salary_amount, salary_currency, salary_period, linkedin_url, email, phone_number, is_anonymous, current_company, current_start_year, previous_role, previous_company, previous_start_year, previous_end_year, degree_type, school_name, institution_name, graduation_year, other_certification, certification_link'
       )
       .eq('id', candidateId)
       .eq('status', 'approved')
@@ -129,18 +129,31 @@ export async function POST(
         initials,
         fullName:           candidate.is_anonymous ? null : candidate.full_name,
         contactEmail:       candidate.is_anonymous ? null : candidate.email,
+        phone:              candidate.is_anonymous ? null : (candidate.phone_number || null),
         linkedinUrl:        candidate.is_anonymous ? null : candidate.linkedin_url,
+        certificationLink:  candidate.certification_link || null,
         role:               candidate.job_title           || 'Compliance Professional',
         location:           candidate.location            || '',
         experience:         candidate.years_experience    || '',
         skills:             candidate.specialisms         || [],
         certifications:     candidate.certifications      || [],
+        otherCertification: candidate.other_certification || null,
         headline:           candidate.bio                 || '',
         availabilityStatus: candidate.availability_status || 'Available Now',
         workPreference:     candidate.work_preference     || '',
         salaryAmount:       candidate.salary_amount       || '',
         salaryCurrency:     candidate.salary_currency     || 'GBP',
         salaryPeriod:       candidate.salary_period       || 'Year',
+        currentCompany:     candidate.current_company     || null,
+        currentStartYear:   candidate.current_start_year  || null,
+        previousRole:       candidate.previous_role       || null,
+        previousCompany:    candidate.previous_company    || null,
+        previousStartYear:  candidate.previous_start_year || null,
+        previousEndYear:    candidate.previous_end_year   || null,
+        degreeType:         candidate.degree_type         || null,
+        schoolName:         candidate.school_name         || null,
+        institutionName:    candidate.institution_name    || null,
+        graduationYear:     candidate.graduation_year     || null,
       },
     });
   } catch (err) {
