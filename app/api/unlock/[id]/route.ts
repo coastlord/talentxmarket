@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 const FREE_UNLOCKS = 2;
@@ -65,8 +66,14 @@ export async function POST(
       );
     }
 
-    // ── Admin bypass: unlimited unlocks ────────────────────────────────────
-    const isAdmin = ADMIN_EMAILS.includes(normalisedEmail);
+    // ── Admin bypass: only when actually signed in to Clerk as admin ──────
+    const { userId } = auth();
+    let isAdmin = false;
+    if (userId) {
+      const clerkUser = await currentUser();
+      const clerkEmail = clerkUser?.emailAddresses?.[0]?.emailAddress?.toLowerCase().trim();
+      isAdmin = !!clerkEmail && ADMIN_EMAILS.includes(clerkEmail);
+    }
 
     // ── 1. Find or create employer ─────────────────────────────────────────
     const { data: existing } = await supabaseAdmin
