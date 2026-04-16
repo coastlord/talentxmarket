@@ -83,6 +83,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
     // Education
     degreeType: '',
     school: '',
+    institution: '',
     graduationYear: '',
     // Contact
     phone: '',
@@ -115,6 +116,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
               previousEndYear:  data.previous_end_year   || '',
               degreeType:       data.degree_type         || '',
               school:           data.school_name         || '',
+              institution:      data.institution_name    || '',
               graduationYear:   data.graduation_year     || '',
               phone:            data.phone_number        || '',
               linkedinUrl:      data.linkedin_url        || '',
@@ -230,7 +232,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
 
   const hasCurrentExp = profile.currentCompany || profile.title;
   const hasPreviousExp = profile.previousCompany || profile.previousRole;
-  const hasEducation = profile.degreeType || profile.school;
+  const hasEducation = profile.degreeType || profile.school || profile.institution;
 
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (isLoading) {
@@ -604,7 +606,10 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                           <p className="text-sm font-bold text-[#0A0A0A] leading-tight">{profile.degreeType}</p>
                         )}
                         {profile.school && (
-                          <p className="text-sm text-gray-600 mt-0.5 font-medium">{profile.school}</p>
+                          <p className="text-sm text-gray-600 mt-0.5">{profile.school}</p>
+                        )}
+                        {profile.institution && (
+                          <p className="text-sm text-gray-500 mt-0.5 font-medium">{profile.institution}</p>
                         )}
                         {profile.graduationYear && (
                           <p className="text-xs text-gray-400 mt-1">Graduated {profile.graduationYear}</p>
@@ -822,20 +827,26 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
               <div className="bg-white rounded-2xl p-6 shadow-sm">
                 <h3 className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest mb-1">Education</h3>
                 <p className="text-xs text-gray-400 mb-4">Your highest qualification or most relevant academic achievement.</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="sm:col-span-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1.5">Degree Type</label>
                     <input type="text" placeholder="e.g. M.Sc., MBA, LLB, PhD" value={profile.degreeType}
                       onChange={e => setProfile({ ...profile, degreeType: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]" />
                   </div>
-                  <div className="sm:col-span-1">
+                  <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1.5">Course / Subject</label>
                     <input type="text" placeholder="e.g. Financial Crime Prevention" value={profile.school}
                       onChange={e => setProfile({ ...profile, school: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]" />
                   </div>
-                  <div className="sm:col-span-1">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Institution</label>
+                    <input type="text" placeholder="University, College" value={profile.institution}
+                      onChange={e => setProfile({ ...profile, institution: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]" />
+                  </div>
+                  <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1.5">Year of Graduation</label>
                     <select value={profile.graduationYear} onChange={e => setProfile({ ...profile, graduationYear: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]">

@@ -82,6 +82,7 @@ export async function GET() {
       previous_end_year:    body.previousEndYear     || undefined,
       degree_type:          body.degreeType          || undefined,
       school_name:          body.school              || undefined,
+      institution_name:     body.institution         || undefined,
       graduation_year:      body.graduationYear      || undefined,
       is_anonymous:        body.isAnonymous   ?? true,
       is_visible:          body.isVisible     ?? true,
