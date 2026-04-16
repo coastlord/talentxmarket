@@ -57,6 +57,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [otherCertVisible, setOtherCertVisible] = useState(false);
 
   // Use live Clerk imageUrl (updates after upload)
   const liveImageUrl = user?.imageUrl || imageUrl;
@@ -85,6 +86,9 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
     school: '',
     institution: '',
     graduationYear: '',
+    // Certifications – extra
+    otherCertification: '',
+    certificationLink: '',
     // Contact
     phone: '',
     linkedinUrl: '',
@@ -118,10 +122,13 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
               school:           data.school_name         || '',
               institution:      data.institution_name    || '',
               graduationYear:   data.graduation_year     || '',
+              otherCertification: data.other_certification || '',
+              certificationLink:  data.certification_link || '',
               phone:            data.phone_number        || '',
               linkedinUrl:      data.linkedin_url        || '',
             });
             setIsVisible(data.is_visible ?? true);
+            if (data.other_certification) setOtherCertVisible(true);
           }
         }
       } catch (err) {
@@ -393,13 +400,31 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                     </div>
 
                     {/* Certifications */}
-                    {profile.certifications.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 justify-center mb-4">
-                        {profile.certifications.map(c => (
-                          <span key={c} className="text-[11px] px-2.5 py-1 bg-[#C9A84C]/10 text-[#8a6d25] border border-[#C9A84C]/30 rounded-full font-bold tracking-wide">
-                            {c}
-                          </span>
-                        ))}
+                    {(profile.certifications.length > 0 || profile.otherCertification) && (
+                      <div className="mb-4">
+                        <div className="flex flex-wrap gap-1.5 justify-center">
+                          {profile.certifications.map(c => (
+                            <span key={c} className="text-[11px] px-2.5 py-1 bg-[#C9A84C]/10 text-[#8a6d25] border border-[#C9A84C]/30 rounded-full font-bold tracking-wide">
+                              {c}
+                            </span>
+                          ))}
+                          {profile.otherCertification && (
+                            <span className="text-[11px] px-2.5 py-1 bg-[#C9A84C]/10 text-[#8a6d25] border border-[#C9A84C]/30 rounded-full font-bold tracking-wide">
+                              {profile.otherCertification}
+                            </span>
+                          )}
+                        </div>
+                        {profile.certificationLink && (
+                          <div className="mt-2 text-center">
+                            <a
+                              href={profile.certificationLink.startsWith('http') ? profile.certificationLink : `https://${profile.certificationLink}`}
+                              target="_blank" rel="noopener noreferrer"
+                              className="text-[10px] text-[#C9A84C] font-semibold hover:underline"
+                            >
+                              Verify Credentials →
+                            </a>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -900,14 +925,60 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
 
               {/* ── Certifications ── */}
               <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest mb-4">Professional Certifications</h3>
-                <div className="flex flex-wrap gap-2">
+                <h3 className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest mb-1">Professional Certifications</h3>
+                <p className="text-xs text-gray-400 mb-4">Select all that apply, or add your own below.</p>
+
+                {/* Standard cert chips */}
+                <div className="flex flex-wrap gap-2 mb-4">
                   {certOptions.map(c => (
                     <button key={c} onClick={() => handleCertToggle(c)}
                       className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all ${profile.certifications.includes(c) ? 'bg-[#C9A84C] border-[#C9A84C] text-[#0A0A0A]' : 'border-gray-200 text-gray-600 hover:border-[#C9A84C]'}`}>
                       {c}
                     </button>
                   ))}
+                  {/* Other toggle */}
+                  <button
+                    onClick={() => {
+                      if (otherCertVisible && !profile.otherCertification) {
+                        setOtherCertVisible(false);
+                      } else if (otherCertVisible && profile.otherCertification) {
+                        setProfile({ ...profile, otherCertification: '' });
+                        setOtherCertVisible(false);
+                      } else {
+                        setOtherCertVisible(true);
+                      }
+                    }}
+                    className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all flex items-center gap-1.5 ${otherCertVisible ? 'bg-[#0A0A0A] border-[#0A0A0A] text-white' : 'border-gray-200 text-gray-600 hover:border-[#C9A84C]'}`}>
+                    {otherCertVisible ? '✕ Other' : '+ Other'}
+                  </button>
+                </div>
+
+                {/* Other cert text input */}
+                {otherCertVisible && (
+                  <div className="mb-4">
+                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Other Certification</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. CGSS, ISO 37001 Lead Auditor, CISI"
+                      value={profile.otherCertification}
+                      onChange={e => setProfile({ ...profile, otherCertification: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]"
+                      autoFocus
+                    />
+                  </div>
+                )}
+
+                {/* Verification link */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Certification Verification Link</label>
+                  <input
+                    type="url"
+                    placeholder="https://verify.acams.org/..."
+                    value={profile.certificationLink}
+                    onChange={e => setProfile({ ...profile, certificationLink: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]"
+                  />
+                  <p className="text-xs text-gray-400 mt-1.5">Optional — allows employers to verify your credentials directly.</p>
                 </div>
               </div>
 
