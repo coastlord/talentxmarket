@@ -740,6 +740,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
   const [errorMsg, setErrorMsg] = useState('');
   const [unlockedProfile, setUnlockedProfile] = useState<UnlockedProfile | null>(null);
   const [showFullProfile, setShowFullProfile] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -757,6 +758,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
         return;
       }
       if (!res.ok) throw new Error(data?.error || 'Request failed');
+      setIsAdmin(!!data.isAdmin);
       setUnlockedProfile({
         fullName:           data.profile.fullName,
         contactEmail:       data.profile.contactEmail,
@@ -862,7 +864,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
-                Profile unlocked · {unlockedProfile.creditsRemaining} free {unlockedProfile.creditsRemaining === 1 ? 'unlock' : 'unlocks'} remaining
+                Profile unlocked · {isAdmin ? 'Unlimited admin access' : `${unlockedProfile.creditsRemaining} free ${unlockedProfile.creditsRemaining === 1 ? 'unlock' : 'unlocks'} remaining`}
               </div>
 
               {/* Quick profile preview */}

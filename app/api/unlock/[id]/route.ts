@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const FREE_UNLOCKS = 3;
+const FREE_UNLOCKS = 2;
+const ADMIN_EMAILS = ['soa.tidjani@gmail.com'];
 
 export async function POST(
   req: Request,
@@ -16,6 +17,9 @@ export async function POST(
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // ── Admin bypass: unlimited unlocks ───────────────────────────────────────
+    const isAdmin = ADMIN_EMAILS.includes(workEmail.toLowerCase().trim());
+
     // ── 1. Find or create employer ─────────────────────────────────────────
     const { data: existing } = await supabaseAdmin
       .from('employers')
@@ -28,9 +32,9 @@ export async function POST(
 
     if (existing) {
       employerId = existing.id;
-      creditsRemaining = existing.unlock_credits ?? FREE_UNLOCKS;
+      creditsRemaining = isAdmin ? 999 : (existing.unlock_credits ?? FREE_UNLOCKS);
     } else {
-      // New employer — create with 3 free unlock credits
+      // New employer — create with free unlock credits
       const { data: created, error: createErr } = await supabaseAdmin
         .from('employers')
         .insert({
@@ -38,8 +42,8 @@ export async function POST(
           company_name: companyName,
           contact_name: contactName,
           status: 'active',
-          subscription_status: 'free',
-          unlock_credits: FREE_UNLOCKS,
+          subscription_status: isAdmin ? 'admin' : 'free',
+          unlock_credits: isAdmin ? 999 : FREE_UNLOCKS,
         })
         .select('id, unlock_credits')
         .single();
@@ -50,7 +54,7 @@ export async function POST(
       }
 
       employerId = created.id;
-      creditsRemaining = created.unlock_credits ?? FREE_UNLOCKS;
+      creditsRemaining = isAdmin ? 999 : (created.unlock_credits ?? FREE_UNLOCKS);
     }
 
     // ── 2. Check if already unlocked this candidate ────────────────────────
@@ -63,8 +67,8 @@ export async function POST(
 
     const isNewUnlock = !alreadyUnlocked;
 
-    // ── 3. Check credits if this is a new unlock ───────────────────────────
-    if (isNewUnlock && creditsRemaining <= 0) {
+    // ── 3. Check credits if this is a new unlock (admins always pass) ──────
+    if (!isAdmin && isNewUnlock && creditsRemaining <= 0) {
       return NextResponse.json(
         { error: 'no_credits', message: 'You have used all your free unlocks. Upgrade to continue.' },
         { status: 402 }
@@ -93,12 +97,15 @@ export async function POST(
         candidate_id: candidateId,
       });
 
-      await supabaseAdmin
-        .from('employers')
-        .update({ unlock_credits: creditsRemaining - 1 })
-        .eq('id', employerId);
+      // Admins: never deduct credits
+      if (!isAdmin) {
+        await supabaseAdmin
+          .from('employers')
+          .update({ unlock_credits: creditsRemaining - 1 })
+          .eq('id', employerId);
 
-      creditsRemaining -= 1;
+        creditsRemaining -= 1;
+      }
     }
 
     // ── 6. Log job request for audit ───────────────────────────────────────
@@ -125,8 +132,9 @@ export async function POST(
     // the public talent board only, not to paying employers.
     return NextResponse.json({
       success: true,
-      creditsRemaining,
+      creditsRemaining: isAdmin ? 999 : creditsRemaining,
       isNewUnlock,
+      isAdmin,
       profile: {
         id:                 candidate.id,
         initials,
