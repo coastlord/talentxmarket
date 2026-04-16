@@ -17,7 +17,7 @@ export default function Footer() {
               width={501}
               height={302}
               className="w-auto mb-6"
-              style={{ height: '120px' }}
+              style={{ height: '50px' }}
             />
             <p className="text-white/50 text-sm leading-relaxed mb-6">
               The compliance talent marketplace. Connecting AML, Risk, MLRO, and
