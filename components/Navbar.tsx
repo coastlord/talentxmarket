@@ -30,9 +30,9 @@ export default function Navbar() {
             <Image
               src="/logo-dark.png"
               alt="TalentX Market"
-              width={140}
-              height={40}
-              className="h-7 w-auto object-contain"
+              width={220}
+              height={64}
+              className="h-11 w-auto object-contain"
               style={{ filter: 'invert(1)', mixBlendMode: 'screen' }}
               priority
             />
