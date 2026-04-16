@@ -14,9 +14,10 @@ export default function Footer() {
             <Image
               src="/logo-light.png"
               alt="TalentX Market"
-              width={260}
-              height={78}
-              className="h-16 w-auto mb-6"
+              width={320}
+              height={96}
+              className="w-auto mb-6"
+              style={{ height: '96px' }}
             />
             <p className="text-white/50 text-sm leading-relaxed mb-6">
               The compliance talent marketplace. Connecting AML, Risk, MLRO, and
