@@ -33,7 +33,7 @@ export default function Navbar() {
               width={400}
               height={120}
               className="w-auto object-contain"
-              style={{ height: '72px', filter: 'invert(1)', mixBlendMode: 'screen' }}
+              style={{ height: '64px' }}
               priority
             />
           </Link>
