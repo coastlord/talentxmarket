@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useUser } from '@clerk/nextjs';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
@@ -796,6 +797,7 @@ const ADMIN_EMAILS = ['soa.tidjani@gmail.com'];
 
 // ─── Unlock Modal ─────────────────────────────────────────────────────────────
 function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void }) {
+  const { user, isLoaded } = useUser();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [form, setForm] = useState({ contactName: '', companyName: '', workEmail: '', roleHiringFor: '', urgency: '' });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'no_credits' | 'personal_email'>('idle');
@@ -817,14 +819,15 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
     return () => clearTimeout(t);
   }, [resendTimer]);
 
-  // ── Admin auto-unlock: bypass all steps on mount ──────────────────────────
+  // ── Admin auto-unlock: only when signed in to Clerk as admin email ─────────
   useEffect(() => {
-    const savedEmail = localStorage.getItem('tx_employer_email')?.toLowerCase().trim();
-    if (savedEmail && ADMIN_EMAILS.includes(savedEmail)) {
+    if (!isLoaded) return;
+    const clerkEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase().trim();
+    if (clerkEmail && ADMIN_EMAILS.includes(clerkEmail)) {
       const adminForm = {
         contactName: 'Admin',
         companyName: 'TalentX Market',
-        workEmail: savedEmail,
+        workEmail: clerkEmail,
         roleHiringFor: '',
         urgency: '',
       };
@@ -832,7 +835,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
       callUnlockApi(adminForm);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLoaded, user]);
 
   // ── Step 2 → send OTP (or skip if already verified / admin) ──────────────
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -950,9 +953,6 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
         graduationYear:     data.profile.graduationYear,
       });
       setStatus('success');
-      // Persist employer email for future auto-bypass
-      const usedEmail = (formOverride ?? form).workEmail;
-      if (usedEmail) localStorage.setItem('tx_employer_email', usedEmail.toLowerCase().trim());
     } catch {
       setStatus('error');
       setErrorMsg('Something went wrong. Please try again or email us at hello@talentxmarket.com');
