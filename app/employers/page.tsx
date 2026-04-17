@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -151,8 +151,6 @@ function UnlockedCard({
             <p className="text-white/50 text-xs truncate">{candidate.role}</p>
           </div>
         </div>
-
-        {/* Like button */}
         <button
           onClick={handleLike}
           disabled={likeLoading}
@@ -166,7 +164,7 @@ function UnlockedCard({
       {/* ── BODY ── */}
       <div className="px-4 sm:px-5 py-4 flex-1 flex flex-col gap-3">
 
-        {/* Meta row */}
+        {/* Meta + availability */}
         <div className="flex flex-wrap items-center gap-2">
           {candidate.location && (
             <span className="inline-flex items-center gap-1 text-xs text-gray-500">
@@ -182,20 +180,18 @@ function UnlockedCard({
               {candidate.workPreference}
             </span>
           )}
+          {isAvailableNow ? (
+            <span className="inline-flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+              Available Now
+            </span>
+          ) : candidate.availabilityStatus ? (
+            <span className="inline-flex items-center gap-1 bg-orange-50 border border-orange-200 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 flex-shrink-0" />
+              {candidate.availabilityStatus}
+            </span>
+          ) : null}
         </div>
-
-        {/* Availability */}
-        {isAvailableNow ? (
-          <span className="self-start inline-flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 text-[10px] font-bold px-2.5 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            Available Now
-          </span>
-        ) : candidate.availabilityStatus ? (
-          <span className="self-start inline-flex items-center gap-1 bg-orange-50 border border-orange-200 text-orange-700 text-[10px] font-bold px-2.5 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-            {candidate.availabilityStatus}
-          </span>
-        ) : null}
 
         {/* Salary */}
         {salaryLabel && (
@@ -237,9 +233,7 @@ function UnlockedCard({
             </div>
           )}
           {!candidate.contactEmail && !candidate.phone && !candidate.linkedinUrl && (
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
-              <p className="text-xs text-gray-400">No contact details added yet by this candidate</p>
-            </div>
+            <p className="text-xs text-gray-400 italic">No contact details added yet by this candidate.</p>
           )}
         </div>
 
@@ -295,7 +289,6 @@ function UnlockedCard({
             Send Email to Candidate
           </a>
         )}
-
         <div className="flex items-center justify-between">
           <button
             onClick={handleLike}
@@ -317,20 +310,27 @@ function UnlockedCard({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function EmployerDashboard() {
   const { user, isLoaded: clerkLoaded } = useUser();
+
+  // Email search state (for non-admin employers)
   const [email, setEmail] = useState('');
   const [submittedEmail, setSubmittedEmail] = useState('');
+
+  // Dashboard state
   const [loading, setLoading] = useState(false);
   const [employer, setEmployer] = useState<Employer | null>(null);
   const [unlocks, setUnlocks] = useState<Unlock[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [filter, setFilter] = useState<'all' | 'liked'>('all');
-  const [seeding, setSeeding] = useState(false);
 
-  const isSignedInAdmin = clerkLoaded
-    ? ADMIN_EMAILS.includes(user?.primaryEmailAddress?.emailAddress?.toLowerCase().trim() ?? '')
+  // Prevent the admin auto-load effect from running more than once
+  const adminInitialised = useRef(false);
+
+  const isSignedInAdmin = clerkLoaded && !!user
+    ? ADMIN_EMAILS.includes(user.primaryEmailAddress?.emailAddress?.toLowerCase().trim() ?? '')
     : false;
 
-  const fetchDashboard = useCallback(async (emailToFetch: string) => {
+  // ── Core fetch ────────────────────────────────────────────────────────────
+  const fetchDashboard = useCallback(async (emailToFetch: string): Promise<boolean> => {
     setLoading(true);
     setNotFound(false);
     setEmployer(null);
@@ -338,48 +338,58 @@ export default function EmployerDashboard() {
     try {
       const res = await fetch(`/api/employers?email=${encodeURIComponent(emailToFetch)}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || 'Server error');
       if (!data.employer) {
         setNotFound(true);
-      } else {
-        setEmployer(data.employer);
-        setUnlocks(data.unlocks || []);
+        return false; // not found
       }
+      setEmployer(data.employer);
+      setUnlocks(data.unlocks || []);
+      return true; // found
     } catch (err) {
-      console.error(err);
+      console.error('fetchDashboard error:', err);
       setNotFound(true);
+      return false;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // ── Ensure admin employer record exists, then reload ─────────────────────
+  const ensureAdminAndLoad = useCallback(async (adminEmail: string) => {
+    // Try loading first
+    const found = await fetchDashboard(adminEmail);
+    if (found) return;
+
+    // Not found → silently create account via ensure endpoint
+    try {
+      const res = await fetch('/api/employers/ensure', { method: 'POST' });
+      if (!res.ok) {
+        // Ensure failed — show not-found with helpful message
+        setNotFound(true);
+        return;
+      }
+      // Re-fetch after creation
+      await fetchDashboard(adminEmail);
+    } catch (err) {
+      console.error('ensure error:', err);
+      setNotFound(true);
+    }
+  }, [fetchDashboard]);
+
   // ── Auto-load for signed-in admin ─────────────────────────────────────────
   useEffect(() => {
     if (!clerkLoaded) return;
+    if (adminInitialised.current) return; // only run once
     const clerkEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase().trim();
     if (clerkEmail && ADMIN_EMAILS.includes(clerkEmail)) {
-      setEmail(clerkEmail);
+      adminInitialised.current = true;
       setSubmittedEmail(clerkEmail);
-      fetchDashboard(clerkEmail);
+      ensureAdminAndLoad(clerkEmail);
     }
-  }, [clerkLoaded, user, fetchDashboard]);
+  }, [clerkLoaded, user, ensureAdminAndLoad]);
 
-  // ── Seed admin employer account ───────────────────────────────────────────
-  const handleSeedAdmin = async () => {
-    setSeeding(true);
-    try {
-      const res = await fetch('/api/employers/ensure', { method: 'POST' });
-      const data = await res.json();
-      if (res.ok && data.employer) {
-        setEmployer(data.employer);
-        setNotFound(false);
-        setUnlocks([]);
-      }
-    } finally {
-      setSeeding(false);
-    }
-  };
-
+  // ── Regular employer: submit email ────────────────────────────────────────
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = email.toLowerCase().trim();
@@ -421,7 +431,7 @@ export default function EmployerDashboard() {
           </div>
         </div>
 
-        {/* ── EMAIL LOOKUP ── */}
+        {/* ── EMAIL LOOKUP — only shown to non-admin employers ── */}
         {!isSignedInAdmin && (
           <div className="max-w-4xl mx-auto px-4 -mt-6">
             <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-5 sm:p-6">
@@ -449,52 +459,26 @@ export default function EmployerDashboard() {
               {submittedEmail && notFound && !loading && (
                 <div className="mt-3 flex items-start gap-2 text-xs text-gray-500 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
                   <span className="mt-0.5 flex-shrink-0">ℹ️</span>
-                  <span>No account found for <strong>{submittedEmail}</strong>. Start by <Link href="/talent" className="text-brand-gold hover:underline font-semibold">unlocking profiles</Link> on the talent page — your dashboard will appear here automatically after your first unlock.</span>
+                  <span>
+                    No account found for <strong>{submittedEmail}</strong>. Start by{' '}
+                    <Link href="/talent" className="text-brand-gold hover:underline font-semibold">unlocking profiles</Link>{' '}
+                    on the talent page — your dashboard will appear here automatically after your first unlock.
+                  </span>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* ── ADMIN AUTO-LOADED BANNER ── */}
-        {isSignedInAdmin && !employer && !loading && !notFound && (
-          <div className="max-w-4xl mx-auto px-4 -mt-6">
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-5 sm:p-6 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center flex-shrink-0 animate-spin" style={{ animationDuration: '1.5s' }}>
-                <svg className="w-4 h-4 text-brand-gold" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-              </div>
-              <p className="text-sm text-gray-600 font-medium">Loading your admin dashboard…</p>
-            </div>
-          </div>
-        )}
-
-        {/* ── ADMIN: not found → seed prompt ── */}
-        {isSignedInAdmin && notFound && !loading && (
-          <div className="max-w-4xl mx-auto px-4 -mt-6">
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-brand-gold/10 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-5 h-5 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-brand-black mb-1">Admin account not found</p>
-                  <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-                    Your admin account doesn&apos;t exist in the database yet. Click below to create it — this only needs to happen once.
-                  </p>
-                  <button
-                    onClick={handleSeedAdmin}
-                    disabled={seeding}
-                    className="px-5 py-2.5 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-60"
-                  >
-                    {seeding ? 'Creating…' : 'Create Admin Account'}
-                  </button>
-                </div>
-              </div>
+        {/* ── LOADING STATE ── */}
+        {loading && (
+          <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+            <div className="inline-flex items-center gap-3 text-gray-500">
+              <svg className="w-5 h-5 animate-spin text-brand-gold" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span className="text-sm font-medium">Loading your candidates…</span>
             </div>
           </div>
         )}
@@ -518,7 +502,7 @@ export default function EmployerDashboard() {
               )}
             </div>
 
-            {/* Stats bar */}
+            {/* Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8">
               <div className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm">
                 <p className="text-2xl font-black text-brand-black">{unlocks.length}</p>
@@ -556,23 +540,20 @@ export default function EmployerDashboard() {
                 Saved ({likedCount})
               </button>
               <div className="ml-auto">
-                <Link
-                  href="/talent"
-                  className="flex items-center gap-1.5 text-xs font-bold text-brand-gold hover:underline"
-                >
+                <Link href="/talent" className="flex items-center gap-1.5 text-xs font-bold text-brand-gold hover:underline">
                   + Unlock More Talent
                 </Link>
               </div>
             </div>
 
-            {/* Cards grid */}
+            {/* Cards */}
             {displayed.length === 0 ? (
               <div className="text-center py-20">
                 {filter === 'liked' ? (
                   <>
                     <p className="text-3xl mb-3">💛</p>
                     <p className="text-brand-black font-bold mb-1">No saved profiles yet</p>
-                    <p className="text-gray-400 text-sm">Click the heart icon on any profile card to save it here.</p>
+                    <p className="text-gray-400 text-sm">Click the heart on any card to save a candidate here.</p>
                     <button onClick={() => setFilter('all')} className="mt-4 text-brand-gold text-sm hover:underline font-semibold">
                       View all profiles
                     </button>
@@ -582,7 +563,7 @@ export default function EmployerDashboard() {
                     <p className="text-4xl mb-4">🔓</p>
                     <p className="text-brand-black font-bold text-lg mb-2">No profiles unlocked yet</p>
                     <p className="text-gray-400 text-sm mb-6 max-w-xs mx-auto">
-                      Head to the talent page to start discovering and unlocking vetted compliance professionals.
+                      Head to the talent page, click &ldquo;Unlock Profile&rdquo; on any candidate, and they&apos;ll appear here instantly.
                     </p>
                     <Link
                       href="/talent"
@@ -606,7 +587,7 @@ export default function EmployerDashboard() {
               </div>
             )}
 
-            {/* Upgrade nudge if low credits */}
+            {/* Upgrade nudge */}
             {!employer.isAdmin && employer.creditsRemaining === 0 && (
               <div className="mt-10 bg-brand-black rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
@@ -624,21 +605,8 @@ export default function EmployerDashboard() {
           </div>
         )}
 
-        {/* ── LOADING STATE ── */}
-        {loading && (
-          <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-            <div className="inline-flex items-center gap-3 text-gray-500">
-              <svg className="w-5 h-5 animate-spin text-brand-gold" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              <span className="text-sm font-medium">Loading your candidates…</span>
-            </div>
-          </div>
-        )}
-
-        {/* ── EMPTY START STATE (no email submitted, not admin) ── */}
-        {!employer && !loading && !notFound && !submittedEmail && !isSignedInAdmin && (
+        {/* ── EMPTY START STATE — no email submitted, not admin ── */}
+        {!employer && !loading && !submittedEmail && !isSignedInAdmin && (
           <div className="max-w-4xl mx-auto px-4 py-12">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
               {[

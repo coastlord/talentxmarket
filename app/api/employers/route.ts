@@ -4,35 +4,51 @@ import { supabaseAdmin } from '@/lib/supabase';
 export const dynamic = 'force-dynamic';
 
 // ─── GET /api/employers?email=work@company.com ────────────────────────────────
-// Returns employer record + all their unlocked candidate profiles
+// Returns employer record + all their unlocked candidate profiles.
+// Handles duplicate employer rows gracefully — aggregates unlocks across ALL
+// employer records for the same email so nothing is lost from earlier DB eras.
 export async function GET(req: NextRequest) {
   try {
     const email = req.nextUrl.searchParams.get('email')?.toLowerCase().trim();
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
 
-    // Find employer
-    const { data: employer, error: empErr } = await supabaseAdmin
+    // Fetch ALL employer records for this email (there may be duplicates from
+    // different code eras — don't limit to 1 or use maybeSingle which throws
+    // on multiple rows)
+    const { data: allRows, error: empErr } = await supabaseAdmin
       .from('employers')
-      .select('id, email, company_name, contact_name, unlock_credits, subscription_status')
+      .select('id, email, company_name, contact_name, unlock_credits, subscription_status, created_at')
       .eq('email', email)
-      .maybeSingle();
+      .order('created_at', { ascending: false });
 
-    if (empErr) throw empErr;
+    if (empErr) {
+      console.error('Employers GET — employer query error:', empErr);
+      throw empErr;
+    }
 
-    if (!employer) {
+    if (!allRows || allRows.length === 0) {
       return NextResponse.json({ employer: null, unlocks: [] });
     }
 
-    const isAdmin = employer.subscription_status === 'admin';
+    // Use the most-recent record as the canonical employer for display
+    const employer = allRows[0];
+    const isAdmin = allRows.some((r) => r.subscription_status === 'admin');
 
-    // Fetch unlock records for this employer
+    // Collect ALL employer IDs for this email so we don't miss unlocks that
+    // were written against an older employer row
+    const allEmployerIds = allRows.map((r) => r.id);
+
+    // Fetch all unlock records across every employer ID for this email
     const { data: unlockRecords, error: unlockErr } = await supabaseAdmin
       .from('employer_unlocks')
-      .select('id, candidate_id, liked, created_at')
-      .eq('employer_id', employer.id)
+      .select('id, candidate_id, liked, created_at, employer_id')
+      .in('employer_id', allEmployerIds)
       .order('created_at', { ascending: false });
 
-    if (unlockErr) throw unlockErr;
+    if (unlockErr) {
+      console.error('Employers GET — unlocks query error:', unlockErr);
+      throw unlockErr;
+    }
 
     if (!unlockRecords || unlockRecords.length === 0) {
       return NextResponse.json({
@@ -41,8 +57,17 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    // De-duplicate: if the same candidate was unlocked multiple times across
+    // employer rows, keep only the most recent record per candidate
+    const seen = new Set<string>();
+    const deduped = unlockRecords.filter((u) => {
+      if (seen.has(u.candidate_id)) return false;
+      seen.add(u.candidate_id);
+      return true;
+    });
+
     // Fetch all candidate profiles in one query
-    const candidateIds = unlockRecords.map((u) => u.candidate_id);
+    const candidateIds = deduped.map((u) => u.candidate_id);
     const { data: candidates, error: candErr } = await supabaseAdmin
       .from('candidates')
       .select(
@@ -50,11 +75,14 @@ export async function GET(req: NextRequest) {
       )
       .in('id', candidateIds);
 
-    if (candErr) throw candErr;
+    if (candErr) {
+      console.error('Employers GET — candidates query error:', candErr);
+      throw candErr;
+    }
 
     const candidateMap = new Map((candidates || []).map((c) => [c.id, c]));
 
-    const unlocks = unlockRecords
+    const unlocks = deduped
       .map((u) => {
         const c = candidateMap.get(u.candidate_id);
         if (!c) return null;
