@@ -456,6 +456,22 @@ export default function EmployerDashboard() {
                 </button>
               </form>
 
+              {!submittedEmail && !loading && (
+                <div className="mt-4 flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-100">
+                  <div className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-gold/10 flex items-center justify-center">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                  </div>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    <span className="font-semibold text-gray-700">Don&apos;t have an account yet?</span>{' '}
+                    <Link href="/talent" className="text-brand-gold font-semibold hover:underline underline-offset-2">Browse compliance professionals</Link>
+                    {' '}and unlock candidate profiles — your employer dashboard will be created automatically in the process.
+                  </p>
+                </div>
+              )}
+
               {submittedEmail && notFound && !loading && (
                 <div className="mt-4 rounded-2xl border border-brand-gold/20 bg-gradient-to-br from-[#0A0A0A] to-[#111] overflow-hidden">
                   <div className="px-5 py-5 sm:px-6 sm:py-6">
