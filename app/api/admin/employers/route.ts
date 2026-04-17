@@ -30,7 +30,7 @@ export async function GET() {
       .select(`
         id,
         employer_id,
-        unlocked_at,
+        created_at,
         candidates (
           id,
           job_title,
@@ -40,7 +40,7 @@ export async function GET() {
           certifications
         )
       `)
-      .order('unlocked_at', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (unlockErr) {
       console.error('Unlock fetch error:', unlockErr);

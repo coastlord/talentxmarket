@@ -163,38 +163,38 @@ function ProfessionalCard({ pro, onUnlock }: { pro: Professional; onUnlock: (pro
     <div className="bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-xl hover:border-brand-gold/25 transition-all duration-300 flex flex-col group">
 
       {/* ── TOP ROW: Avatar+Location LEFT | Status+Cert RIGHT ── */}
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-3 gap-2">
 
         {/* Left: Avatar then Location below */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5 min-w-0">
           <div className="w-11 h-11 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm tracking-wide">{pro.initials}</span>
           </div>
           {pro.location && (
             <div className="flex items-center gap-1 text-xs text-gray-500">
-              <span className="text-brand-gold"><PinIcon /></span>
-              <span>{pro.location}</span>
+              <span className="text-brand-gold flex-shrink-0"><PinIcon /></span>
+              <span className="truncate">{pro.location}</span>
             </div>
           )}
         </div>
 
         {/* Right: Availability badge then Cert badge below */}
-        <div className="flex flex-col items-end gap-1.5">
+        <div className="flex flex-col items-end gap-1.5 flex-shrink-0 max-w-[55%]">
           {isAvailableNow ? (
-            <div className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              Available Now
+            <div className="inline-flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 text-[10px] font-semibold px-2 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+              <span>Available Now</span>
             </div>
           ) : (
-            <div className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-              {pro.availabilityStatus || 'Open to Offers'}
+            <div className="inline-flex items-center gap-1 bg-orange-50 border border-orange-200 text-orange-700 text-[10px] font-semibold px-2 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 flex-shrink-0" />
+              <span className="truncate">{pro.availabilityStatus || 'Open to Offers'}</span>
             </div>
           )}
           {primaryCert && (
-            <div className="inline-flex items-center gap-1.5 bg-brand-black text-brand-gold text-[10.5px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
-              <ShieldIcon />
-              {primaryCert}
+            <div className="inline-flex items-center gap-1 bg-brand-black text-brand-gold text-[10px] font-bold px-2 py-1 rounded-full max-w-full">
+              <span className="flex-shrink-0"><ShieldIcon /></span>
+              <span className="truncate">{primaryCert}</span>
             </div>
           )}
         </div>
@@ -456,19 +456,19 @@ function CandidateProfileModal({
       >
 
         {/* ── HEADER BAR ── */}
-        <div className="bg-brand-black px-7 py-5 flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center">
+        <div className="bg-brand-black px-4 sm:px-7 py-4 sm:py-5 flex items-center justify-between gap-3 flex-shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center flex-shrink-0">
               <span className="text-brand-gold font-bold text-sm">{pro.initials}</span>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[10px] font-bold text-brand-gold uppercase tracking-widest mb-0.5">Full Profile — Unlocked</p>
-              <p className="text-white font-bold text-base leading-tight">{profile.fullName || profile.role}</p>
+              <p className="text-white font-bold text-sm sm:text-base leading-tight truncate">{profile.fullName || profile.role}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0"
           >
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -480,66 +480,67 @@ function CandidateProfileModal({
         <div className="overflow-y-auto flex-1">
 
           {/* ── HERO SECTION ── */}
-          <div className="bg-gradient-to-b from-gray-50 to-white px-7 pt-6 pb-5 border-b border-gray-100">
-            <div className="flex items-start gap-5">
+          <div className="bg-gradient-to-b from-gray-50 to-white px-4 sm:px-7 pt-5 sm:pt-6 pb-4 sm:pb-5 border-b border-gray-100">
 
+            {/* Avatar + Name row */}
+            <div className="flex items-start gap-4 mb-3">
               {/* Avatar */}
-              <div className="w-16 h-16 rounded-2xl bg-brand-black flex items-center justify-center flex-shrink-0 shadow-lg">
-                <span className="text-white font-black text-xl">{pro.initials}</span>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-brand-black flex items-center justify-center flex-shrink-0 shadow-lg">
+                <span className="text-white font-black text-lg sm:text-xl">{pro.initials}</span>
               </div>
 
-              {/* Name + meta */}
+              {/* Name + role */}
               <div className="flex-1 min-w-0">
-                <h2 className="text-xl font-black text-brand-black leading-tight mb-0.5">
+                <h2 className="text-lg sm:text-xl font-black text-brand-black leading-tight mb-0.5 break-words">
                   {profile.fullName || 'Name Withheld'}
                 </h2>
-                <p className="text-sm font-semibold text-gray-600 mb-2">{profile.role}</p>
-
-                {/* Tags row */}
-                <div className="flex flex-wrap items-center gap-2">
-                  {profile.location && (
-                    <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
-                      <span className="text-brand-gold"><PinIcon /></span>
-                      {profile.location}
-                    </span>
-                  )}
-                  {profile.experience && (
-                    <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
-                      <span className="text-brand-gold"><ClockIcon /></span>
-                      {profile.experience}
-                    </span>
-                  )}
-                  {profile.workPreference && (
-                    <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full">
-                      {profile.workPreference}
-                    </span>
-                  )}
-                  {isAvailableNow ? (
-                    <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      Available Now
-                    </span>
-                  ) : profile.availabilityStatus ? (
-                    <span className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                      {profile.availabilityStatus}
-                    </span>
-                  ) : null}
-                </div>
+                <p className="text-sm font-semibold text-gray-600">{profile.role}</p>
               </div>
-
-              {/* Salary */}
-              {salaryLabel && (
-                <div className="flex-shrink-0 text-right">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Salary Expectation</p>
-                  <p className="text-base font-black text-brand-black">{salaryLabel}</p>
-                </div>
-              )}
             </div>
+
+            {/* Tags + salary */}
+            <div className="flex flex-wrap items-center gap-2">
+              {profile.location && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                  <span className="text-brand-gold"><PinIcon /></span>
+                  {profile.location}
+                </span>
+              )}
+              {profile.experience && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                  <span className="text-brand-gold"><ClockIcon /></span>
+                  {profile.experience}
+                </span>
+              )}
+              {profile.workPreference && (
+                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full">
+                  {profile.workPreference}
+                </span>
+              )}
+              {isAvailableNow ? (
+                <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  Available Now
+                </span>
+              ) : profile.availabilityStatus ? (
+                <span className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                  {profile.availabilityStatus}
+                </span>
+              ) : null}
+            </div>
+
+            {/* Salary — below on its own line, doesn't compete for space */}
+            {salaryLabel && (
+              <div className="mt-3 inline-flex flex-col bg-brand-black/5 border border-gray-200 rounded-xl px-3 py-2">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Salary Expectation</p>
+                <p className="text-sm font-black text-brand-black">{salaryLabel}</p>
+              </div>
+            )}
           </div>
 
           {/* ── CONTACT DETAILS ── */}
-          <div className="px-7 py-5 border-b border-gray-100">
+          <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Contact Details</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
@@ -647,7 +648,7 @@ function CandidateProfileModal({
 
           {/* ── PROFESSIONAL SUMMARY ── */}
           {profile.headline && (
-            <div className="px-7 py-5 border-b border-gray-100">
+            <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Professional Summary</p>
               <p className="text-sm text-gray-700 leading-relaxed italic">&ldquo;{profile.headline}&rdquo;</p>
             </div>
@@ -655,7 +656,7 @@ function CandidateProfileModal({
 
           {/* ── EXPERIENCE ── */}
           {(hasCurrentJob || hasPreviousJob) && (
-            <div className="px-7 py-5 border-b border-gray-100">
+            <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Experience</p>
               <div className="space-y-4">
 
@@ -721,7 +722,7 @@ function CandidateProfileModal({
 
           {/* ── EDUCATION ── */}
           {hasEducation && (
-            <div className="px-7 py-5 border-b border-gray-100">
+            <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Education</p>
               <div className="flex gap-4">
                 <div className="w-8 h-8 rounded-lg bg-brand-gold/15 border border-brand-gold/30 flex items-center justify-center flex-shrink-0">
@@ -749,7 +750,7 @@ function CandidateProfileModal({
 
           {/* ── SPECIALISMS ── */}
           {profile.skills.length > 0 && (
-            <div className="px-7 py-5 border-b border-gray-100">
+            <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Specialisms</p>
               <div className="flex flex-wrap gap-2">
                 {profile.skills.map((s) => (
@@ -763,7 +764,7 @@ function CandidateProfileModal({
 
           {/* ── CERTIFICATIONS ── */}
           {allCerts.length > 0 && (
-            <div className="px-7 py-5 border-b border-gray-100">
+            <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Certifications</p>
               <div className="flex flex-wrap gap-2">
                 {allCerts.map((c) => (
@@ -777,7 +778,7 @@ function CandidateProfileModal({
           )}
 
           {/* ── FOOTER NOTE ── */}
-          <div className="px-7 py-5">
+          <div className="px-4 sm:px-7 py-4 sm:py-5">
             <div className="flex items-center gap-2.5 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
               <svg className="w-4 h-4 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -976,15 +977,15 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
         <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] overflow-y-auto">
 
           {/* ── HEADER ── */}
-          <div className="bg-brand-black px-6 py-5 flex items-center justify-between sticky top-0 z-10">
-            <div>
+          <div className="bg-brand-black px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-3 sticky top-0 z-10">
+            <div className="min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
-                <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest">
-                  {status === 'success' ? 'Profile Unlocked' : step === 1 ? 'Employer Access' : step === 2 ? 'Step 2 of 3' : 'Step 3 of 3 — Verify Email'}
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse flex-shrink-0" />
+                <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest truncate">
+                  {status === 'success' ? 'Profile Unlocked' : step === 1 ? 'Employer Access' : step === 2 ? 'Step 2 of 3' : 'Step 3 — Verify Email'}
                 </span>
               </div>
-              <h2 className="text-white text-lg font-bold">
+              <h2 className="text-white text-base sm:text-lg font-bold leading-tight">
                 {status === 'success' ? 'You\'re on the list' : step === 1 ? 'Unlock This Profile' : step === 2 ? 'Create Your Access' : 'Check Your Inbox'}
               </h2>
             </div>
@@ -997,7 +998,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
 
           {/* ── PERSONAL EMAIL BLOCKED ── */}
           {status === 'personal_email' ? (
-            <div className="px-6 py-10 text-center">
+            <div className="px-4 sm:px-6 py-8 sm:py-10 text-center">
               <div className="w-16 h-16 rounded-full bg-red-50 border-2 border-red-200 flex items-center justify-center mx-auto mb-5">
                 <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -1019,7 +1020,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
             </div>
 
           ) : status === 'no_credits' ? (
-            <div className="px-6 py-10 text-center">
+            <div className="px-4 sm:px-6 py-8 sm:py-10 text-center">
               <div className="w-16 h-16 rounded-full bg-brand-gold/10 border-2 border-brand-gold/30 flex items-center justify-center mx-auto mb-5">
                 <svg className="w-8 h-8 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -1042,7 +1043,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
 
           ) : status === 'success' && unlockedProfile ? (
             /* ── PROFILE REVEALED — quick summary + CTA ── */
-            <div className="px-6 py-6">
+            <div className="px-4 sm:px-6 py-5 sm:py-6">
 
               {/* Unlocked banner */}
               <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-3 py-2 rounded-xl mb-5">
@@ -1131,7 +1132,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
 
           ) : step === 1 ? (
             /* ── STEP 1: VALUE PROP ── */
-            <div className="px-6 py-6">
+            <div className="px-4 sm:px-6 py-5 sm:py-6">
 
               {/* Free unlocks badge */}
               <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
@@ -1157,10 +1158,10 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                     )}
                   </div>
                 </div>
-                <div className="flex-shrink-0">
-                  <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-[10px] font-semibold px-2 py-1 rounded-full whitespace-nowrap">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    {pro.availabilityStatus || 'Available'}
+                <div className="flex-shrink-0 hidden sm:block">
+                  <div className="flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 text-[10px] font-semibold px-2 py-1 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+                    <span className="truncate max-w-[80px]">{pro.availabilityStatus || 'Available'}</span>
                   </div>
                 </div>
               </div>
@@ -1206,7 +1207,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
 
           ) : step === 2 ? (
             /* ── STEP 2: EMPLOYER DETAILS FORM ── */
-            <div className="px-6 py-6">
+            <div className="px-4 sm:px-6 py-5 sm:py-6">
 
               {/* Back + progress */}
               <div className="flex items-center gap-3 mb-5">
@@ -1337,7 +1338,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
 
           ) : step === 3 ? (
             /* ── STEP 3: OTP VERIFICATION ── */
-            <div className="px-6 py-6">
+            <div className="px-4 sm:px-6 py-5 sm:py-6">
 
               {/* Back */}
               <button onClick={() => { setStep(2); setOtpCode(''); setOtpError(''); }} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-black transition-colors mb-5">

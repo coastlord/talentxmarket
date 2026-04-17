@@ -67,7 +67,7 @@ export async function POST(
     }
 
     // ── Admin bypass: only when actually signed in to Clerk as admin ──────
-    const { userId } = auth();
+    const { userId } = await auth();
     let isAdmin = false;
     if (userId) {
       const clerkUser = await currentUser();
