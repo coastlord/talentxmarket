@@ -22,8 +22,8 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (empErr) {
-      console.error('Employers GET — employer query error:', empErr);
-      throw empErr;
+      console.error('Employers GET — employer query error:', JSON.stringify(empErr));
+      return NextResponse.json({ error: `employer_query: ${empErr.message || JSON.stringify(empErr)}` }, { status: 500 });
     }
 
     if (!allRows || allRows.length === 0) {
@@ -39,15 +39,15 @@ export async function GET(req: NextRequest) {
     const allEmployerIds = allRows.map((r) => r.id);
 
     // Fetch all unlock records across every employer ID for this email
+    // Note: employer_unlocks table has no created_at column — no order clause
     const { data: unlockRecords, error: unlockErr } = await supabaseAdmin
       .from('employer_unlocks')
-      .select('id, candidate_id, liked, created_at, employer_id')
-      .in('employer_id', allEmployerIds)
-      .order('created_at', { ascending: false });
+      .select('id, candidate_id, liked, employer_id')
+      .in('employer_id', allEmployerIds);
 
     if (unlockErr) {
-      console.error('Employers GET — unlocks query error:', unlockErr);
-      throw unlockErr;
+      console.error('Employers GET — unlocks query error:', JSON.stringify(unlockErr));
+      return NextResponse.json({ error: `unlocks_query: ${unlockErr.message || JSON.stringify(unlockErr)}` }, { status: 500 });
     }
 
     if (!unlockRecords || unlockRecords.length === 0) {
@@ -76,8 +76,8 @@ export async function GET(req: NextRequest) {
       .in('id', candidateIds);
 
     if (candErr) {
-      console.error('Employers GET — candidates query error:', candErr);
-      throw candErr;
+      console.error('Employers GET — candidates query error:', JSON.stringify(candErr));
+      return NextResponse.json({ error: `candidates_query: ${candErr.message || JSON.stringify(candErr)}` }, { status: 500 });
     }
 
     const candidateMap = new Map((candidates || []).map((c) => [c.id, c]));
@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
         return {
           unlockId: u.id,
           liked: u.liked ?? false,
-          unlockedAt: u.created_at,
+          unlockedAt: null,
           candidate: {
             id: c.id,
             initials,
@@ -130,8 +130,9 @@ export async function GET(req: NextRequest) {
       unlocks,
     });
   } catch (err) {
-    console.error('Employers GET error:', err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    const msg = err instanceof Error ? err.message : JSON.stringify(err);
+    console.error('Employers GET error:', msg);
+    return NextResponse.json({ error: `catch: ${msg}` }, { status: 500 });
   }
 }
 
