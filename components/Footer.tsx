@@ -81,10 +81,10 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                { label: 'Post a Vacancy', href: '#hiring' },
-                { label: 'Search Talent', href: '#hiring' },
+                { label: 'Search Talent', href: '/talent' },
                 { label: 'Specialisms We Cover', href: '#roles' },
                 { label: 'Why TalentX', href: '#why-talentx' },
+                { label: 'Employer Dashboard', href: '/employers' },
               ].map((link) => (
                 <li key={link.label}>
                   <a

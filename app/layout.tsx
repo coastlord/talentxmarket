@@ -31,7 +31,12 @@ export const metadata: Metadata = {
       'Connecting compliance professionals with top employers worldwide.',
   },
   icons: {
-    icon: '/logo-icon.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: '/favicon-512.png',
+    shortcut: '/favicon.ico',
   },
 };
 

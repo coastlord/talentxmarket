@@ -9,7 +9,7 @@ export const metadata = {
 
 const LAST_UPDATED = '17 April 2026';
 const EFFECTIVE_DATE = '17 April 2026';
-const CONTACT_EMAIL = 'privacy@talentxmarket.com';
+const CONTACT_EMAIL = 'hello@talentxmarket.com';
 
 export default function PrivacyPage() {
   return (
