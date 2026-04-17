@@ -98,15 +98,292 @@ const ExternalIcon = () => (
   </svg>
 );
 
+// ─── Full Profile Modal ───────────────────────────────────────────────────────
+function ProfileModal({
+  unlock,
+  employerEmail,
+  onClose,
+  onLikeToggle,
+}: {
+  unlock: Unlock;
+  employerEmail: string;
+  onClose: () => void;
+  onLikeToggle: (candidateId: string, newLiked: boolean) => void;
+}) {
+  const { candidate, liked, unlockedAt } = unlock;
+  const [likeLoading, setLikeLoading] = useState(false);
+  const isAvailableNow = candidate.availabilityStatus?.toLowerCase().includes('available now');
+
+  const hasSalary = candidate.salaryAmount;
+  const salaryLabel = hasSalary
+    ? `${candidate.salaryCurrency} ${Number(candidate.salaryAmount).toLocaleString()} / ${candidate.salaryPeriod}`
+    : null;
+  const unlockDate = unlockedAt
+    ? new Date(unlockedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    : null;
+
+  const handleLike = async () => {
+    setLikeLoading(true);
+    try {
+      await fetch(`/api/unlock/${candidate.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workEmail: employerEmail, liked: !liked }),
+      });
+      onLikeToggle(candidate.id, !liked);
+    } finally {
+      setLikeLoading(false);
+    }
+  };
+
+  // Close on backdrop click or Escape key
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
+
+  const mailtoHref = candidate.contactEmail
+    ? `mailto:${candidate.contactEmail}?subject=${encodeURIComponent('Opportunity via TalentX Market')}&body=${encodeURIComponent(`Hi ${candidate.fullName ? candidate.fullName.split(' ')[0] : ''},\n\nI came across your profile on TalentX Market and would love to connect regarding a ${candidate.role} opportunity.\n\nLooking forward to hearing from you.\n\nKind regards`)}`
+    : '';
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+      {/* Panel */}
+      <div className="relative w-full max-w-2xl max-h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+
+        {/* ── MODAL HEADER ── */}
+        <div className="bg-brand-black px-6 py-5 flex items-center justify-between gap-3 flex-shrink-0">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center flex-shrink-0">
+              <span className="text-brand-gold font-black text-base">{candidate.initials}</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-white font-black text-base leading-tight truncate">
+                {candidate.fullName || candidate.role}
+              </p>
+              <p className="text-white/50 text-sm truncate">{candidate.role}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={handleLike}
+              disabled={likeLoading}
+              title={liked ? 'Remove from saved' : 'Save profile'}
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${liked ? 'bg-brand-gold/20 border border-brand-gold/40' : 'bg-white/10 hover:bg-brand-gold/20 border border-white/10 hover:border-brand-gold/40'}`}
+            >
+              <HeartIcon filled={liked} size={15} />
+            </button>
+            <button
+              onClick={onClose}
+              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all duration-200"
+              aria-label="Close"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* ── SCROLLABLE BODY ── */}
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+
+          {/* Status + meta badges */}
+          <div className="flex flex-wrap items-center gap-2">
+            {isAvailableNow ? (
+              <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                Available Now
+              </span>
+            ) : candidate.availabilityStatus ? (
+              <span className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold px-3 py-1 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-orange-500" />
+                {candidate.availabilityStatus}
+              </span>
+            ) : null}
+            {candidate.workPreference && (
+              <span className="text-xs font-medium bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
+                {candidate.workPreference}
+              </span>
+            )}
+            {candidate.location && (
+              <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 bg-gray-50 border border-gray-100 px-3 py-1 rounded-full">
+                <span className="text-brand-gold"><PinIcon /></span>
+                {candidate.location}
+              </span>
+            )}
+            {candidate.experience && (
+              <span className="text-xs text-gray-500 bg-gray-50 border border-gray-100 px-3 py-1 rounded-full">
+                {candidate.experience}
+              </span>
+            )}
+            {unlockDate && (
+              <span className="text-xs text-gray-400 bg-gray-50 border border-gray-100 px-3 py-1 rounded-full ml-auto">
+                Unlocked {unlockDate}
+              </span>
+            )}
+          </div>
+
+          {/* Headline / Bio */}
+          {candidate.headline && (
+            <div className="bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">About</p>
+              <p className="text-sm text-gray-700 leading-relaxed italic">&ldquo;{candidate.headline}&rdquo;</p>
+            </div>
+          )}
+
+          {/* Contact details */}
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Contact Details</p>
+            <div className="space-y-2">
+              {candidate.contactEmail && (
+                <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+                  <span className="text-brand-gold flex-shrink-0"><MailIcon size={14} /></span>
+                  <a href={`mailto:${candidate.contactEmail}`} className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors break-all">
+                    {candidate.contactEmail}
+                  </a>
+                </div>
+              )}
+              {candidate.phone && (
+                <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+                  <span className="text-brand-gold flex-shrink-0"><PhoneIcon size={14} /></span>
+                  <a href={`tel:${candidate.phone}`} className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors">
+                    {candidate.phone}
+                  </a>
+                </div>
+              )}
+              {candidate.linkedinUrl && (
+                <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+                  <span className="text-brand-gold flex-shrink-0"><LinkedInIcon size={14} /></span>
+                  <a
+                    href={candidate.linkedinUrl.startsWith('http') ? candidate.linkedinUrl : `https://${candidate.linkedinUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors flex items-center gap-1.5"
+                  >
+                    View LinkedIn Profile <ExternalIcon />
+                  </a>
+                </div>
+              )}
+              {candidate.certificationLink && (
+                <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+                  <span className="text-brand-gold flex-shrink-0"><ShieldIcon size={14} /></span>
+                  <a
+                    href={candidate.certificationLink.startsWith('http') ? candidate.certificationLink : `https://${candidate.certificationLink}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors flex items-center gap-1.5"
+                  >
+                    View Certification <ExternalIcon />
+                  </a>
+                </div>
+              )}
+              {!candidate.contactEmail && !candidate.phone && !candidate.linkedinUrl && (
+                <p className="text-sm text-gray-400 italic px-1">No contact details added yet by this candidate.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Two-column: Salary + Current Company */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {salaryLabel && (
+              <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Salary Expectation</p>
+                <p className="text-base font-black text-brand-black">{salaryLabel}</p>
+              </div>
+            )}
+            {candidate.currentCompany && (
+              <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Current Company</p>
+                <p className="text-base font-black text-brand-black">{candidate.currentCompany}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Skills — all of them */}
+          {candidate.skills.length > 0 && (
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Skills</p>
+              <div className="flex flex-wrap gap-2">
+                {candidate.skills.map((s) => (
+                  <span key={s} className="text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-full">
+                    {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Certifications — all of them */}
+          {candidate.certifications.length > 0 && (
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Certifications</p>
+              <div className="flex flex-wrap gap-2">
+                {candidate.certifications.map((c) => (
+                  <span key={c} className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-gold bg-brand-black px-3 py-1.5 rounded-full">
+                    <ShieldIcon size={10} />
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* ── MODAL FOOTER ── */}
+        <div className="flex-shrink-0 border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row gap-3">
+          {candidate.contactEmail ? (
+            <a
+              href={mailtoHref}
+              className="flex-1 flex items-center justify-center gap-2 bg-brand-gold hover:bg-brand-gold/90 text-brand-black text-sm font-bold py-3 rounded-xl transition-all duration-200"
+            >
+              <MailIcon size={14} />
+              Send Email to Candidate
+            </a>
+          ) : (
+            <div className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-400 text-sm font-bold py-3 rounded-xl cursor-not-allowed">
+              <MailIcon size={14} />
+              No email on file
+            </div>
+          )}
+          <button
+            onClick={handleLike}
+            disabled={likeLoading}
+            className={`flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold border transition-all duration-200 ${liked ? 'bg-brand-gold/10 border-brand-gold/30 text-brand-gold' : 'border-gray-200 text-gray-500 hover:border-brand-gold hover:text-brand-gold'}`}
+          >
+            <HeartIcon filled={liked} size={14} />
+            {liked ? 'Saved' : 'Save Profile'}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 // ─── Unlocked Profile Card ────────────────────────────────────────────────────
 function UnlockedCard({
   unlock,
   employerEmail,
   onLikeToggle,
+  onExpand,
 }: {
   unlock: Unlock;
   employerEmail: string;
   onLikeToggle: (candidateId: string, newLiked: boolean) => void;
+  onExpand: () => void;
 }) {
   const { candidate, liked, unlockedAt } = unlock;
   const [likeLoading, setLikeLoading] = useState(false);
@@ -280,6 +557,15 @@ function UnlockedCard({
 
       {/* ── FOOTER ACTIONS ── */}
       <div className="px-4 sm:px-5 pb-4 flex flex-col gap-2">
+        <button
+          onClick={onExpand}
+          className="w-full flex items-center justify-center gap-2 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-xs font-bold py-2.5 rounded-xl transition-all duration-200"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+          </svg>
+          View Full Profile
+        </button>
         {candidate.contactEmail && (
           <a
             href={`mailto:${candidate.contactEmail}?subject=${encodeURIComponent('Opportunity via TalentX Market')}&body=${encodeURIComponent(`Hi ${candidate.fullName ? candidate.fullName.split(' ')[0] : ''},\n\nI came across your profile on TalentX Market and would love to connect regarding a ${candidate.role} opportunity.\n\nLooking forward to hearing from you.\n\nKind regards`)}`}
@@ -482,11 +768,27 @@ export default function EmployerDashboard() {
     );
   };
 
+  const [expandedUnlock, setExpandedUnlock] = useState<Unlock | null>(null);
+
   const displayed = filter === 'liked' ? unlocks.filter((u) => u.liked) : unlocks;
   const likedCount = unlocks.filter((u) => u.liked).length;
 
   return (
     <div>
+      {/* ── FULL PROFILE MODAL ── */}
+      {expandedUnlock && (
+        <ProfileModal
+          unlock={expandedUnlock}
+          employerEmail={submittedEmail}
+          onClose={() => setExpandedUnlock(null)}
+          onLikeToggle={(candidateId, newLiked) => {
+            handleLikeToggle(candidateId, newLiked);
+            setExpandedUnlock((prev) =>
+              prev && prev.candidate.id === candidateId ? { ...prev, liked: newLiked } : prev
+            );
+          }}
+        />
+      )}
       <Navbar />
       <main className="bg-gray-50 min-h-screen">
 
@@ -783,6 +1085,7 @@ export default function EmployerDashboard() {
                     unlock={unlock}
                     employerEmail={submittedEmail}
                     onLikeToggle={handleLikeToggle}
+                    onExpand={() => setExpandedUnlock(unlock)}
                   />
                 ))}
               </div>
