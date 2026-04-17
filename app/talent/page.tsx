@@ -813,12 +813,38 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
   const [otpError, setOtpError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
 
+  // Quick session — skip form + OTP if employer verified recently
+  interface QuickSession { email: string; name: string; company: string; expiresAt: number; }
+  const [quickSession, setQuickSession] = useState<QuickSession | null>(null);
+  const [bypassQuick, setBypassQuick] = useState(false);
+
   // Countdown for resend button
   useEffect(() => {
     if (resendTimer <= 0) return;
     const t = setTimeout(() => setResendTimer((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [resendTimer]);
+
+  // ── Read quick session from localStorage on mount ────────────────────────
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('tx_employer_session');
+      if (!raw) return;
+      const s: QuickSession = JSON.parse(raw);
+      if (s.expiresAt > Date.now()) {
+        setQuickSession(s);
+        setForm(prev => ({
+          ...prev,
+          contactName: s.name || prev.contactName,
+          companyName: s.company || prev.companyName,
+          workEmail: s.email,
+        }));
+      } else {
+        localStorage.removeItem('tx_employer_session');
+      }
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Admin auto-unlock: only when signed in to Clerk as admin email ─────────
   useEffect(() => {
@@ -898,6 +924,16 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
         setOtpLoading(false);
         return;
       }
+      // Save session so future unlocks in this tab skip OTP
+      try {
+        localStorage.setItem('tx_employer_session', JSON.stringify({
+          email: form.workEmail,
+          name: form.contactName,
+          company: form.companyName,
+          expiresAt: Date.now() + 30 * 60_000,
+        }));
+        setQuickSession({ email: form.workEmail, name: form.contactName, company: form.companyName, expiresAt: Date.now() + 30 * 60_000 });
+      } catch { /* ignore */ }
       // OTP confirmed → call unlock
       await callUnlockApi();
     } catch (err) {
@@ -954,6 +990,16 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
         graduationYear:     data.profile.graduationYear,
       });
       setStatus('success');
+      // Refresh session window on every successful unlock (rolling 30 min)
+      try {
+        const raw = localStorage.getItem('tx_employer_session');
+        if (raw) {
+          const s = JSON.parse(raw);
+          if (s.email === payload.workEmail) {
+            localStorage.setItem('tx_employer_session', JSON.stringify({ ...s, expiresAt: Date.now() + 30 * 60_000 }));
+          }
+        }
+      } catch { /* ignore */ }
     } catch {
       setStatus('error');
       setErrorMsg('Something went wrong. Please try again or email us at hello@talentxmarket.com');
@@ -982,11 +1028,11 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse flex-shrink-0" />
                 <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest truncate">
-                  {status === 'success' ? 'Profile Unlocked' : step === 1 ? 'Employer Access' : step === 2 ? 'Step 2 of 3' : 'Step 3 — Verify Email'}
+                  {status === 'success' ? 'Profile Unlocked' : step === 1 ? 'Employer Access' : step === 2 && quickSession && !bypassQuick ? 'Returning Employer' : step === 2 ? 'Step 2 of 3' : 'Step 3 — Verify Email'}
                 </span>
               </div>
               <h2 className="text-white text-base sm:text-lg font-bold leading-tight">
-                {status === 'success' ? 'You\'re on the list' : step === 1 ? 'Unlock This Profile' : step === 2 ? 'Create Your Access' : 'Check Your Inbox'}
+                {status === 'success' ? 'You\'re on the list' : step === 1 ? 'Unlock This Profile' : step === 2 && quickSession && !bypassQuick ? 'Quick Unlock' : step === 2 ? 'Create Your Access' : 'Check Your Inbox'}
               </h2>
             </div>
             <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0">
@@ -1205,13 +1251,102 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
               </p>
             </div>
 
+          ) : step === 2 && quickSession && !bypassQuick ? (
+            /* ── STEP 2: QUICK UNLOCK (returning employer with active session) ── */
+            <div className="px-4 sm:px-6 py-5 sm:py-6">
+
+              {/* Back */}
+              <button onClick={() => setStep(1)} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-black transition-colors mb-5">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+
+              {/* Session info card */}
+              <div className="bg-brand-black rounded-2xl px-5 py-5 mb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-green-400 text-[10px] font-bold uppercase tracking-widest">Verified Session Active</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-brand-gold/20 border border-brand-gold/30 flex items-center justify-center flex-shrink-0">
+                    <span className="text-brand-gold font-black text-sm">
+                      {(quickSession.name || quickSession.company || '?').slice(0, 2).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    {quickSession.name && <p className="text-white font-bold text-sm leading-tight truncate">{quickSession.name}</p>}
+                    {quickSession.company && <p className="text-white/50 text-xs truncate">{quickSession.company}</p>}
+                    <p className="text-brand-gold text-xs font-medium truncate">{quickSession.email}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mini candidate reminder */}
+              <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 mb-5">
+                <div className="w-8 h-8 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-xs">{pro.initials}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-brand-black truncate">{pro.role}</p>
+                  <p className="text-[10px] text-gray-400">{pro.location}{pro.experience ? ` · ${pro.experience}` : ''}</p>
+                </div>
+                <span className="text-[10px] font-semibold text-brand-gold bg-brand-black px-2 py-0.5 rounded-full flex-shrink-0">FREE</span>
+              </div>
+
+              {status === 'error' && (
+                <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">{errorMsg}</p>
+              )}
+
+              {/* One-tap unlock button */}
+              <button
+                onClick={() => callUnlockApi()}
+                disabled={status === 'loading'}
+                className="w-full py-3.5 bg-brand-gold hover:bg-brand-gold/90 text-brand-black text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-brand-gold/20"
+              >
+                {status === 'loading' ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Unlocking…
+                  </>
+                ) : (
+                  <>
+                    <UnlockIcon />
+                    Unlock Profile Now
+                  </>
+                )}
+              </button>
+
+              <p className="text-center text-[11px] text-gray-400 mt-3 mb-4">
+                No code needed — your session is verified ✓
+              </p>
+
+              {/* Switch account */}
+              <div className="border-t border-gray-100 pt-4 text-center">
+                <button
+                  onClick={() => {
+                    setBypassQuick(true);
+                    setForm({ contactName: '', companyName: '', workEmail: '', roleHiringFor: '', urgency: '' });
+                  }}
+                  className="text-xs text-gray-400 hover:text-brand-black transition-colors"
+                >
+                  Not you? Use a different account →
+                </button>
+              </div>
+
+            </div>
+
           ) : step === 2 ? (
-            /* ── STEP 2: EMPLOYER DETAILS FORM ── */
+            /* ── STEP 2: EMPLOYER DETAILS FORM (new employer / bypass quick) ── */
             <div className="px-4 sm:px-6 py-5 sm:py-6">
 
               {/* Back + progress */}
               <div className="flex items-center gap-3 mb-5">
-                <button onClick={() => setStep(1)} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-black transition-colors">
+                <button onClick={() => { setStep(1); setBypassQuick(false); }} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-black transition-colors">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>

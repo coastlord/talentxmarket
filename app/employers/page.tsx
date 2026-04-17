@@ -644,6 +644,17 @@ export default function EmployerDashboard() {
       }
       setEmployer(data.employer);
       setUnlocks(data.unlocks || []);
+      // Persist session so /talent page can skip OTP for 30 min
+      if (!data.employer.isAdmin) {
+        try {
+          localStorage.setItem('tx_employer_session', JSON.stringify({
+            email: data.employer.email,
+            name: data.employer.contactName || '',
+            company: data.employer.companyName || '',
+            expiresAt: Date.now() + 30 * 60_000,
+          }));
+        } catch { /* localStorage unavailable */ }
+      }
       return true;
     } catch (err) {
       console.error('fetchDashboard error:', err);
@@ -982,6 +993,7 @@ export default function EmployerDashboard() {
                 {!employer.isAdmin && (
                   <button
                     onClick={() => {
+                      try { localStorage.removeItem('tx_employer_session'); } catch {}
                       setStep('email');
                       setEmail('');
                       setSubmittedEmail('');
