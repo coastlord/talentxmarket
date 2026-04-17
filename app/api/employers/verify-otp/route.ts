@@ -60,10 +60,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Correct — mark as verified
+    // ✅ Correct — mark as verified, session valid for 30 minutes
     await supabaseAdmin
       .from('email_verifications')
-      .update({ verified: true, expires_at: new Date(Date.now() + 60 * 60_000).toISOString() })
+      .update({ verified: true, expires_at: new Date(Date.now() + 30 * 60_000).toISOString() })
       .eq('id', record.id);
 
     return NextResponse.json({ success: true });

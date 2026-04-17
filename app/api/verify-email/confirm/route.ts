@@ -60,8 +60,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Code is correct — mark verified, extend window to 60 minutes
-    const newExpiry = new Date(Date.now() + 60 * 60_000).toISOString();
+    // ✅ Code is correct — mark verified, session valid for 30 minutes
+    const newExpiry = new Date(Date.now() + 30 * 60_000).toISOString();
     await supabaseAdmin
       .from('email_verifications')
       .update({ verified: true, expires_at: newExpiry })
