@@ -89,6 +89,8 @@ export default function AdminClient() {
   const [empSearch, setEmpSearch] = useState('');
   const [empExpanded, setEmpExpanded] = useState<string | null>(null);
   const [empActionLoading, setEmpActionLoading] = useState<string | null>(null);
+  // key = emp.id, value = custom credit amount string
+  const [creditInputs, setCreditInputs] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchCandidates();
@@ -144,7 +146,9 @@ export default function AdminClient() {
   }
 
   async function handleEmployerAction(employerId: string, action: string, credits?: number) {
-    setEmpActionLoading(employerId + action);
+    // Use just the employerId as the loading key so all credit buttons on
+    // the same row are disabled while any one of them is in-flight.
+    setEmpActionLoading(employerId);
     try {
       const res = await fetch('/api/admin/employers', {
         method: 'PATCH',
@@ -325,32 +329,100 @@ export default function AdminClient() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col gap-2 flex-shrink-0">
+                        <div className="flex flex-col gap-2 flex-shrink-0 min-w-[160px]">
+
+                          {/* Status actions */}
                           {emp.status !== 'active' && (
                             <button
                               onClick={() => handleEmployerAction(emp.id, 'approve')}
-                              disabled={empActionLoading === emp.id + 'approve'}
+                              disabled={empActionLoading === emp.id}
                               className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
                             >
-                              {empActionLoading === emp.id + 'approve' ? '…' : '✓ Approve'}
+                              {empActionLoading === emp.id ? '…' : '✓ Approve'}
                             </button>
                           )}
                           {emp.status === 'active' && (
                             <button
                               onClick={() => handleEmployerAction(emp.id, 'suspend')}
-                              disabled={empActionLoading === emp.id + 'suspend'}
+                              disabled={empActionLoading === emp.id}
                               className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
                             >
-                              {empActionLoading === emp.id + 'suspend' ? '…' : 'Suspend'}
+                              {empActionLoading === emp.id ? '…' : 'Suspend'}
                             </button>
                           )}
-                          <button
-                            onClick={() => handleEmployerAction(emp.id, 'add_credits', 5)}
-                            disabled={empActionLoading === emp.id + 'add_credits'}
-                            className="px-4 py-2 bg-[#C9A84C] hover:bg-[#b8963e] text-[#0A0A0A] text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
-                          >
-                            {empActionLoading === emp.id + 'add_credits' ? '…' : '+5 Credits'}
-                          </button>
+
+                          {/* ── Credit Manager ── */}
+                          <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                            {/* Label */}
+                            <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Unlock Credits</p>
+                            </div>
+
+                            {/* −  count  + */}
+                            <div className="flex items-center">
+                              <button
+                                onClick={() => handleEmployerAction(emp.id, 'remove_credits', 1)}
+                                disabled={!!empActionLoading || (emp.unlock_credits ?? 0) <= 0}
+                                title="Remove 1 credit"
+                                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors border-r border-gray-100 text-base font-bold"
+                              >
+                                −
+                              </button>
+                              <span className="flex-1 text-center text-sm font-black text-[#0A0A0A] tabular-nums py-2">
+                                {empActionLoading?.startsWith(emp.id)
+                                  ? <span className="text-xs text-gray-400">…</span>
+                                  : (emp.unlock_credits ?? 0)}
+                              </span>
+                              <button
+                                onClick={() => handleEmployerAction(emp.id, 'add_credits', 1)}
+                                disabled={!!empActionLoading}
+                                title="Add 1 credit"
+                                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-green-50 hover:text-green-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors border-l border-gray-100 text-base font-bold"
+                              >
+                                +
+                              </button>
+                            </div>
+
+                            {/* Quick presets */}
+                            <div className="flex border-t border-gray-100">
+                              {[5, 10, 20].map(n => (
+                                <button
+                                  key={n}
+                                  onClick={() => handleEmployerAction(emp.id, 'add_credits', n)}
+                                  disabled={!!empActionLoading}
+                                  className="flex-1 py-1.5 text-[10px] font-bold text-[#C9A84C] hover:bg-[#C9A84C]/10 disabled:opacity-40 transition-colors border-r border-gray-100 last:border-r-0"
+                                >
+                                  +{n}
+                                </button>
+                              ))}
+                            </div>
+
+                            {/* Custom amount */}
+                            <div className="flex border-t border-gray-100">
+                              <input
+                                type="number"
+                                min="0"
+                                placeholder="Set to…"
+                                value={creditInputs[emp.id] ?? ''}
+                                onChange={e => setCreditInputs(prev => ({ ...prev, [emp.id]: e.target.value }))}
+                                className="flex-1 px-2.5 py-1.5 text-xs text-[#0A0A0A] placeholder-gray-300 focus:outline-none bg-transparent min-w-0"
+                              />
+                              <button
+                                onClick={() => {
+                                  const val = parseInt(creditInputs[emp.id] ?? '', 10);
+                                  if (!isNaN(val) && val >= 0) {
+                                    handleEmployerAction(emp.id, 'set_credits', val);
+                                    setCreditInputs(prev => ({ ...prev, [emp.id]: '' }));
+                                  }
+                                }}
+                                disabled={!!empActionLoading || !creditInputs[emp.id]}
+                                className="px-2.5 py-1.5 text-[10px] font-bold text-white bg-[#0A0A0A] hover:bg-[#C9A84C] hover:text-[#0A0A0A] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              >
+                                Set
+                              </button>
+                            </div>
+                          </div>
+
                           <button
                             onClick={() => setEmpExpanded(isExpanded ? null : emp.id)}
                             className="px-4 py-2 border border-gray-200 hover:border-gray-300 text-gray-500 text-xs font-medium rounded-lg transition-colors"

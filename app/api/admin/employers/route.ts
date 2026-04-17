@@ -91,15 +91,30 @@ export async function PATCH(req: NextRequest) {
       case 'restore':
         update = { status: 'active' };
         break;
-      case 'add_credits':
-        // Fetch current credits then increment
+      case 'add_credits': {
         const { data: emp } = await supabaseAdmin
           .from('employers')
           .select('unlock_credits')
           .eq('id', employerId)
           .single();
-        update = { unlock_credits: (emp?.unlock_credits || 0) + (credits || 5) };
+        const current = emp?.unlock_credits ?? 0;
+        update = { unlock_credits: current + (credits ?? 1) };
         break;
+      }
+      case 'remove_credits': {
+        const { data: emp } = await supabaseAdmin
+          .from('employers')
+          .select('unlock_credits')
+          .eq('id', employerId)
+          .single();
+        const current = emp?.unlock_credits ?? 0;
+        update = { unlock_credits: Math.max(0, current - (credits ?? 1)) };
+        break;
+      }
+      case 'set_credits': {
+        update = { unlock_credits: Math.max(0, credits ?? 0) };
+        break;
+      }
       default:
         return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
     }
