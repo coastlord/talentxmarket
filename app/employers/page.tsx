@@ -616,6 +616,8 @@ export default function EmployerDashboard() {
 
   // Prevent the admin auto-load effect from running more than once
   const adminInitialised = useRef(false);
+  // Prevent the session-restore effect from running more than once
+  const sessionInitialised = useRef(false);
 
   const isSignedInAdmin = clerkLoaded && !!user
     ? ADMIN_EMAILS.includes(user.primaryEmailAddress?.emailAddress?.toLowerCase().trim() ?? '')
@@ -686,11 +688,43 @@ export default function EmployerDashboard() {
     const clerkEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase().trim();
     if (clerkEmail && ADMIN_EMAILS.includes(clerkEmail)) {
       adminInitialised.current = true;
+      sessionInitialised.current = true; // block session restore from also firing
       setSubmittedEmail(clerkEmail);
       setStep('dashboard');
       ensureAdminAndLoad(clerkEmail);
     }
   }, [clerkLoaded, user, ensureAdminAndLoad]);
+
+  // ── Auto-restore localStorage session (non-admin returning employer) ──────
+  // Runs once after Clerk loads. If a valid tx_employer_session exists,
+  // skip the OTP gate and load the dashboard directly.
+  useEffect(() => {
+    if (!clerkLoaded) return;
+    if (sessionInitialised.current) return; // admin already handled, or already ran
+    if (adminInitialised.current) return;   // safety guard
+    sessionInitialised.current = true;
+
+    try {
+      const raw = localStorage.getItem('tx_employer_session');
+      if (!raw) return;
+      const s = JSON.parse(raw) as { email: string; expiresAt: number };
+      if (!s.email || s.expiresAt <= Date.now()) {
+        localStorage.removeItem('tx_employer_session');
+        return;
+      }
+      // Valid session — jump straight to dashboard
+      setSubmittedEmail(s.email);
+      setStep('dashboard');
+      fetchDashboard(s.email).then((found) => {
+        if (!found) {
+          // Account not found or suspended — clear session, go back to gate
+          try { localStorage.removeItem('tx_employer_session'); } catch {}
+          setStep('email');
+          setSubmittedEmail('');
+        }
+      });
+    } catch { /* localStorage unavailable or bad JSON */ }
+  }, [clerkLoaded, fetchDashboard]);
 
   // ── Step 1: Submit email → send OTP ──────────────────────────────────────
   const handleEmailSubmit = async (e: React.FormEvent) => {
