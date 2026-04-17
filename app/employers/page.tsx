@@ -311,9 +311,15 @@ function UnlockedCard({
 export default function EmployerDashboard() {
   const { user, isLoaded: clerkLoaded } = useUser();
 
-  // Email search state (for non-admin employers)
+  // OTP gate state
+  type Step = 'email' | 'otp' | 'dashboard';
+  const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
   const [submittedEmail, setSubmittedEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   // Dashboard state
   const [loading, setLoading] = useState(false);
@@ -329,6 +335,13 @@ export default function EmployerDashboard() {
     ? ADMIN_EMAILS.includes(user.primaryEmailAddress?.emailAddress?.toLowerCase().trim() ?? '')
     : false;
 
+  // ── Resend cooldown timer ─────────────────────────────────────────────────
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
+
   // ── Core fetch ────────────────────────────────────────────────────────────
   const fetchDashboard = useCallback(async (emailToFetch: string): Promise<boolean> => {
     setLoading(true);
@@ -341,11 +354,11 @@ export default function EmployerDashboard() {
       if (!res.ok) throw new Error(data.error || 'Server error');
       if (!data.employer) {
         setNotFound(true);
-        return false; // not found
+        return false;
       }
       setEmployer(data.employer);
       setUnlocks(data.unlocks || []);
-      return true; // found
+      return true;
     } catch (err) {
       console.error('fetchDashboard error:', err);
       setNotFound(true);
@@ -357,19 +370,11 @@ export default function EmployerDashboard() {
 
   // ── Ensure admin employer record exists, then reload ─────────────────────
   const ensureAdminAndLoad = useCallback(async (adminEmail: string) => {
-    // Try loading first
     const found = await fetchDashboard(adminEmail);
     if (found) return;
-
-    // Not found → silently create account via ensure endpoint
     try {
       const res = await fetch('/api/employers/ensure', { method: 'POST' });
-      if (!res.ok) {
-        // Ensure failed — show not-found with helpful message
-        setNotFound(true);
-        return;
-      }
-      // Re-fetch after creation
+      if (!res.ok) { setNotFound(true); return; }
       await fetchDashboard(adminEmail);
     } catch (err) {
       console.error('ensure error:', err);
@@ -377,25 +382,96 @@ export default function EmployerDashboard() {
     }
   }, [fetchDashboard]);
 
-  // ── Auto-load for signed-in admin ─────────────────────────────────────────
+  // ── Auto-load for signed-in admin (bypasses OTP) ─────────────────────────
   useEffect(() => {
     if (!clerkLoaded) return;
-    if (adminInitialised.current) return; // only run once
+    if (adminInitialised.current) return;
     const clerkEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase().trim();
     if (clerkEmail && ADMIN_EMAILS.includes(clerkEmail)) {
       adminInitialised.current = true;
       setSubmittedEmail(clerkEmail);
+      setStep('dashboard');
       ensureAdminAndLoad(clerkEmail);
     }
   }, [clerkLoaded, user, ensureAdminAndLoad]);
 
-  // ── Regular employer: submit email ────────────────────────────────────────
-  const handleSubmit = (e: React.FormEvent) => {
+  // ── Step 1: Submit email → send OTP ──────────────────────────────────────
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = email.toLowerCase().trim();
     if (!trimmed) return;
-    setSubmittedEmail(trimmed);
-    fetchDashboard(trimmed);
+    setOtpError('');
+    setOtpLoading(true);
+    try {
+      const res = await fetch('/api/employers/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmed }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setOtpError(data.message || data.error || 'Failed to send code.');
+        return;
+      }
+      setSubmittedEmail(trimmed);
+      setResendCooldown(60);
+      setStep('otp');
+    } catch {
+      setOtpError('Something went wrong. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // ── Step 2: Verify OTP → load dashboard ──────────────────────────────────
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otpCode.length !== 6) return;
+    setOtpError('');
+    setOtpLoading(true);
+    try {
+      const res = await fetch('/api/employers/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: submittedEmail, code: otpCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setOtpError(data.error || 'Incorrect code. Please try again.');
+        return;
+      }
+      setStep('dashboard');
+      fetchDashboard(submittedEmail);
+    } catch {
+      setOtpError('Something went wrong. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // ── Resend OTP ────────────────────────────────────────────────────────────
+  const handleResend = async () => {
+    if (resendCooldown > 0) return;
+    setOtpError('');
+    setOtpCode('');
+    setOtpLoading(true);
+    try {
+      const res = await fetch('/api/employers/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: submittedEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setOtpError(data.message || data.error || 'Failed to resend code.');
+      } else {
+        setResendCooldown(60);
+      }
+    } catch {
+      setOtpError('Something went wrong.');
+    } finally {
+      setOtpLoading(false);
+    }
   };
 
   const handleLikeToggle = (candidateId: string, newLiked: boolean) => {
@@ -431,110 +507,147 @@ export default function EmployerDashboard() {
           </div>
         </div>
 
-        {/* ── EMAIL LOOKUP — only shown to non-admin employers ── */}
-        {!isSignedInAdmin && (
-          <div className="max-w-4xl mx-auto px-4 -mt-6">
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-5 sm:p-6">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
-                Enter your work email to access your dashboard
-              </p>
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="email"
-                  required
-                  placeholder="you@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-6 py-3 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold rounded-xl transition-all duration-200 whitespace-nowrap disabled:opacity-60"
-                >
-                  {loading ? 'Loading…' : 'View My Candidates'}
-                </button>
-              </form>
+        {/* ── OTP GATE — only for non-admin employers ── */}
+        {!isSignedInAdmin && step !== 'dashboard' && (
+          <div className="max-w-md mx-auto px-4 -mt-6">
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
 
-              {!submittedEmail && !loading && (
-                <div className="mt-4 flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-100">
-                  <div className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-gold/10 flex items-center justify-center">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                  </div>
-                  <p className="text-xs text-gray-500 leading-relaxed">
-                    <span className="font-semibold text-gray-700">Don&apos;t have an account yet?</span>{' '}
-                    <Link href="/talent" className="text-brand-gold font-semibold hover:underline underline-offset-2">Browse compliance professionals</Link>
-                    {' '}and unlock candidate profiles — your employer dashboard will be created automatically in the process.
-                  </p>
+              {/* Step indicator */}
+              <div className="flex border-b border-gray-100">
+                <div className={`flex-1 py-3 text-center text-xs font-bold transition-colors ${step === 'email' ? 'text-brand-black bg-gray-50' : 'text-gray-300'}`}>
+                  1 · Enter Email
                 </div>
-              )}
+                <div className={`flex-1 py-3 text-center text-xs font-bold transition-colors ${step === 'otp' ? 'text-brand-black bg-gray-50' : 'text-gray-300'}`}>
+                  2 · Verify Code
+                </div>
+                <div className="flex-1 py-3 text-center text-xs font-bold text-gray-300">
+                  3 · Dashboard
+                </div>
+              </div>
 
-              {submittedEmail && notFound && !loading && (
-                <div className="mt-4 rounded-2xl border border-brand-gold/20 bg-gradient-to-br from-[#0A0A0A] to-[#111] overflow-hidden">
-                  <div className="px-5 py-5 sm:px-6 sm:py-6">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-9 h-9 rounded-full bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center mt-0.5">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10" />
-                          <line x1="12" y1="8" x2="12" y2="12" />
-                          <line x1="12" y1="16" x2="12.01" y2="16" />
-                        </svg>
+              <div className="p-6 sm:p-7">
+
+                {/* ── STEP 1: Email ── */}
+                {step === 'email' && (
+                  <>
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-9 h-9 rounded-xl bg-brand-black flex items-center justify-center flex-shrink-0">
+                        <MailIcon size={15} />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white text-sm font-semibold mb-1">
-                          No dashboard found for <span className="text-brand-gold">{submittedEmail}</span>
-                        </p>
-                        <p className="text-white/50 text-xs leading-relaxed mb-4">
-                          Your employer dashboard is created automatically the first time you unlock a candidate profile.
-                          If you haven&apos;t unlocked anyone yet, browse our verified compliance professionals and request
-                          access to the ones that match your requirements — your dashboard will be ready instantly.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Link
-                            href="/talent"
-                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-gold text-brand-black text-xs font-bold rounded-lg hover:bg-brand-gold/90 transition-all duration-200"
-                          >
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            </svg>
-                            Browse Compliance Talent
-                          </Link>
-                          <Link
-                            href="/talent"
-                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-white/10 text-white/60 text-xs font-medium rounded-lg hover:border-white/30 hover:text-white transition-all duration-200"
-                          >
-                            How unlocking works
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-                            </svg>
-                          </Link>
-                        </div>
+                      <div>
+                        <p className="text-sm font-black text-brand-black">Access your dashboard</p>
+                        <p className="text-xs text-gray-400">We&apos;ll send a secure code to verify it&apos;s you</p>
                       </div>
                     </div>
-                  </div>
-                  <div className="border-t border-white/5 bg-white/[0.02] px-5 sm:px-6 py-3">
-                    <p className="text-[11px] text-white/30">
-                      Already unlocked profiles under a different email?{' '}
+
+                    <form onSubmit={handleEmailSubmit} className="space-y-3">
+                      <input
+                        type="email"
+                        required
+                        placeholder="your@company.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
+                      />
+                      {otpError && (
+                        <p className="text-xs text-red-500 font-medium">{otpError}</p>
+                      )}
+                      <button
+                        type="submit"
+                        disabled={otpLoading}
+                        className="w-full py-3 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-60"
+                      >
+                        {otpLoading ? 'Sending code…' : 'Send Access Code →'}
+                      </button>
+                    </form>
+
+                    <div className="mt-4 flex items-start gap-2.5 px-3.5 py-3 bg-gray-50 rounded-xl border border-gray-100">
+                      <div className="w-6 h-6 rounded-full bg-brand-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                      </div>
+                      <p className="text-xs text-gray-500 leading-relaxed">
+                        <span className="font-semibold text-gray-700">No account yet?</span>{' '}
+                        <Link href="/talent" className="text-brand-gold font-semibold hover:underline underline-offset-2">Browse compliance professionals</Link>
+                        {' '}and unlock profiles — your dashboard is created automatically.
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                {/* ── STEP 2: OTP ── */}
+                {step === 'otp' && (
+                  <>
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-9 h-9 rounded-xl bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center flex-shrink-0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-black text-brand-black">Check your inbox</p>
+                        <p className="text-xs text-gray-400 truncate max-w-[220px]">Code sent to <span className="font-semibold text-brand-black">{submittedEmail}</span></p>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleOtpSubmit} className="space-y-3">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="\d{6}"
+                        maxLength={6}
+                        placeholder="6-digit code"
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        className="w-full px-4 py-3.5 text-center text-2xl font-black tracking-[0.4em] border border-gray-200 rounded-xl focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
+                        autoFocus
+                      />
+                      {otpError && (
+                        <p className="text-xs text-red-500 font-medium">{otpError}</p>
+                      )}
+                      <button
+                        type="submit"
+                        disabled={otpLoading || otpCode.length !== 6}
+                        className="w-full py-3 bg-brand-gold hover:bg-brand-gold/90 text-brand-black text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-40"
+                      >
+                        {otpLoading ? 'Verifying…' : 'Access Dashboard →'}
+                      </button>
+                    </form>
+
+                    <div className="mt-4 flex items-center justify-between">
                       <button
                         type="button"
-                        onClick={() => { setNotFound(false); setSubmittedEmail(''); }}
-                        className="text-brand-gold/70 hover:text-brand-gold underline underline-offset-2 transition-colors"
+                        onClick={() => { setStep('email'); setOtpCode(''); setOtpError(''); }}
+                        className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
                       >
-                        Try another address
+                        ← Use different email
                       </button>
+                      <button
+                        type="button"
+                        onClick={handleResend}
+                        disabled={resendCooldown > 0 || otpLoading}
+                        className="text-xs font-semibold text-brand-gold hover:underline disabled:text-gray-300 disabled:no-underline transition-colors"
+                      >
+                        {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
+                      </button>
+                    </div>
+
+                    <p className="mt-4 text-[10px] text-gray-400 text-center leading-relaxed">
+                      Code expires in 10 minutes · 3 attempts allowed
                     </p>
-                  </div>
-                </div>
-              )}
+                  </>
+                )}
+
+              </div>
             </div>
           </div>
         )}
 
         {/* ── LOADING STATE ── */}
-        {loading && (
+        {loading && step === 'dashboard' && (
           <div className="max-w-7xl mx-auto px-4 py-16 text-center">
             <div className="inline-flex items-center gap-3 text-gray-500">
               <svg className="w-5 h-5 animate-spin text-brand-gold" fill="none" viewBox="0 0 24 24">
@@ -668,8 +781,8 @@ export default function EmployerDashboard() {
           </div>
         )}
 
-        {/* ── EMPTY START STATE — no email submitted, not admin ── */}
-        {!employer && !loading && !submittedEmail && !isSignedInAdmin && (
+        {/* ── EMPTY START STATE — waiting for OTP verification ── */}
+        {!employer && !loading && step === 'email' && !isSignedInAdmin && (
           <div className="max-w-4xl mx-auto px-4 py-12">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
               {[
