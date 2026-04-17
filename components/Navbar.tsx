@@ -40,16 +40,16 @@ export default function Navbar() {
 
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-6">
-            <a href="#how-it-works" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
+            <a href="/#how-it-works" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
               How It Works
             </a>
-            <a href="#roles" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
+            <a href="/#roles" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
               Specialisms
             </a>
-            <a href="#why-talentx" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
+            <a href="/#why-talentx" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
               Why TalentX
             </a>
-            <a href="#about" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
+            <a href="/#about" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
               About
             </a>
             <Link href="/talent" className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-medium">
@@ -122,10 +122,10 @@ export default function Navbar() {
         {menuOpen && (
           <div className="md:hidden border-t border-white/10 py-4">
             <div className="flex flex-col gap-3 px-2">
-              <a href="#how-it-works" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>How It Works</a>
-              <a href="#roles" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>Specialisms</a>
-              <a href="#why-talentx" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>Why TalentX</a>
-              <a href="#about" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>About</a>
+              <a href="/#how-it-works" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>How It Works</a>
+              <a href="/#roles" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>Specialisms</a>
+              <a href="/#why-talentx" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>Why TalentX</a>
+              <a href="/#about" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>About</a>
               <Link href="/talent" className="flex items-center gap-1.5 text-brand-gold text-sm font-medium py-1.5" onClick={() => setMenuOpen(false)}>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                 Browse Talent
