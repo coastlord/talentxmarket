@@ -457,13 +457,60 @@ export default function EmployerDashboard() {
               </form>
 
               {submittedEmail && notFound && !loading && (
-                <div className="mt-3 flex items-start gap-2 text-xs text-gray-500 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
-                  <span className="mt-0.5 flex-shrink-0">ℹ️</span>
-                  <span>
-                    No account found for <strong>{submittedEmail}</strong>. Start by{' '}
-                    <Link href="/talent" className="text-brand-gold hover:underline font-semibold">unlocking profiles</Link>{' '}
-                    on the talent page — your dashboard will appear here automatically after your first unlock.
-                  </span>
+                <div className="mt-4 rounded-2xl border border-brand-gold/20 bg-gradient-to-br from-[#0A0A0A] to-[#111] overflow-hidden">
+                  <div className="px-5 py-5 sm:px-6 sm:py-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-9 h-9 rounded-full bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center mt-0.5">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="8" x2="12" y2="12" />
+                          <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm font-semibold mb-1">
+                          No dashboard found for <span className="text-brand-gold">{submittedEmail}</span>
+                        </p>
+                        <p className="text-white/50 text-xs leading-relaxed mb-4">
+                          Your employer dashboard is created automatically the first time you unlock a candidate profile.
+                          If you haven&apos;t unlocked anyone yet, browse our verified compliance professionals and request
+                          access to the ones that match your requirements — your dashboard will be ready instantly.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <Link
+                            href="/talent"
+                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-gold text-brand-black text-xs font-bold rounded-lg hover:bg-brand-gold/90 transition-all duration-200"
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            Browse Compliance Talent
+                          </Link>
+                          <Link
+                            href="/talent"
+                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-white/10 text-white/60 text-xs font-medium rounded-lg hover:border-white/30 hover:text-white transition-all duration-200"
+                          >
+                            How unlocking works
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                            </svg>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-t border-white/5 bg-white/[0.02] px-5 sm:px-6 py-3">
+                    <p className="text-[11px] text-white/30">
+                      Already unlocked profiles under a different email?{' '}
+                      <button
+                        type="button"
+                        onClick={() => { setNotFound(false); setSubmittedEmail(''); }}
+                        className="text-brand-gold/70 hover:text-brand-gold underline underline-offset-2 transition-colors"
+                      >
+                        Try another address
+                      </button>
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
