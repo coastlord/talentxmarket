@@ -104,21 +104,26 @@ export default function Footer() {
               Company
             </h4>
             <ul className="space-y-3">
-              {[
-                { label: 'About TalentX', href: '#about' },
-                { label: 'Contact Us', href: 'mailto:hello@talentxmarket.com' },
-                { label: 'Privacy Policy', href: '/privacy' },
-                { label: 'Terms of Service', href: '/terms' },
-              ].map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <a href="#about" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  About TalentX
+                </a>
+              </li>
+              <li>
+                <a href="mailto:hello@talentxmarket.com" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  Contact Us
+                </a>
+              </li>
+              <li>
+                <Link href="/privacy" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  Terms of Use
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
