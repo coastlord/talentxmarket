@@ -152,7 +152,7 @@ export default function HowItWorks() {
         {/* CTA */}
         <div className="text-center mt-14">
           {activeTab === 'professional' ? (
-            <a href="#open-to-work" className="btn-dark">
+            <a href="/sign-up" className="btn-dark">
               Post My Availability →
             </a>
           ) : (

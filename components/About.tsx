@@ -55,11 +55,12 @@ export default function About() {
               {/* Logo */}
               <div className="relative flex justify-center mb-10">
                 <Image
-                  src="/logo-light.png"
+                  src="/tx-icon-gold.png"
                   alt="TalentX Market"
-                  width={200}
-                  height={60}
-                  className="h-14 w-auto"
+                  width={501}
+                  height={302}
+                  className="w-auto"
+                  style={{ height: '60px' }}
                 />
               </div>
 
