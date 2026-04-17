@@ -23,7 +23,7 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-4">
+        <div className="flex items-center justify-between py-2.5">
 
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
@@ -33,7 +33,7 @@ export default function Navbar() {
               width={501}
               height={302}
               className="w-auto object-contain"
-              style={{ height: '80px' }}
+              style={{ height: '50px' }}
               priority
             />
           </Link>
@@ -62,7 +62,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             <Link
               href="/employers"
-              className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white border border-white/10 hover:border-white/30 rounded-lg transition-all duration-200"
+              className="px-4 py-2 text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg hover:bg-brand-gold/10 hover:border-brand-gold transition-all duration-200"
             >
               Employer Dashboard
             </Link>
@@ -131,7 +131,7 @@ export default function Navbar() {
                 Browse Talent
               </Link>
               <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
-                <Link href="/employers" className="text-center text-sm font-medium text-white/60 hover:text-white py-2.5 border border-white/10 rounded-lg hover:border-white/30 transition-all" onClick={() => setMenuOpen(false)}>
+                <Link href="/employers" className="text-center text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg py-2.5 hover:bg-brand-gold/10 hover:border-brand-gold transition-all" onClick={() => setMenuOpen(false)}>
                   Employer Dashboard
                 </Link>
                 {isLoaded && isSignedIn ? (
