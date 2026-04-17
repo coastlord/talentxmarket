@@ -32,7 +32,7 @@ const clerkAppearance = {
     footerActionLink: 'text-[#C9A84C] font-semibold hover:text-[#b8963e]',
     footerActionText: 'text-gray-500 text-sm',
     footer: 'pt-2',
-    formFieldLabel: 'text-[#0A0A0A] text-sm font-medium',
+    formFieldLabel: 'hidden',
     formFieldInput:
       'border-gray-200 focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C] bg-[#F9F9F9] rounded-lg',
     formFieldInputShowPasswordButton: 'text-gray-400 hover:text-gray-600',
