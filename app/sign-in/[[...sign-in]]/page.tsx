@@ -6,33 +6,35 @@ import Link from 'next/link';
 
 const clerkAppearance = {
   variables: {
-    colorPrimary: '#0A0A0A',
+    colorPrimary: '#C9A84C',
     colorBackground: '#FFFFFF',
     colorText: '#0A0A0A',
     colorInputBackground: '#F9F9F9',
     colorInputText: '#0A0A0A',
     colorNeutral: '#9CA3AF',
-    borderRadius: '8px',
+    borderRadius: '10px',
     fontFamily: 'Inter, sans-serif',
-    fontSize: '15px',
+    fontSize: '14px',
   },
   elements: {
     rootBox: 'w-full',
     card: 'shadow-none border-0 p-0 w-full bg-transparent',
+    // Hide Clerk's built-in header — we provide our own
+    header: 'hidden',
     headerTitle: 'hidden',
     headerSubtitle: 'hidden',
     logoBox: 'hidden',
     socialButtonsBlockButton:
-      'border border-gray-200 text-[#0A0A0A] hover:bg-gray-50 font-medium rounded-lg h-12 text-sm w-full',
+      'border border-gray-200 text-[#0A0A0A] hover:bg-gray-50 font-medium rounded-lg',
     socialButtonsBlockButtonText: 'font-medium text-sm',
     formButtonPrimary:
-      'bg-[#0A0A0A] hover:bg-[#222] text-white font-semibold h-12 rounded-lg text-sm w-full transition-colors',
-    footerActionLink: 'hidden',
-    footerAction: 'hidden',
-    footer: 'hidden',
-    formFieldLabel: 'text-[#0A0A0A] text-sm font-semibold mb-1.5 block',
+      'bg-[#C9A84C] hover:bg-[#b8963e] text-[#0A0A0A] font-semibold rounded-lg transition-colors',
+    footerActionLink: 'text-[#C9A84C] font-semibold hover:text-[#b8963e]',
+    footerActionText: 'text-gray-500 text-sm',
+    footer: 'pt-2',
+    formFieldLabel: 'text-[#0A0A0A] text-sm font-medium',
     formFieldInput:
-      'border border-gray-200 focus:border-[#C9A84C] focus:ring-2 focus:ring-[#C9A84C]/20 h-12 rounded-lg text-sm px-4 w-full bg-[#F9F9F9]',
+      'border-gray-200 focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C] bg-[#F9F9F9] rounded-lg',
     formFieldInputShowPasswordButton: 'text-gray-400 hover:text-gray-600',
     dividerText: 'text-gray-400 text-xs font-medium',
     dividerLine: 'bg-gray-200',
@@ -45,112 +47,126 @@ const clerkAppearance = {
   },
 };
 
+const stats = [
+  { value: 'AML', label: 'Anti-Money Laundering' },
+  { value: 'KYC', label: 'Know Your Customer' },
+  { value: 'MLRO', label: 'Money Laundering Reporting' },
+  { value: 'Risk', label: 'Risk Management' },
+];
+
 export default function SignInPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row" style={{ fontFamily: 'Inter, sans-serif' }}>
 
-      {/* ── LEFT PANEL — Gold brand side ── */}
-      <div className="hidden lg:flex lg:w-[45%] bg-[#C9A84C] flex-col justify-between p-14 relative overflow-hidden">
+      {/* ── LEFT PANEL — dark brand side ── */}
+      <div className="hidden lg:flex lg:w-[45%] bg-[#0A0A0A] flex-col justify-between px-14 py-16 relative overflow-hidden">
 
-        {/* Subtle pattern */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-[-60px] right-[-60px] w-72 h-72 rounded-full border-2 border-black" />
-          <div className="absolute bottom-[-40px] left-[-40px] w-56 h-56 rounded-full border-2 border-black" />
-        </div>
+        {/* Subtle decorative rings */}
+        <div className="absolute top-[-80px] right-[-80px] w-80 h-80 rounded-full border border-white/5 pointer-events-none" />
+        <div className="absolute bottom-[-60px] left-[-60px] w-64 h-64 rounded-full border border-white/5 pointer-events-none" />
+        <div className="absolute top-1/2 right-[-120px] w-96 h-96 rounded-full border border-[#C9A84C]/5 pointer-events-none -translate-y-1/2" />
 
         {/* Logo */}
         <div className="relative z-10">
-          <Image
-            src="/logo-icon.png"
-            alt="TalentX Market"
-            width={80}
-            height={80}
-            className="h-14 w-auto object-contain"
-            style={{ filter: 'invert(1)', mixBlendMode: 'multiply' }}
-            priority
-          />
-          <p className="text-black/70 text-xs font-bold tracking-[0.22em] uppercase mt-3">
-            AML · KYC · RISK · COMPLIANCE CAREERS
-          </p>
+          <Link href="/">
+            <Image
+              src="/logo-dark.png"
+              alt="TalentX Market"
+              width={220}
+              height={56}
+              className="h-10 w-auto object-contain"
+              priority
+            />
+          </Link>
         </div>
 
         {/* Main message */}
         <div className="relative z-10">
-          <div className="w-12 h-[3px] bg-black/30 mb-8 rounded-full" />
-          <h2 className="text-black text-4xl font-extrabold leading-tight mb-5">
-            The world&apos;s most<br />trusted compliance<br />talent marketplace.
+          <div className="w-10 h-[3px] bg-[#C9A84C] mb-8 rounded-full" />
+          <h2 className="text-white text-4xl font-black leading-tight mb-5">
+            Welcome back<br />to the compliance<br />talent marketplace.
           </h2>
-          <p className="text-black/65 text-base leading-relaxed max-w-sm">
-            A curated, invitation-only network of senior AML, Risk, MLRO, KYC and Trust &amp; Safety professionals — built exclusively for the compliance sector.
+          <p className="text-white/40 text-sm leading-relaxed max-w-xs">
+            The specialist platform connecting AML, Risk, MLRO, and Trust &amp; Safety
+            professionals with the organisations that need them most.
           </p>
-        </div>
 
-        {/* Bottom badge */}
-        <div className="relative z-10 border-t border-black/20 pt-7 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-full bg-black/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <svg className="w-5 h-5 text-black/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-black text-sm font-bold">Invitation only.</p>
-            <p className="text-black/55 text-xs mt-0.5 leading-relaxed">Every professional is manually vetted before being admitted to the platform.</p>
+          {/* Specialism chips */}
+          <div className="flex flex-wrap gap-2 mt-8">
+            {stats.map((s) => (
+              <div key={s.value} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+                <span className="text-[#C9A84C] text-xs font-bold">{s.value}</span>
+                <span className="text-white/30 text-xs"> · {s.label}</span>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
 
-      {/* ── RIGHT PANEL — White form side ── */}
-      <div className="flex-1 bg-white flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-20">
-
-        {/* Mobile logo */}
-        <div className="lg:hidden mb-10 text-center">
-          <Image
-            src="/logo-icon.png"
-            alt="TalentX Market"
-            width={60}
-            height={60}
-            className="h-12 w-auto object-contain mx-auto"
-            style={{ filter: 'invert(1)' }}
-            priority
-          />
-          <p className="text-[#C9A84C] text-[10px] font-bold tracking-[0.18em] uppercase mt-2">
-            AML · KYC · RISK · COMPLIANCE CAREERS
-          </p>
-        </div>
-
-        <div className="w-full max-w-[400px] mx-auto">
-
-          {/* Heading */}
-          <div className="mb-8">
-            <h1 className="text-[28px] font-extrabold text-[#0A0A0A] leading-tight mb-2">
-              Sign in to TalentX
-            </h1>
-            <p className="text-gray-500 text-[15px]">
-              Welcome back. Please enter your details to continue.
-            </p>
-          </div>
-
-          {/* Clerk form — seamless, no inner card */}
-          <SignIn appearance={clerkAppearance} />
-
-          {/* Divider */}
-          <div className="mt-8 pt-7 border-t border-gray-100 flex items-center justify-center gap-5">
-            <Link href="/privacy" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
-              Privacy Policy
-            </Link>
-            <span className="text-gray-200">|</span>
-            <Link href="/terms" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
-              Terms of Service
-            </Link>
-          </div>
-
-          <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed">
-            Don&apos;t have an account?{' '}
-            <span className="text-[#0A0A0A] font-semibold">Accounts are by invitation only.</span>
+        {/* Bottom note */}
+        <div className="relative z-10 border-t border-white/10 pt-7">
+          <p className="text-white/20 text-xs leading-relaxed">
+            &copy; {new Date().getFullYear()} TalentX Market. All rights reserved.
           </p>
         </div>
       </div>
 
+      {/* ── RIGHT PANEL — white form side ── */}
+      <div className="flex-1 bg-white flex flex-col">
+
+        {/* Top bar */}
+        <div className="px-8 sm:px-12 py-5 flex items-center justify-between border-b border-gray-100">
+          {/* Mobile logo */}
+          <Link href="/" className="lg:hidden">
+            <Image
+              src="/logo-dark.png"
+              alt="TalentX Market"
+              width={140}
+              height={40}
+              className="h-8 w-auto object-contain"
+              priority
+            />
+          </Link>
+          <div className="hidden lg:block" />
+          <p className="text-sm text-gray-500">
+            New to TalentX?{' '}
+            <Link href="/sign-up" className="text-[#C9A84C] font-semibold hover:underline underline-offset-2 transition-colors">
+              Create an account
+            </Link>
+          </p>
+        </div>
+
+        {/* Form area */}
+        <div className="flex-1 flex items-center justify-center px-8 sm:px-12 py-12">
+          <div className="w-full max-w-[420px]">
+
+            {/* Our heading */}
+            <div className="mb-7">
+              <h1 className="text-2xl font-black text-[#0A0A0A] mb-2">
+                Sign in to TalentX
+              </h1>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Welcome back. Enter your details to access your account.
+              </p>
+            </div>
+
+            {/* Clerk form */}
+            <SignIn appearance={clerkAppearance} />
+
+            {/* Legal links */}
+            <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-center gap-5">
+              <Link href="/privacy" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+                Privacy Policy
+              </Link>
+              <span className="text-gray-200">|</span>
+              <Link href="/terms" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+                Terms of Use
+              </Link>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
