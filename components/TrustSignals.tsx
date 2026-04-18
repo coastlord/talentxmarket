@@ -31,9 +31,8 @@ export default function TrustSignals() {
                 ),
                 problem: 'Generic Job Boards',
                 headline: 'Signal lost in the noise',
-                body: 'Platforms like LinkedIn, Indeed, and Reed were not designed for compliance hiring. You post a role and receive hundreds of irrelevant applications from candidates with no AML, KYC, or regulatory experience — wasting weeks of review time.',
-                stat: '80%',
-                statLabel: 'of CVs received are irrelevant to the role',
+                body: 'Platforms like LinkedIn, Indeed, and Reed were not designed for compliance hiring. You post a role and receive applications from candidates with no AML, KYC, or regulatory experience — consuming weeks of a compliance team\'s review capacity.',
+                finding: 'A large proportion of applicants are often irrelevant to compliance roles, leaving hiring teams to filter through unsuitable CVs before finding a credible candidate.',
               },
               {
                 icon: (
@@ -43,9 +42,8 @@ export default function TrustSignals() {
                 ),
                 problem: 'Recruitment Agencies',
                 headline: 'Expensive, slow, and opaque',
-                body: 'Traditional compliance recruiters charge 20–30% of the first-year salary — often for candidates they found on the same job boards you could access yourself. The process is slow, the margins are hidden, and the recruiter rarely understands the technical depth of your role.',
-                stat: '25%',
-                statLabel: 'average agency fee on compliance placement',
+                body: 'Traditional compliance recruiters often source from the same public job boards available to everyone — then add a significant fee on top. The process is slow, the margins are rarely transparent, and the recruiter frequently lacks the technical depth your role demands.',
+                finding: 'Agency fees routinely represent a substantial premium on every compliance hire, with little specialist knowledge to justify the cost.',
               },
               {
                 icon: (
@@ -55,9 +53,8 @@ export default function TrustSignals() {
                 ),
                 problem: 'No Specialist Platform',
                 headline: 'The compliance sector had no home',
-                body: 'Compliance, AML, MLRO, Trust & Safety — these are specialisms that require deep regulatory knowledge. No platform existed that was built exclusively for these professionals: somewhere to surface verified talent, ensure quality, and protect candidate privacy.',
-                stat: '0',
-                statLabel: 'dedicated compliance-only talent platforms before TalentX',
+                body: 'Compliance, AML, MLRO, Trust & Safety — these are specialisms that require deep regulatory knowledge. No platform existed built exclusively for these professionals: somewhere to surface verified talent, protect candidate privacy, and ensure quality at every step.',
+                finding: 'Until now, no dedicated platform existed built exclusively for compliance and financial crime talent — leaving the sector reliant on tools designed for everyone, and suited to no one.',
               },
             ].map((item, i) => (
               <div key={i} className="bg-brand-off-white rounded-2xl p-8 border border-brand-light-gray">
@@ -68,8 +65,7 @@ export default function TrustSignals() {
                 <h3 className="text-xl font-bold text-brand-dark mb-3">{item.headline}</h3>
                 <p className="text-brand-gray text-sm leading-relaxed mb-6">{item.body}</p>
                 <div className="pt-4 border-t border-brand-light-gray">
-                  <p className="text-3xl font-black text-brand-dark">{item.stat}</p>
-                  <p className="text-xs text-brand-gray mt-1">{item.statLabel}</p>
+                  <p className="text-sm text-brand-gray italic leading-relaxed">&ldquo;{item.finding}&rdquo;</p>
                 </div>
               </div>
             ))}
@@ -394,7 +390,7 @@ export default function TrustSignals() {
                   </svg>
                 ),
                 title: 'Built by the Sector',
-                body: 'TalentX was built by compliance professionals who have worked inside regulated organisations. We understand what good looks like — because we have hired for it ourselves.',
+                body: 'Built by compliance professionals who have personally hired AML, KYC, MLRO, and Financial Crime roles inside regulated institutions. We understand what good looks like — because we have hired for it ourselves.',
               },
             ].map((card, i) => (
               <div

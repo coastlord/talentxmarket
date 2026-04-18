@@ -14,14 +14,15 @@ export default function About() {
             </h2>
             <p className="text-brand-gray leading-relaxed mb-6">
               TalentX Market was founded by a group of compliance professionals who
-              have worked inside regulated organisations — in AML, financial crime,
-              MLRO, and regulatory risk — to make hiring risk professionals seamless.
+              have personally hired AML, KYC, MLRO, and Financial Crime roles inside
+              regulated institutions — and who saw first-hand how broken the existing
+              hiring process was for this sector.
             </p>
             <p className="text-brand-gray leading-relaxed mb-6">
               We have sat on both sides of the table: as compliance professionals looking
-              for the next move, and as hiring managers trying to find candidates with the
-              right depth of specialism. The tools available were generic, expensive, and
-              entirely unfit for the nuance compliance hiring demands.
+              for the right opportunity, and as hiring managers trying to find candidates
+              with genuine specialism depth. The tools available were generic, expensive,
+              and entirely unfit for the nuance that compliance hiring demands.
             </p>
             <p className="text-brand-gray leading-relaxed mb-8">
               TalentX Market exists because we built the platform we always wished had existed —
@@ -33,9 +34,9 @@ export default function About() {
             {/* Credentials */}
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: 'Sector Insiders', desc: 'Founded by working compliance professionals' },
+                { label: 'Sector Insiders', desc: 'Founders have hired AML, KYC & MLRO roles in regulated institutions' },
                 { label: 'No Middlemen', desc: 'Direct access — no agency markup' },
-                { label: 'Manual Review', desc: 'Every profile approved by hand' },
+                { label: 'Manual Review', desc: 'Every profile approved by a compliance professional' },
                 { label: 'Privacy First', desc: 'UK GDPR compliant by design' },
               ].map((value, i) => (
                 <div key={i} className="bg-brand-off-white rounded-xl p-4 border border-brand-light-gray">
