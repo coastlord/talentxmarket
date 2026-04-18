@@ -4,7 +4,7 @@ export default function TrustSignals() {
       {/* ─────────────────────────────────────────────────────────────────
           SECTION 1 — THE PROBLEM WE SOLVE
       ───────────────────────────────────────────────────────────────── */}
-      <section id="the-problem" className="py-24 bg-white">
+      <section id="the-problem" className="py-24 bg-[#F4F4F2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
@@ -57,7 +57,7 @@ export default function TrustSignals() {
                 finding: 'Until now, no dedicated platform existed built exclusively for compliance and financial crime talent — leaving the sector reliant on tools designed for everyone, and suited to no one.',
               },
             ].map((item, i) => (
-              <div key={i} className="bg-brand-off-white rounded-2xl p-8 border border-brand-light-gray">
+              <div key={i} className="bg-white rounded-2xl p-8 border border-brand-light-gray shadow-sm">
                 <div className="w-14 h-14 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-400 mb-6">
                   {item.icon}
                 </div>
@@ -86,7 +86,7 @@ export default function TrustSignals() {
       {/* ─────────────────────────────────────────────────────────────────
           SECTION 2 — OUR VETTING PROCESS
       ───────────────────────────────────────────────────────────────── */}
-      <section id="vetting-process" className="py-24 bg-brand-off-white">
+      <section id="vetting-process" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
@@ -198,7 +198,7 @@ export default function TrustSignals() {
               </div>
 
               {/* What employers see */}
-              <div className="bg-white rounded-2xl p-6 border border-brand-light-gray">
+              <div className="bg-[#F4F4F2] rounded-2xl p-6 border border-brand-light-gray">
                 <p className="text-xs font-bold text-brand-gold uppercase tracking-widest mb-4">
                   What Employers See on Every Profile
                 </p>

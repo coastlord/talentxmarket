@@ -69,15 +69,15 @@ const features = [
 
 export default function WhyTalentX() {
   return (
-    <section id="why-talentx" className="py-24 bg-brand-black">
+    <section id="why-talentx" className="py-24 bg-[#F7F7F5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
           <div className="w-16 h-1 bg-brand-gold rounded-full mx-auto mb-6" />
-          <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+          <h2 className="text-4xl md:text-5xl font-bold text-brand-dark leading-tight">
             Why Choose TalentX Market?
           </h2>
-          <p className="text-lg text-white/80 mt-4 max-w-2xl mx-auto">
+          <p className="text-lg text-brand-gray mt-4 max-w-2xl mx-auto">
             The compliance sector deserves its own dedicated talent platform. Here&apos;s
             what makes TalentX different.
           </p>
@@ -88,18 +88,18 @@ export default function WhyTalentX() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/8 hover:border-brand-gold/30 transition-all duration-300"
+              className="group bg-white border border-gray-100 rounded-2xl p-8 shadow-sm hover:shadow-md hover:border-brand-gold/30 transition-all duration-300"
             >
               <div className="w-14 h-14 rounded-xl bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center text-brand-gold mb-6 group-hover:bg-brand-gold/20 transition-colors duration-200">
                 {feature.icon}
               </div>
               <div className="mb-3">
-                <span className="text-brand-gold/70 text-xs font-semibold uppercase tracking-widest">
+                <span className="text-brand-gold text-xs font-semibold uppercase tracking-widest">
                   {feature.highlight}
                 </span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-              <p className="text-white/80 text-sm leading-relaxed">{feature.description}</p>
+              <h3 className="text-xl font-bold text-brand-dark mb-3">{feature.title}</h3>
+              <p className="text-brand-gray text-sm leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
@@ -107,7 +107,7 @@ export default function WhyTalentX() {
         {/* Bottom CTA */}
         <div className="mt-16 text-center">
           <div className="inline-flex flex-col sm:flex-row items-center gap-4">
-            <a href="/sign-up" className="btn-secondary">
+            <a href="/sign-up" className="btn-dark">
               Join as a Professional
             </a>
             <a href="/talent" className="btn-primary">
