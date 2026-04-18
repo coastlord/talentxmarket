@@ -204,7 +204,7 @@ export default function AdminClient() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/">
-              <Image src="/logo-light.png" alt="TalentX" width={110} height={32} className="h-6 w-auto object-contain" />
+              <Image src="/tx-icon-gold.png" alt="TalentX" width={501} height={302} className="h-6 w-auto object-contain" />
             </Link>
             <span className="text-[#C9A84C] text-xs font-bold uppercase tracking-widest border border-[#C9A84C]/30 px-2 py-0.5 rounded">
               Admin

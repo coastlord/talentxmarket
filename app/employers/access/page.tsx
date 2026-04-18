@@ -61,7 +61,7 @@ export default function EmployerAccessPage() {
       {/* ── Navbar strip ── */}
       <div className="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
         <Link href="/">
-          <Image src="/logo-dark.png" alt="TalentX Market" width={140} height={36} className="h-9 w-auto" />
+          <Image src="/tx-icon-gold.png" alt="TalentX Market" width={501} height={302} className="h-9 w-auto" />
         </Link>
         <div className="flex items-center gap-4 text-sm">
           <span className="text-gray-400 hidden sm:block">Already have access?</span>

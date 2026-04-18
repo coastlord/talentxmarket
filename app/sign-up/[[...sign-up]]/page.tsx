@@ -57,10 +57,10 @@ export default function SignUpPage() {
         {/* Logo */}
         <Link href="/" className="inline-block mb-12 lg:mb-16">
           <Image
-            src="/logo-dark.png"
+            src="/tx-icon-gold.png"
             alt="TalentX Market"
-            width={240}
-            height={60}
+            width={501}
+            height={302}
             className="h-10 w-auto object-contain"
             priority
           />

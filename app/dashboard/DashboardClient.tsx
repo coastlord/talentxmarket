@@ -272,7 +272,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
       <nav className="bg-[#0A0A0A] sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href="/">
-            <Image src="/logo-light.png" alt="TalentX" width={120} height={36} className="h-7 w-auto object-contain" priority />
+            <Image src="/tx-icon-gold.png" alt="TalentX" width={501} height={302} className="h-7 w-auto object-contain" priority />
           </Link>
           <div className="flex items-center gap-6">
             <button onClick={() => setView('profile')} className={`text-sm font-medium transition-colors ${view === 'profile' ? 'text-[#C9A84C]' : 'text-white/60 hover:text-white'}`}>

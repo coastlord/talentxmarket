@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     siteName: 'TalentX Market',
     images: [
       {
-        url: '/logo-icon.png',
+        url: '/tx-icon-gold.png',
         width: 1200,
         height: 630,
         alt: 'TalentX Market',

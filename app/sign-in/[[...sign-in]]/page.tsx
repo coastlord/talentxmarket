@@ -70,7 +70,7 @@ export default function SignInPage() {
         <div className="relative z-10">
           <Link href="/">
             <Image
-              src="/logo-dark.png"
+              src="/tx-icon-gold.png"
               alt="TalentX Market"
               width={220}
               height={56}
@@ -118,7 +118,7 @@ export default function SignInPage() {
           {/* Mobile logo */}
           <Link href="/" className="lg:hidden">
             <Image
-              src="/logo-dark.png"
+              src="/tx-icon-gold.png"
               alt="TalentX Market"
               width={140}
               height={40}
