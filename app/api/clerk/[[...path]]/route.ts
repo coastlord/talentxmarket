@@ -1,19 +1,20 @@
 /**
  * Clerk Proxy Route
  * Forwards all Clerk Frontend API requests through this Next.js route.
- * This eliminates the need for a clerk.talentxmarket.com CNAME DNS record.
+ * Uses Node.js https module (not fetch) so we can set the Host header freely.
  *
  * Key: we must set Host = clerk.talentxmarket.com so Clerk's shared backend
  * (frontend-api.clerk.services) can identify which application to serve.
  */
 
-export const runtime = 'nodejs'; // Pin to Node.js runtime (not Edge)
+import https from 'node:https';
+
+export const runtime = 'nodejs';
 
 const CLERK_FRONTEND_API_HOST = 'clerk.talentxmarket.com';
-const CLERK_UPSTREAM = 'https://frontend-api.clerk.services';
+const CLERK_UPSTREAM_HOSTNAME  = 'frontend-api.clerk.services';
 
-// Hop-by-hop headers must NOT be forwarded in either direction.
-// Forwarding transfer-encoding: chunked in the response causes Next.js 500.
+// Hop-by-hop headers must NOT be forwarded in either direction
 const HOP_BY_HOP = new Set([
   'connection',
   'keep-alive',
@@ -28,51 +29,93 @@ const HOP_BY_HOP = new Set([
 async function handler(req: Request): Promise<Response> {
   try {
     const { pathname, search } = new URL(req.url);
-
-    // Strip our /api/clerk prefix to get the Clerk API path
     const clerkPath = pathname.replace(/^\/api\/clerk/, '') || '/';
-    const upstreamUrl = `${CLERK_UPSTREAM}${clerkPath}${search}`;
+    const upstreamPath = `${clerkPath}${search}`;
 
-    // Build request headers — forward everything except hop-by-hop and Host,
-    // then override Host so the Clerk backend identifies the right app.
-    const reqHeaders = new Headers();
+    // Build request headers
+    const reqHeaders: Record<string, string> = {};
     req.headers.forEach((value, key) => {
       const lower = key.toLowerCase();
       if (!HOP_BY_HOP.has(lower) && lower !== 'host') {
-        reqHeaders.set(key, value);
+        reqHeaders[lower] = value;
       }
     });
+    // Override Host so Clerk's shared backend identifies the right app
+    reqHeaders['host'] = CLERK_FRONTEND_API_HOST;
 
-    // ← Critical: Clerk's shared backend uses the Host header
-    //   to know which application to serve requests for.
-    reqHeaders.set('host', CLERK_FRONTEND_API_HOST);
-
+    // Buffer body for non-GET/HEAD requests
     const hasBody = req.method !== 'GET' && req.method !== 'HEAD';
-
-    const upstream = await fetch(upstreamUrl, {
-      method: req.method,
-      headers: reqHeaders,
-      body: hasBody ? req.body : undefined,
-      // @ts-ignore — required for streaming bodies in Node.js
-      duplex: hasBody ? 'half' : undefined,
-    });
-
-    // Build response headers — strip hop-by-hop headers so Next.js
-    // doesn't reject the response (transfer-encoding: chunked causes 500).
-    const resHeaders = new Headers();
-    upstream.headers.forEach((value, key) => {
-      if (!HOP_BY_HOP.has(key.toLowerCase())) {
-        resHeaders.set(key, value);
+    let bodyBuf: Buffer | undefined;
+    if (hasBody) {
+      bodyBuf = Buffer.from(await req.arrayBuffer());
+      if (bodyBuf.length > 0) {
+        reqHeaders['content-length'] = String(bodyBuf.length);
       }
-    });
+    }
 
-    return new Response(upstream.body, {
-      status: upstream.status,
-      statusText: upstream.statusText,
-      headers: resHeaders,
+    // Use https.request for full control — fetch() may refuse to set Host
+    return await new Promise<Response>((resolve) => {
+      const proxyReq = https.request(
+        {
+          hostname: CLERK_UPSTREAM_HOSTNAME, // TLS SNI + DNS resolution
+          port: 443,
+          path: upstreamPath,
+          method: req.method,
+          headers: reqHeaders,
+        },
+        (proxyRes) => {
+          const chunks: Buffer[] = [];
+          proxyRes.on('data', (chunk: Buffer) => chunks.push(chunk));
+          proxyRes.on('end', () => {
+            const responseBody = Buffer.concat(chunks);
+
+            // Strip hop-by-hop headers from response
+            const resHeaders = new Headers();
+            for (const [key, val] of Object.entries(proxyRes.headers)) {
+              if (HOP_BY_HOP.has(key.toLowerCase()) || val === undefined) continue;
+              if (Array.isArray(val)) {
+                val.forEach((v) => resHeaders.append(key, v));
+              } else {
+                resHeaders.set(key, val);
+              }
+            }
+
+            resolve(
+              new Response(responseBody, {
+                status: proxyRes.statusCode ?? 200,
+                headers: resHeaders,
+              }),
+            );
+          });
+          proxyRes.on('error', (err) => {
+            console.error('[Clerk Proxy] Response stream error:', err);
+            resolve(
+              new Response(JSON.stringify({ error: 'Proxy stream error', detail: String(err) }), {
+                status: 500,
+                headers: { 'content-type': 'application/json' },
+              }),
+            );
+          });
+        },
+      );
+
+      proxyReq.on('error', (err) => {
+        console.error('[Clerk Proxy] Request error:', err);
+        resolve(
+          new Response(JSON.stringify({ error: 'Proxy request error', detail: String(err) }), {
+            status: 500,
+            headers: { 'content-type': 'application/json' },
+          }),
+        );
+      });
+
+      if (bodyBuf && bodyBuf.length > 0) {
+        proxyReq.write(bodyBuf);
+      }
+      proxyReq.end();
     });
   } catch (err) {
-    console.error('[Clerk Proxy] Error:', err);
+    console.error('[Clerk Proxy] Unhandled error:', err);
     return new Response(
       JSON.stringify({ error: 'Clerk proxy error', detail: String(err) }),
       { status: 500, headers: { 'content-type': 'application/json' } },
