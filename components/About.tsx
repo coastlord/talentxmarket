@@ -31,20 +31,6 @@ export default function About() {
               this sector deserves.
             </p>
 
-            {/* Credentials */}
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: 'Sector Insiders', desc: 'Founders have hired AML, KYC & MLRO roles in regulated institutions' },
-                { label: 'No Middlemen', desc: 'Direct access — no agency markup' },
-                { label: 'Manual Review', desc: 'Every profile approved by a compliance professional' },
-                { label: 'Privacy First', desc: 'UK GDPR compliant by design' },
-              ].map((value, i) => (
-                <div key={i} className="bg-brand-off-white rounded-xl p-4 border border-brand-light-gray">
-                  <p className="font-bold text-brand-dark text-sm">{value.label}</p>
-                  <p className="text-brand-gray text-xs mt-1">{value.desc}</p>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Right: Visual */}
