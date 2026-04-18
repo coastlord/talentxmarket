@@ -15,8 +15,7 @@ export default function About() {
             <p className="text-brand-gray leading-relaxed mb-6">
               TalentX Market was founded by a group of compliance professionals who
               have worked inside regulated organisations — in AML, financial crime,
-              MLRO, and regulatory risk — and who grew frustrated with how badly the
-              existing hiring market served this sector.
+              MLRO, and regulatory risk — to make hiring risk professionals seamless.
             </p>
             <p className="text-brand-gray leading-relaxed mb-6">
               We have sat on both sides of the table: as compliance professionals looking

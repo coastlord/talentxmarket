@@ -80,7 +80,7 @@ export default function TrustSignals() {
             <p className="text-white text-xl md:text-2xl font-bold leading-relaxed max-w-3xl mx-auto">
               TalentX Market was built to fix this — a{' '}
               <span className="text-brand-gold">closed, curated, compliance-only</span>{' '}
-              network where every professional is verified before anyone sees them.
+              network where every professional is verified.
             </p>
           </div>
 
