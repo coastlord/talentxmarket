@@ -5,16 +5,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'img.clerk.com' },
       { protocol: 'https', hostname: '**.clerk.com' },
       { protocol: 'https', hostname: '**.clerk.dev' },
+      { protocol: 'https', hostname: 'frontend-api.clerk.services' },
     ],
-  },
-  async rewrites() {
-    return [
-      {
-        // Proxy Clerk Frontend API through this app — avoids needing clerk.talentxmarket.com CNAME
-        source: '/api/clerk/:path*',
-        destination: 'https://frontend-api.clerk.services/:path*',
-      },
-    ];
   },
 };
 
