@@ -9,33 +9,35 @@ export default function About() {
           <div>
             <div className="gold-line mb-6" />
             <h2 className="section-heading mb-6">
-              Built by Compliance
-              <span className="block text-brand-gold">Professionals</span>
+              Built by a Group of
+              <span className="block text-brand-gold">Compliance Professionals</span>
             </h2>
             <p className="text-brand-gray leading-relaxed mb-6">
-              TalentX Market was founded with one clear mission: to give the compliance
-              sector a dedicated space where talent and opportunity can find each other —
-              without noise, without generic job boards, and without inflated recruitment fees.
+              TalentX Market was founded by a group of compliance professionals who
+              have worked inside regulated organisations — in AML, financial crime,
+              MLRO, and regulatory risk — and who grew frustrated with how badly the
+              existing hiring market served this sector.
             </p>
             <p className="text-brand-gray leading-relaxed mb-6">
-              Whether you work in AML, financial crime, regulatory risk, Trust &amp; Safety, or
-              hold an MLRO designation, TalentX Market is your professional home. A platform
-              that understands the nuances of compliance hiring and the career paths of
-              compliance professionals.
+              We have sat on both sides of the table: as compliance professionals looking
+              for the next move, and as hiring managers trying to find candidates with the
+              right depth of specialism. The tools available were generic, expensive, and
+              entirely unfit for the nuance compliance hiring demands.
             </p>
             <p className="text-brand-gray leading-relaxed mb-8">
-              Our platform brings together compliance professionals who are ready for their
-              next move with the organisations that are ready to hire them — directly, transparently,
-              and efficiently.
+              TalentX Market exists because we built the platform we always wished had existed —
+              one that understands what good compliance experience actually looks like,
+              and that treats both candidates and employers with the professionalism
+              this sector deserves.
             </p>
 
-            {/* Values */}
+            {/* Credentials */}
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: 'Specialist Focus', desc: 'Compliance only — no noise' },
-                { label: 'Direct Access', desc: 'No recruiters in the middle' },
-                { label: 'Global Network', desc: '30+ countries represented' },
-                { label: 'Professional-Led', desc: 'Built by the community' },
+                { label: 'Sector Insiders', desc: 'Founded by working compliance professionals' },
+                { label: 'No Middlemen', desc: 'Direct access — no agency markup' },
+                { label: 'Manual Review', desc: 'Every profile approved by hand' },
+                { label: 'Privacy First', desc: 'UK GDPR compliant by design' },
               ].map((value, i) => (
                 <div key={i} className="bg-brand-off-white rounded-xl p-4 border border-brand-light-gray">
                   <p className="font-bold text-brand-dark text-sm">{value.label}</p>

@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import HowItWorks from '@/components/HowItWorks';
+import TrustSignals from '@/components/TrustSignals';
 import ComplianceRoles from '@/components/ComplianceRoles';
 import WhyTalentX from '@/components/WhyTalentX';
 import About from '@/components/About';
@@ -13,9 +14,10 @@ export default function Home() {
       <Navbar />
       <Hero />
       <HowItWorks />
+      <TrustSignals />
       <ComplianceRoles />
       <WhyTalentX />
-<About />
+      <About />
       <SignUp />
       <Footer />
     </main>

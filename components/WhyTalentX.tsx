@@ -107,11 +107,11 @@ export default function WhyTalentX() {
         {/* Bottom CTA */}
         <div className="mt-16 text-center">
           <div className="inline-flex flex-col sm:flex-row items-center gap-4">
-            <a href="#open-to-work" className="btn-secondary">
+            <a href="/sign-up" className="btn-secondary">
               Join as a Professional
             </a>
-            <a href="#hiring" className="btn-primary">
-              Start Hiring Today
+            <a href="/talent" className="btn-primary">
+              Browse Talent
             </a>
           </div>
         </div>
