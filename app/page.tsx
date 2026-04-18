@@ -1,7 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import HowItWorks from '@/components/HowItWorks';
-import VettingSnapshot from '@/components/VettingSnapshot';
 import TrustSignals from '@/components/TrustSignals';
 import WhyTalentX from '@/components/WhyTalentX';
 import About from '@/components/About';
@@ -14,7 +13,6 @@ export default function Home() {
       <Navbar />
       <Hero />
       <HowItWorks />
-      <VettingSnapshot />
       <TrustSignals />
       <WhyTalentX />
       <About />

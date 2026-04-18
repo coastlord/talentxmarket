@@ -312,7 +312,7 @@ export default function SignUpPage() {
                   {/* Email */}
                   <div>
                     <label className="block text-xs font-semibold text-[#0A0A0A] mb-1.5 tracking-wide uppercase">
-                      Work email address
+                      Email address
                     </label>
                     <input
                       type="email"
@@ -357,7 +357,6 @@ export default function SignUpPage() {
                         )}
                       </button>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1.5">Minimum 8 characters</p>
                   </div>
 
                   {/* Submit */}
