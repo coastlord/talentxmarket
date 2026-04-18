@@ -7,49 +7,77 @@
  * (frontend-api.clerk.services) can identify which application to serve.
  */
 
+export const runtime = 'nodejs'; // Pin to Node.js runtime (not Edge)
+
 const CLERK_FRONTEND_API_HOST = 'clerk.talentxmarket.com';
 const CLERK_UPSTREAM = 'https://frontend-api.clerk.services';
 
+// Hop-by-hop headers must NOT be forwarded in either direction.
+// Forwarding transfer-encoding: chunked in the response causes Next.js 500.
+const HOP_BY_HOP = new Set([
+  'connection',
+  'keep-alive',
+  'transfer-encoding',
+  'te',
+  'trailers',
+  'upgrade',
+  'proxy-authorization',
+  'proxy-authenticate',
+]);
+
 async function handler(req: Request): Promise<Response> {
-  const { pathname, search } = new URL(req.url);
+  try {
+    const { pathname, search } = new URL(req.url);
 
-  // Strip our /api/clerk prefix to get the Clerk API path
-  const clerkPath = pathname.replace(/^\/api\/clerk/, '') || '/';
-  const upstreamUrl = `${CLERK_UPSTREAM}${clerkPath}${search}`;
+    // Strip our /api/clerk prefix to get the Clerk API path
+    const clerkPath = pathname.replace(/^\/api\/clerk/, '') || '/';
+    const upstreamUrl = `${CLERK_UPSTREAM}${clerkPath}${search}`;
 
-  // Build headers — forward everything except hop-by-hop headers,
-  // then override Host so the Clerk backend identifies the right app.
-  const headers = new Headers();
-  const skipHeaders = new Set([
-    'host', 'connection', 'transfer-encoding',
-    'keep-alive', 'upgrade', 'te', 'trailers',
-  ]);
-  req.headers.forEach((value, key) => {
-    if (!skipHeaders.has(key.toLowerCase())) {
-      headers.set(key, value);
-    }
-  });
+    // Build request headers — forward everything except hop-by-hop and Host,
+    // then override Host so the Clerk backend identifies the right app.
+    const reqHeaders = new Headers();
+    req.headers.forEach((value, key) => {
+      const lower = key.toLowerCase();
+      if (!HOP_BY_HOP.has(lower) && lower !== 'host') {
+        reqHeaders.set(key, value);
+      }
+    });
 
-  // ← This is the critical fix: Clerk's shared backend uses the Host header
-  //   to know which application to serve requests for.
-  headers.set('host', CLERK_FRONTEND_API_HOST);
+    // ← Critical: Clerk's shared backend uses the Host header
+    //   to know which application to serve requests for.
+    reqHeaders.set('host', CLERK_FRONTEND_API_HOST);
 
-  const hasBody = req.method !== 'GET' && req.method !== 'HEAD';
+    const hasBody = req.method !== 'GET' && req.method !== 'HEAD';
 
-  const upstream = await fetch(upstreamUrl, {
-    method: req.method,
-    headers,
-    body: hasBody ? req.body : undefined,
-    // @ts-ignore — required for streaming bodies in Node.js
-    duplex: hasBody ? 'half' : undefined,
-  });
+    const upstream = await fetch(upstreamUrl, {
+      method: req.method,
+      headers: reqHeaders,
+      body: hasBody ? req.body : undefined,
+      // @ts-ignore — required for streaming bodies in Node.js
+      duplex: hasBody ? 'half' : undefined,
+    });
 
-  // Proxy the response back, preserving status and headers
-  return new Response(upstream.body, {
-    status: upstream.status,
-    statusText: upstream.statusText,
-    headers: new Headers(upstream.headers),
-  });
+    // Build response headers — strip hop-by-hop headers so Next.js
+    // doesn't reject the response (transfer-encoding: chunked causes 500).
+    const resHeaders = new Headers();
+    upstream.headers.forEach((value, key) => {
+      if (!HOP_BY_HOP.has(key.toLowerCase())) {
+        resHeaders.set(key, value);
+      }
+    });
+
+    return new Response(upstream.body, {
+      status: upstream.status,
+      statusText: upstream.statusText,
+      headers: resHeaders,
+    });
+  } catch (err) {
+    console.error('[Clerk Proxy] Error:', err);
+    return new Response(
+      JSON.stringify({ error: 'Clerk proxy error', detail: String(err) }),
+      { status: 500, headers: { 'content-type': 'application/json' } },
+    );
+  }
 }
 
 export const GET     = handler;
