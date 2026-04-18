@@ -209,12 +209,43 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
       const res = await fetch('/api/candidate/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...profile, isVisible }),
+        body: JSON.stringify({ ...profile, isVisible, firstName, lastName }),
       });
       const data = await res.json();
       if (!res.ok) {
         setSaveError(data?.error || 'Save failed. Please try again.');
         return;
+      }
+      // Sync React state with what the DB actually saved
+      if (data) {
+        setProfile(p => ({
+          ...p,
+          title:             data.job_title          ?? p.title,
+          experience:        data.years_experience   ?? p.experience,
+          location:          data.location           ?? p.location,
+          specialisms:       data.specialisms        ?? p.specialisms,
+          certifications:    data.certifications     ?? p.certifications,
+          salaryAmount:      data.salary_amount      ?? p.salaryAmount,
+          salaryCurrency:    data.salary_currency    ?? p.salaryCurrency,
+          salaryPeriod:      data.salary_period      ?? p.salaryPeriod,
+          workPreference:    data.work_preference    ?? p.workPreference,
+          bio:               data.bio                ?? p.bio,
+          currentCompany:    data.current_company    ?? p.currentCompany,
+          currentStartYear:  data.current_start_year ?? p.currentStartYear,
+          previousRole:      data.previous_role      ?? p.previousRole,
+          previousCompany:   data.previous_company   ?? p.previousCompany,
+          previousStartYear: data.previous_start_year ?? p.previousStartYear,
+          previousEndYear:   data.previous_end_year  ?? p.previousEndYear,
+          degreeType:        data.degree_type        ?? p.degreeType,
+          school:            data.school_name        ?? p.school,
+          institution:       data.institution_name   ?? p.institution,
+          graduationYear:    data.graduation_year    ?? p.graduationYear,
+          otherCertification: data.other_certification ?? p.otherCertification,
+          certificationLink:  data.certification_link ?? p.certificationLink,
+          phone:             data.phone_number       ?? p.phone,
+          linkedinUrl:       data.linkedin_url       ?? p.linkedinUrl,
+        }));
+        setIsVisible(data.is_visible ?? isVisible);
       }
       setSaved(true);
       setView('profile');
