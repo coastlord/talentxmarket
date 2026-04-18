@@ -190,12 +190,12 @@ export default function TrustSignals() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">Why Manual Verification Matters</h3>
-                <p className="text-white/60 text-sm leading-relaxed mb-6">
+                <p className="text-white/85 text-sm leading-relaxed mb-6">
                   In compliance hiring, an unvetted placement is not just a bad hire — it is a regulatory risk.
                   Organisations need to know that the professionals they contact have genuine, documented
                   experience in their specialism and jurisdiction.
                 </p>
-                <p className="text-white/60 text-sm leading-relaxed">
+                <p className="text-white/85 text-sm leading-relaxed">
                   That is why we will never automate this process. Every profile on TalentX has been
                   reviewed by someone who understands what good compliance experience actually looks like.
                 </p>
@@ -260,7 +260,7 @@ export default function TrustSignals() {
               Why TalentX Is{' '}
               <span className="text-brand-gold">Not Another Job Board</span>
             </h2>
-            <p className="text-lg text-white/50 mt-4 max-w-2xl mx-auto">
+            <p className="text-lg text-white/80 mt-4 max-w-2xl mx-auto">
               See how TalentX compares to every alternative you&apos;ve tried — and why compliance
               professionals and employers trust it more.
             </p>
@@ -271,10 +271,10 @@ export default function TrustSignals() {
             <table className="w-full min-w-[700px]">
               <thead>
                 <tr>
-                  <th className="text-left pb-6 pr-4 text-white/40 text-sm font-semibold">Feature</th>
-                  <th className="pb-6 px-4 text-white/40 text-sm font-semibold text-center">Generic Job Boards</th>
-                  <th className="pb-6 px-4 text-white/40 text-sm font-semibold text-center">Recruitment Agencies</th>
-                  <th className="pb-6 px-4 text-white/40 text-sm font-semibold text-center">LinkedIn</th>
+                  <th className="text-left pb-6 pr-4 text-white/70 text-sm font-semibold">Feature</th>
+                  <th className="pb-6 px-4 text-white/70 text-sm font-semibold text-center">Generic Job Boards</th>
+                  <th className="pb-6 px-4 text-white/70 text-sm font-semibold text-center">Recruitment Agencies</th>
+                  <th className="pb-6 px-4 text-white/70 text-sm font-semibold text-center">LinkedIn</th>
                   <th className="pb-6 pl-4 text-center">
                     <span className="inline-flex items-center gap-2 bg-brand-gold/20 border border-brand-gold/30 rounded-full px-4 py-1 text-brand-gold text-sm font-bold">
                       TalentX Market
@@ -322,7 +322,7 @@ export default function TrustSignals() {
                   },
                 ].map((row, i) => (
                   <tr key={i}>
-                    <td className="py-4 pr-4 text-white/70 text-sm font-medium">{row.feature}</td>
+                    <td className="py-4 pr-4 text-white text-sm font-medium">{row.feature}</td>
                     {(['boards', 'agencies', 'linkedin'] as const).map(col => (
                       <td key={col} className="py-4 px-4 text-center">
                         {row[col] === true && (
@@ -334,13 +334,13 @@ export default function TrustSignals() {
                         )}
                         {row[col] === false && (
                           <span className="inline-flex justify-center">
-                            <svg className="w-5 h-5 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-white/55" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                           </span>
                         )}
                         {typeof row[col] === 'string' && (
-                          <span className="text-white/30 text-xs">{row[col]}</span>
+                          <span className="text-white/65 text-xs font-medium">{row[col]}</span>
                         )}
                       </td>
                     ))}
@@ -405,7 +405,7 @@ export default function TrustSignals() {
                   {card.icon}
                 </div>
                 <h3 className="text-lg font-bold text-white mb-3">{card.title}</h3>
-                <p className="text-white/50 text-sm leading-relaxed">{card.body}</p>
+                <p className="text-white/80 text-sm leading-relaxed">{card.body}</p>
               </div>
             ))}
           </div>

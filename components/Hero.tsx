@@ -25,7 +25,7 @@ export default function Hero() {
           <span className="block text-brand-gold">AML &amp; Compliance</span>
           <span className="block">Talent in 48 Hours</span>
         </h1>
-        <p className="mt-8 text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-8 text-lg sm:text-xl text-white/85 max-w-2xl mx-auto leading-relaxed">
           No job postings. No recruiters. Browse pre-qualified AML, MLRO, Risk &amp; KYC professionals — unlock the profile when you find the right person.
         </p>
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
@@ -50,7 +50,7 @@ export default function Hero() {
             <span className="text-xs font-normal opacity-70">→</span>
           </a>
         </div>
-        <p className="mt-6 text-white/40 text-sm">
+        <p className="mt-6 text-white/70 text-sm">
           Employer? Browse profiles free —{' '}
           <Link href="/talent" className="text-brand-gold hover:underline font-medium">
             unlock when you find the right person →
@@ -62,7 +62,7 @@ export default function Hero() {
             { icon: '⚡', text: '48h introductions' },
             { icon: '🎯', text: 'No agency fees' },
           ].map(item => (
-            <div key={item.text} className="flex items-center gap-2 text-white/50 text-sm">
+            <div key={item.text} className="flex items-center gap-2 text-white/80 text-sm">
               <span>{item.icon}</span>
               <span>{item.text}</span>
             </div>

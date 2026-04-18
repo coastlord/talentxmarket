@@ -77,7 +77,7 @@ export default function WhyTalentX() {
           <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
             Why Choose TalentX Market?
           </h2>
-          <p className="text-lg text-white/50 mt-4 max-w-2xl mx-auto">
+          <p className="text-lg text-white/80 mt-4 max-w-2xl mx-auto">
             The compliance sector deserves its own dedicated talent platform. Here&apos;s
             what makes TalentX different.
           </p>
@@ -99,7 +99,7 @@ export default function WhyTalentX() {
                 </span>
               </div>
               <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{feature.description}</p>
+              <p className="text-white/80 text-sm leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
