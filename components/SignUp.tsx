@@ -2,73 +2,132 @@
 
 import Link from 'next/link';
 
-const PROFESSIONAL_FORM_ID = 'D4VGWb';
-
-function TallyEmbed({ formId, title }: { formId: string; title: string }) {
-  return (
-    <div style={{ width: '100%' }}>
-      <iframe
-        src={`https://tally.so/embed/${formId}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1`}
-        width="100%"
-        height="600"
-        frameBorder={0}
-        marginHeight={0}
-        marginWidth={0}
-        title={title}
-        style={{ minHeight: '500px' }}
-      />
-    </div>
-  );
-}
-
 export default function SignUp() {
   return (
     <div>
 
-      {/* CANDIDATE: Open to Work */}
+      {/* ── CANDIDATE CTA ────────────────────────────────────────────── */}
       <section id="open-to-work" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            <div className="lg:sticky lg:top-28">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+
+            {/* Left: value proposition */}
+            <div>
               <span className="inline-flex items-center gap-2 bg-green-50 text-green-700 text-sm font-semibold px-4 py-2 rounded-full border border-green-200 mb-6">
                 <span className="w-2 h-2 rounded-full bg-green-500" />
                 For Compliance Professionals
               </span>
               <h2 className="text-4xl font-black text-brand-dark leading-tight mb-6">
-                Post Your
-                <span className="block text-brand-gold">Availability</span>
+                Your Next Move
+                <span className="block text-brand-gold">Starts Here.</span>
               </h2>
-              <p className="text-brand-gray leading-relaxed mb-8">
-                Let compliance-focused employers know you&apos;re open to the right opportunity.
-                Register your availability in minutes and get matched with relevant roles.
+              <p className="text-brand-gray leading-relaxed mb-8 text-lg">
+                Stop waiting for the right role to find you. Create your profile,
+                signal your availability, and let vetted compliance employers
+                come to you — on your terms, at your pace.
               </p>
               <ul className="space-y-4">
                 {[
-                  'Visible to compliance-specific employers only',
-                  'Control your availability status at any time',
-                  'Specify role type: permanent, contract, or interim',
-                  'Set your preferred location and remote preferences',
-                  'Completely free for compliance professionals',
+                  { text: 'Visible only to verified, compliance-specific employers' },
+                  { text: 'Control your availability status at any time' },
+                  { text: 'Specify role type: permanent, contract or interim' },
+                  { text: 'Your contact details stay private until you are unlocked' },
+                  { text: 'Completely free for compliance professionals' },
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-brand-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-5 h-5 rounded-full bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <svg className="w-3 h-3 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <span className="text-brand-dark text-sm">{item}</span>
+                    <span className="text-brand-dark text-sm leading-relaxed">{item.text}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="bg-brand-off-white rounded-2xl p-8 border border-brand-light-gray">
-              <TallyEmbed formId={PROFESSIONAL_FORM_ID} title="Open to Work Form" />
+
+            {/* Right: sign-up card */}
+            <div className="relative">
+              {/* Decorative glow */}
+              <div className="absolute -inset-4 bg-brand-gold/5 rounded-3xl blur-xl pointer-events-none" />
+
+              <div className="relative bg-brand-black rounded-3xl p-10 overflow-hidden">
+                {/* Background decoration */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-gold/5 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-brand-gold/3 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+
+                <div className="relative">
+                  {/* Eyebrow */}
+                  <div className="flex items-center gap-2 mb-6">
+                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    <span className="text-green-400 text-xs font-bold uppercase tracking-widest">
+                      Now Accepting Profiles
+                    </span>
+                  </div>
+
+                  {/* Headline */}
+                  <h3 className="text-3xl font-black text-white leading-tight mb-3">
+                    Ready to be
+                    <span className="block text-brand-gold">discovered?</span>
+                  </h3>
+                  <p className="text-white/70 text-sm leading-relaxed mb-8">
+                    Create your profile in minutes. Our team reviews every
+                    application — once approved, you are live and visible
+                    to compliance employers actively hiring.
+                  </p>
+
+                  {/* Primary CTA */}
+                  <Link
+                    href="/sign-up"
+                    className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-brand-gold text-brand-black font-bold rounded-xl hover:bg-[#E8C97A] transition-all duration-200 text-base shadow-xl shadow-brand-gold/25 hover:-translate-y-0.5 mb-3"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Create Your Profile — It&apos;s Free
+                  </Link>
+
+                  {/* Secondary CTA */}
+                  <Link
+                    href="/sign-in"
+                    className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-white/8 text-white font-semibold rounded-xl border border-white/15 hover:bg-white/15 hover:border-white/30 transition-all duration-200 text-sm mb-8"
+                  >
+                    Already a member? Sign In
+                    <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </Link>
+
+                  {/* Divider */}
+                  <div className="border-t border-white/10 pt-6">
+                    <p className="text-white/40 text-xs uppercase tracking-widest font-semibold mb-4">
+                      What happens after you sign up
+                    </p>
+                    <div className="space-y-3">
+                      {[
+                        { step: '1', text: 'Build your compliance profile' },
+                        { step: '2', text: 'Our team manually reviews and approves' },
+                        { step: '3', text: 'Your profile goes live — employers find you' },
+                      ].map((item) => (
+                        <div key={item.step} className="flex items-center gap-3">
+                          <span className="w-6 h-6 rounded-full border border-brand-gold/30 bg-brand-gold/10 flex items-center justify-center text-brand-gold text-xs font-black flex-shrink-0">
+                            {item.step}
+                          </span>
+                          <span className="text-white/70 text-sm">{item.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* EMPLOYER: Browse and Hire */}
+      {/* ── EMPLOYER: Browse and Hire ────────────────────────────────── */}
       <section id="hiring" className="py-24 bg-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -81,7 +140,7 @@ export default function SignUp() {
                 Browse Vetted Talent.
                 <span className="block text-[#C9A84C]">Unlock Who You Want.</span>
               </h2>
-              <p className="text-white/60 leading-relaxed mb-8">
+              <p className="text-white/80 leading-relaxed mb-8">
                 No job postings. No CV sifting. Browse our pool of pre-qualified compliance
                 professionals and unlock the profiles that matter to you.
               </p>
@@ -123,7 +182,7 @@ export default function SignUp() {
                 },
                 {
                   step: '02', title: 'Unlock a Profile',
-                  desc: 'Found the right person? Click Unlock to register your company and access their full contact details.',
+                  desc: 'Found the right person? Click Unlock to verify your company and access their full contact details.',
                   icon: (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11V7a5 5 0 019.9-1" /></svg>),
                 },
                 {
@@ -141,7 +200,7 @@ export default function SignUp() {
                       <span className="text-[10px] font-bold tracking-widest text-[#C9A84C]/60 uppercase">{step}</span>
                       <span className="text-white font-bold text-sm">{title}</span>
                     </div>
-                    <p className="text-white/50 text-sm leading-relaxed">{desc}</p>
+                    <p className="text-white/70 text-sm leading-relaxed">{desc}</p>
                   </div>
                 </div>
               ))}
