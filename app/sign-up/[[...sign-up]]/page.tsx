@@ -259,10 +259,10 @@ export default function SignUpPage() {
 
           {/* Top bar */}
           <div
-            className="px-8 sm:px-12 xl:px-16 py-5 flex items-center justify-between"
+            className="px-8 sm:px-12 xl:px-16 py-4 lg:py-5 flex flex-col lg:flex-row lg:items-center lg:justify-end gap-3 lg:gap-0"
             style={{ borderBottom: '1px solid #F0F0F0' }}
           >
-            {/* Mobile logo */}
+            {/* Mobile logo — stacks above the link */}
             <Link href="/" className="lg:hidden inline-block">
               <Image
                 src="/logo-dark.png"
@@ -273,7 +273,6 @@ export default function SignUpPage() {
                 priority
               />
             </Link>
-            <div className="hidden lg:block" />
 
             <p className="text-sm text-gray-500" style={{ fontFamily: 'Inter, sans-serif' }}>
               Already have an account?{' '}
