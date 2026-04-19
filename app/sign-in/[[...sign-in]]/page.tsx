@@ -117,11 +117,12 @@ export default function SignInPage() {
             {/* Logo */}
             <Link href="/" className="inline-block mb-auto">
               <Image
-                src="/logo-light.png"
+                src="/tx-mark.png"
                 alt="TalentX Market"
-                width={180}
-                height={44}
-                className="h-9 w-auto object-contain"
+                width={134}
+                height={70}
+                className="w-auto object-contain"
+                style={{ height: '70px' }}
                 priority
               />
             </Link>
