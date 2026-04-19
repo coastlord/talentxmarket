@@ -258,11 +258,23 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
     }
   };
 
-  const profileComplete = [
-    profile.title, profile.experience, profile.location,
-    profile.specialisms.length > 0, profile.bio,
-  ].filter(Boolean).length;
-  const completePct = Math.round((profileComplete / 5) * 100);
+  // Weighted profile strength — reflects real completeness across all sections
+  const profileScore = [
+    { value: profile.title,                   weight: 12 }, // Job title — core
+    { value: profile.experience,              weight: 10 }, // Years of experience
+    { value: profile.location,                weight: 10 }, // Location
+    { value: profile.specialisms.length > 0,  weight: 12 }, // Specialisms
+    { value: profile.bio,                     weight: 12 }, // Professional summary
+    { value: profile.linkedinUrl,             weight: 10 }, // LinkedIn
+    { value: profile.phone,                   weight: 8  }, // Phone
+    { value: profile.currentCompany,          weight: 8  }, // Current employer
+    { value: profile.certifications.length > 0, weight: 8 }, // Certifications
+    { value: profile.salaryAmount,            weight: 5  }, // Salary expectation
+    { value: (profile.degreeType || profile.school || profile.institution), weight: 5 }, // Education
+  ];
+  const totalWeight = profileScore.reduce((sum, f) => sum + f.weight, 0); // = 100
+  const earnedWeight = profileScore.filter(f => Boolean(f.value)).reduce((sum, f) => sum + f.weight, 0);
+  const completePct = Math.min(100, Math.round((earnedWeight / totalWeight) * 100));
 
   const linkedinHref = profile.linkedinUrl
     ? (profile.linkedinUrl.startsWith('http') ? profile.linkedinUrl : `https://${profile.linkedinUrl}`)
@@ -341,28 +353,96 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
         ════════════════════════════════════════════════════ */}
         {view === 'profile' && (
           <div>
-            {/* Demand signal banner */}
-            <div className="bg-[#0A0A0A] rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="w-2 h-2 rounded-full bg-[#C9A84C] animate-pulse" />
-                  <span className="text-[#C9A84C] text-[10px] font-bold uppercase tracking-widest">Live Demand</span>
+            {/* Profile strength motivation banner */}
+            <div className="bg-[#0A0A0A] rounded-2xl p-5 mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <svg className="w-3.5 h-3.5 text-[#C9A84C] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span className="text-[#C9A84C] text-[10px] font-bold uppercase tracking-widest">Profile Strength</span>
+                  </div>
+                  <p className="text-white text-sm font-semibold leading-snug">
+                    Your profile strength powers your card.
+                  </p>
+                  <p className="text-white/50 text-xs mt-1 leading-relaxed">
+                    A complete profile increases your chance of being discovered by employers actively searching for compliance talent.
+                  </p>
                 </div>
-                <p className="text-white text-sm font-semibold leading-snug">
-                  14 employers visited TalentX this month — actively hiring compliance professionals.
-                </p>
-                <p className="text-white/50 text-xs mt-1">Complete your profile to appear in employer searches.</p>
+
+                {/* Circular progress indicator */}
+                <div className="flex items-center gap-4 flex-shrink-0">
+                  <div className="relative w-16 h-16">
+                    <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+                      <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(201,168,76,0.12)" strokeWidth="5" />
+                      <circle
+                        cx="32" cy="32" r="26"
+                        fill="none"
+                        stroke="#C9A84C"
+                        strokeWidth="5"
+                        strokeLinecap="round"
+                        strokeDasharray={`${2 * Math.PI * 26}`}
+                        strokeDashoffset={`${2 * Math.PI * 26 * (1 - completePct / 100)}`}
+                        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[#C9A84C] text-sm font-black leading-none">{completePct}%</span>
+                    </div>
+                  </div>
+
+                  {completePct < 100 ? (
+                    <button
+                      onClick={() => setView('edit')}
+                      className="px-4 py-2.5 bg-[#C9A84C] hover:bg-[#d4b45a] text-[#0A0A0A] text-xs font-bold rounded-xl transition-colors whitespace-nowrap"
+                    >
+                      Complete Profile →
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-1.5 px-3 py-2 bg-green-500/15 border border-green-500/30 rounded-xl">
+                      <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-green-400 text-xs font-bold">Complete</span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
-                <div className="flex gap-2">
-                  {[{ label: 'AML / FinCrime', hot: true }, { label: 'MLRO', hot: true }, { label: 'KYC', hot: false }].map(role => (
-                    <span key={role.label} className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${role.hot ? 'bg-[#C9A84C] text-[#0A0A0A]' : 'bg-white/10 text-white/60'}`}>
-                      {role.hot ? '🔥 ' : ''}{role.label}
-                    </span>
+
+              {/* Mini field checklist — shows what's missing */}
+              {completePct < 100 && (
+                <div className="mt-4 pt-4 border-t border-white/8 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5">
+                  {[
+                    { label: 'Job Title',       done: !!profile.title },
+                    { label: 'Experience',       done: !!profile.experience },
+                    { label: 'Location',         done: !!profile.location },
+                    { label: 'Specialisms',      done: profile.specialisms.length > 0 },
+                    { label: 'Summary',          done: !!profile.bio },
+                    { label: 'LinkedIn',         done: !!profile.linkedinUrl },
+                    { label: 'Phone',            done: !!profile.phone },
+                    { label: 'Current Employer', done: !!profile.currentCompany },
+                    { label: 'Certifications',   done: profile.certifications.length > 0 },
+                    { label: 'Salary',           done: !!profile.salaryAmount },
+                    { label: 'Education',        done: !!(profile.degreeType || profile.school || profile.institution) },
+                  ].map(item => (
+                    <div key={item.label} className="flex items-center gap-1.5">
+                      {item.done ? (
+                        <svg className="w-3 h-3 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-3 h-3 text-white/20 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <circle cx="12" cy="12" r="9" strokeWidth="1.5" />
+                        </svg>
+                      )}
+                      <span className={`text-[10px] font-medium ${item.done ? 'text-white/40 line-through' : 'text-white/55'}`}>
+                        {item.label}
+                      </span>
+                    </div>
                   ))}
                 </div>
-                <p className="text-white/40 text-[10px]">Roles in demand right now</p>
-              </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

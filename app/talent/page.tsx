@@ -22,6 +22,7 @@ interface Professional {
 }
 
 interface UnlockedProfile {
+  profileImageUrl: string | null;
   fullName: string | null;
   contactEmail: string | null;
   phone: string | null;
@@ -458,8 +459,13 @@ function CandidateProfileModal({
         {/* ── HEADER BAR ── */}
         <div className="bg-brand-black px-4 sm:px-7 py-4 sm:py-5 flex items-center justify-between gap-3 flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center flex-shrink-0">
-              <span className="text-brand-gold font-bold text-sm">{pro.initials}</span>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center flex-shrink-0">
+              {profile.profileImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.profileImageUrl} alt={profile.fullName || 'Candidate'} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-brand-gold font-bold text-sm">{pro.initials}</span>
+              )}
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-bold text-brand-gold uppercase tracking-widest mb-0.5">Full Profile — Unlocked</p>
@@ -485,8 +491,13 @@ function CandidateProfileModal({
             {/* Avatar + Name row */}
             <div className="flex items-start gap-4 mb-3">
               {/* Avatar */}
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-brand-black flex items-center justify-center flex-shrink-0 shadow-lg">
-                <span className="text-white font-black text-lg sm:text-xl">{pro.initials}</span>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-brand-black flex items-center justify-center flex-shrink-0 shadow-lg">
+                {profile.profileImageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={profile.profileImageUrl} alt={profile.fullName || 'Candidate'} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white font-black text-lg sm:text-xl">{pro.initials}</span>
+                )}
               </div>
 
               {/* Name + role */}
@@ -960,6 +971,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
       if (!res.ok) throw new Error(data?.error || 'Request failed');
       setIsAdmin(!!data.isAdmin);
       setUnlockedProfile({
+        profileImageUrl:    data.profile.profileImageUrl   ?? null,
         fullName:           data.profile.fullName,
         contactEmail:       data.profile.contactEmail,
         phone:              data.profile.phone,

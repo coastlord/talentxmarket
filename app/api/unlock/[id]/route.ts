@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth, currentUser, clerkClient } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 const FREE_UNLOCKS = 2;
@@ -153,7 +153,7 @@ export async function POST(
     const { data: candidate, error: candErr } = await supabaseAdmin
       .from('candidates')
       .select(
-        'id, full_name, job_title, location, years_experience, specialisms, certifications, bio, availability_status, work_preference, salary_amount, salary_currency, salary_period, linkedin_url, email, phone_number, is_anonymous, current_company, current_start_year, previous_role, previous_company, previous_start_year, previous_end_year, degree_type, school_name, institution_name, graduation_year, other_certification, certification_link'
+        'id, clerk_user_id, full_name, job_title, location, years_experience, specialisms, certifications, bio, availability_status, work_preference, salary_amount, salary_currency, salary_period, linkedin_url, email, phone_number, is_anonymous, current_company, current_start_year, previous_role, previous_company, previous_start_year, previous_end_year, degree_type, school_name, institution_name, graduation_year, other_certification, certification_link'
       )
       .eq('id', candidateId)
       .eq('status', 'approved')
@@ -200,6 +200,21 @@ export async function POST(
     else if (nameParts.length >= 2)
       initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
 
+    // ── 8. Fetch profile photo from Clerk ─────────────────────────────────
+    let profileImageUrl: string | null = null;
+    if (candidate.clerk_user_id) {
+      try {
+        const client = await clerkClient();
+        const clerkUser = await client.users.getUser(candidate.clerk_user_id);
+        // Only use real photos, not Clerk's auto-generated initials avatars
+        if (clerkUser?.imageUrl && !clerkUser.imageUrl.includes('img.clerk.com/static')) {
+          profileImageUrl = clerkUser.imageUrl;
+        }
+      } catch {
+        // Non-fatal: photo fetch fails silently, fallback to initials
+      }
+    }
+
     return NextResponse.json({
       success: true,
       creditsRemaining: isAdmin ? 999 : creditsRemaining,
@@ -208,6 +223,7 @@ export async function POST(
       profile: {
         id:                 candidate.id,
         initials,
+        profileImageUrl,
         fullName:           candidate.full_name           || null,
         contactEmail:       candidate.email               || null,
         phone:              candidate.phone_number        || null,
