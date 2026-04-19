@@ -69,22 +69,41 @@ const features = [
 
 export default function WhyTalentX() {
   return (
-    <section id="why-talentx" className="py-24 bg-[#F7F7F5]">
+    <section id="why-talentx" className="py-14 md:py-24 bg-[#F7F7F5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="w-16 h-1 bg-brand-gold rounded-full mx-auto mb-6" />
-          <h2 className="text-4xl md:text-5xl font-bold text-brand-dark leading-tight">
+        <div className="text-center mb-8 md:mb-16">
+          <div className="w-16 h-1 bg-brand-gold rounded-full mx-auto mb-4 md:mb-6" />
+          <h2 className="text-3xl md:text-5xl font-bold text-brand-dark leading-tight">
             Why Choose TalentX Market?
           </h2>
-          <p className="text-lg text-brand-gray mt-4 max-w-2xl mx-auto">
+          {/* Subheading: hidden on mobile */}
+          <p className="hidden md:block text-lg text-brand-gray mt-4 max-w-2xl mx-auto">
             The compliance sector deserves its own dedicated talent platform. Here&apos;s
             what makes TalentX different.
           </p>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* ── MOBILE: compact 2-col icon grid ── */}
+        <div className="md:hidden grid grid-cols-2 gap-3 mb-8">
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex flex-col gap-2"
+            >
+              <div className="w-9 h-9 rounded-xl bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center text-brand-gold">
+                {feature.icon}
+              </div>
+              <span className="text-brand-gold text-[9px] font-bold uppercase tracking-widest">
+                {feature.highlight}
+              </span>
+              <h3 className="text-sm font-bold text-brand-dark leading-tight">{feature.title}</h3>
+            </div>
+          ))}
+        </div>
+
+        {/* ── DESKTOP: full feature cards ── */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <div
               key={index}
@@ -105,8 +124,8 @@ export default function WhyTalentX() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-16 text-center">
-          <div className="inline-flex flex-col sm:flex-row items-center gap-4">
+        <div className="mt-8 md:mt-16 text-center">
+          <div className="inline-flex flex-col sm:flex-row items-center gap-3 md:gap-4">
             <a href="/sign-up" className="btn-dark">
               Join as a Professional
             </a>

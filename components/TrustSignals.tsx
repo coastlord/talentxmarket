@@ -4,24 +4,42 @@ export default function TrustSignals() {
       {/* ─────────────────────────────────────────────────────────────────
           SECTION 1 — THE PROBLEM WE SOLVE
       ───────────────────────────────────────────────────────────────── */}
-      <section id="the-problem" className="py-24 bg-[#F4F4F2]">
+      <section id="the-problem" className="py-14 md:py-24 bg-[#F4F4F2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
-          <div className="text-center mb-16">
-            <div className="w-16 h-1 bg-brand-gold rounded-full mx-auto mb-6" />
-            <h2 className="text-4xl md:text-5xl font-bold text-brand-dark leading-tight">
+          <div className="text-center mb-8 md:mb-16">
+            <div className="w-16 h-1 bg-brand-gold rounded-full mx-auto mb-4 md:mb-6" />
+            <h2 className="text-3xl md:text-5xl font-bold text-brand-dark leading-tight">
               Compliance Hiring Is{' '}
               <span className="text-brand-gold">Broken</span>
             </h2>
-            <p className="text-lg text-brand-gray mt-4 max-w-2xl mx-auto leading-relaxed">
+            {/* Subheading: hidden on mobile */}
+            <p className="hidden md:block text-lg text-brand-gray mt-4 max-w-2xl mx-auto leading-relaxed">
               Every organisation hiring in compliance faces the same frustration.
               The existing options are either too slow, too expensive, or simply not built for this sector.
             </p>
           </div>
 
-          {/* Pain points grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
+          {/* ── MOBILE: compact 3-item problem list ── */}
+          <div className="md:hidden space-y-3 mb-6">
+            {[
+              { label: 'Generic Job Boards', headline: 'Signal lost in the noise', color: 'bg-red-50 border-red-100 text-red-400' },
+              { label: 'Recruitment Agencies', headline: 'Expensive, slow, and opaque', color: 'bg-red-50 border-red-100 text-red-400' },
+              { label: 'No Specialist Platform', headline: 'The sector had no home — until now', color: 'bg-red-50 border-red-100 text-red-400' },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-4 bg-white rounded-2xl px-5 py-4 border border-gray-100 shadow-sm">
+                <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
+                <div>
+                  <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest">{item.label}</p>
+                  <p className="text-sm font-bold text-brand-dark">{item.headline}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── DESKTOP: full pain point cards ── */}
+          <div className="hidden md:grid md:grid-cols-3 gap-8 mb-16">
             {[
               {
                 icon: (
@@ -72,8 +90,8 @@ export default function TrustSignals() {
           </div>
 
           {/* Transition statement */}
-          <div className="text-center bg-brand-black rounded-2xl px-8 py-10">
-            <p className="text-white text-xl md:text-2xl font-bold leading-relaxed max-w-3xl mx-auto">
+          <div className="text-center bg-brand-black rounded-2xl px-6 py-8 md:px-8 md:py-10">
+            <p className="text-white text-lg md:text-2xl font-bold leading-relaxed max-w-3xl mx-auto">
               TalentX Market was built to fix this — a{' '}
               <span className="text-brand-gold">closed, curated, compliance-only</span>{' '}
               network where every professional is verified.
@@ -84,9 +102,9 @@ export default function TrustSignals() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────────
-          SECTION 2 — OUR VETTING PROCESS
+          SECTION 2 — OUR VETTING PROCESS  (hidden on mobile)
       ───────────────────────────────────────────────────────────────── */}
-      <section id="vetting-process" className="py-24 bg-white">
+      <section id="vetting-process" className="hidden md:block py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
@@ -230,24 +248,25 @@ export default function TrustSignals() {
       {/* ─────────────────────────────────────────────────────────────────
           SECTION 3 — WHAT MAKES US DIFFERENT
       ───────────────────────────────────────────────────────────────── */}
-      <section id="why-different" className="py-24 bg-brand-black">
+      <section id="why-different" className="py-14 md:py-24 bg-brand-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
-          <div className="text-center mb-16">
-            <div className="w-16 h-1 bg-brand-gold rounded-full mx-auto mb-6" />
-            <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+          <div className="text-center mb-8 md:mb-16">
+            <div className="w-16 h-1 bg-brand-gold rounded-full mx-auto mb-4 md:mb-6" />
+            <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight">
               Why TalentX Is{' '}
               <span className="text-brand-gold">Not Another Job Board</span>
             </h2>
-            <p className="text-lg text-white/80 mt-4 max-w-2xl mx-auto">
+            {/* Subheading hidden on mobile */}
+            <p className="hidden md:block text-lg text-white/80 mt-4 max-w-2xl mx-auto">
               See how TalentX compares to every alternative you&apos;ve tried — and why compliance
               professionals and employers trust it more.
             </p>
           </div>
 
-          {/* Comparison table */}
-          <div className="overflow-x-auto mb-16">
+          {/* Comparison table — desktop only */}
+          <div className="hidden md:block overflow-x-auto mb-16">
             <table className="w-full min-w-[700px]">
               <thead>
                 <tr>
@@ -337,9 +356,9 @@ export default function TrustSignals() {
             </table>
           </div>
 
-          {/* Four differentiator cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
+          {/* Four differentiator cards — body text hidden on mobile */}
+          {(() => {
+            const diffCards = [
               {
                 icon: (
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -347,6 +366,7 @@ export default function TrustSignals() {
                   </svg>
                 ),
                 title: 'Curated, Not Crowded',
+                sub: 'Every profile hand-approved',
                 body: 'Every profile is approved by hand. You will never scroll through thousands of irrelevant candidates. Every person you see on TalentX belongs there.',
               },
               {
@@ -356,6 +376,7 @@ export default function TrustSignals() {
                   </svg>
                 ),
                 title: 'Direct, Not Delegated',
+                sub: 'No agency, no middlemen',
                 body: 'No recruitment agency sitting in the middle, marking up fees and filtering your options. You access talent directly — on your timeline, at your terms.',
               },
               {
@@ -365,6 +386,7 @@ export default function TrustSignals() {
                   </svg>
                 ),
                 title: 'Controlled Access',
+                sub: 'Candidate privacy protected',
                 body: 'Candidate contact details are never public. Employers must verify their business identity before accessing any profile — protecting candidates from unwanted exposure.',
               },
               {
@@ -374,21 +396,30 @@ export default function TrustSignals() {
                   </svg>
                 ),
                 title: 'Built by the Sector',
+                sub: 'Compliance professionals only',
                 body: 'Built by compliance professionals who have personally hired AML, KYC, MLRO, and Financial Crime roles inside regulated institutions. We understand what good looks like — because we have hired for it ourselves.',
               },
-            ].map((card, i) => (
-              <div
-                key={i}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/8 hover:border-brand-gold/30 transition-all duration-300"
-              >
-                <div className="w-12 h-12 rounded-xl bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center text-brand-gold mb-5">
-                  {card.icon}
-                </div>
-                <h3 className="text-lg font-bold text-white mb-3">{card.title}</h3>
-                <p className="text-white/80 text-sm leading-relaxed">{card.body}</p>
+            ];
+            return (
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+                {diffCards.map((card, i) => (
+                  <div
+                    key={i}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 hover:bg-white/8 hover:border-brand-gold/30 transition-all duration-300"
+                  >
+                    <div className="w-9 h-9 md:w-12 md:h-12 rounded-xl bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center text-brand-gold mb-3 md:mb-5">
+                      {card.icon}
+                    </div>
+                    <h3 className="text-sm md:text-lg font-bold text-white mb-1 md:mb-3">{card.title}</h3>
+                    {/* Sub-line mobile only */}
+                    <p className="md:hidden text-[11px] text-white/55 leading-relaxed">{card.sub}</p>
+                    {/* Body desktop only */}
+                    <p className="hidden md:block text-white/80 text-sm leading-relaxed">{card.body}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            );
+          })()}
 
           {/* CTA */}
           <div className="mt-16 text-center">
