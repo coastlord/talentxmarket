@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       other_certification: body.otherCertification || null,
       certification_link:  body.certificationLink  || null,
       work_preference:     body.workPreference     || null,
-      availability_status: body.availability       || null,
+      availability_status: body.availabilityStatus  || body.availability || null,
       salary_amount:       body.salaryAmount       || null,
       salary_currency:     body.salaryCurrency     || 'GBP',
       salary_period:       body.salaryPeriod       || 'Year',
