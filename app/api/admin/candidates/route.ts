@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { sendCandidateApprovedEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,6 +72,15 @@ export async function PATCH(req: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // Send approval email to candidate — non-blocking
+    if (action === 'approve' || action === 'restore') {
+      sendCandidateApprovedEmail({
+        candidateEmail: data.email        || '',
+        candidateName:  data.full_name    || '',
+        jobTitle:       data.job_title    || '',
+      }).catch(err => console.error('[email] candidate approved email failed:', err));
     }
 
     return NextResponse.json({ success: true, candidate: data });

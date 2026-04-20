@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { sendNewCandidateAlert } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -138,12 +139,29 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: claimError.message }, { status: 500 });
         }
 
+        sendNewCandidateAlert({
+          candidateName: claimed.full_name || email,
+          candidateEmail: email,
+          jobTitle:       claimed.job_title  || '',
+          location:       claimed.location   || '',
+          specialisms:    claimed.specialisms || [],
+        }).catch(err => console.error('[email] new candidate alert (claim) failed:', err));
+
         return NextResponse.json(claimed);
       }
 
       console.error('Supabase INSERT error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    // Fire new-submission alert to Tj — non-blocking, never fails the response
+    sendNewCandidateAlert({
+      candidateName: data.full_name || [body.firstName, body.lastName].filter(Boolean).join(' ') || email,
+      candidateEmail: email,
+      jobTitle:       data.job_title  || '',
+      location:       data.location   || '',
+      specialisms:    data.specialisms || [],
+    }).catch(err => console.error('[email] new candidate alert failed:', err));
 
     return NextResponse.json(data);
   } catch (err) {
