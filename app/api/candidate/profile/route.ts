@@ -45,22 +45,28 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const email = user.emailAddresses[0]?.emailAddress ?? '';
 
-    // Profile completion score (7 key fields)
-    const completionFields = [
-      body.title,
-      body.experience,
-      body.location,
-      body.specialisms?.length > 0,
-      body.bio,
-      body.certifications?.length > 0,
-      body.linkedinUrl,
+    // Weighted profile completion — must match DashboardClient.tsx exactly (weights sum to 100)
+    const scoreFields = [
+      { value: body.fullName,                                                       weight: 8  },
+      { value: body.title,                                                          weight: 12 },
+      { value: body.experience,                                                     weight: 10 },
+      { value: body.location,                                                       weight: 8  },
+      { value: (body.specialisms?.length ?? 0) > 0,                                weight: 12 },
+      { value: body.bio,                                                            weight: 12 },
+      { value: body.linkedinUrl,                                                    weight: 8  },
+      { value: body.phone,                                                          weight: 8  },
+      { value: body.currentCompany,                                                 weight: 8  },
+      { value: (body.certifications?.length ?? 0) > 0 || !!body.otherCertification, weight: 8 },
+      { value: body.salaryAmount,                                                   weight: 3  },
+      { value: body.degreeType || body.school || body.institution,                  weight: 3  },
     ];
-    const profileCompletion = Math.round(
-      (completionFields.filter(Boolean).length / completionFields.length) * 100
-    );
+    const totalWeight = scoreFields.reduce((s, f) => s + f.weight, 0);
+    const earnedWeight = scoreFields.filter(f => Boolean(f.value)).reduce((s, f) => s + f.weight, 0);
+    const profileCompletion = Math.min(100, Math.round((earnedWeight / totalWeight) * 100));
 
     // Fields that are safe to write on both INSERT and UPDATE
     const profileData = {
+      full_name:           body.fullName            || null,
       job_title:           body.title              || null,
       years_experience:    body.experience         || null,
       location:            body.location           || null,
@@ -140,7 +146,7 @@ export async function POST(req: NextRequest) {
         }
 
         sendNewCandidateAlert({
-          candidateName: claimed.full_name || email,
+          candidateName: claimed.full_name || body.fullName || email,
           candidateEmail: email,
           jobTitle:       claimed.job_title  || '',
           location:       claimed.location   || '',
@@ -156,7 +162,7 @@ export async function POST(req: NextRequest) {
 
     // Fire new-submission alert to Tj — non-blocking, never fails the response
     sendNewCandidateAlert({
-      candidateName: data.full_name || [body.firstName, body.lastName].filter(Boolean).join(' ') || email,
+      candidateName: data.full_name || body.fullName || email,
       candidateEmail: email,
       jobTitle:       data.job_title  || '',
       location:       data.location   || '',

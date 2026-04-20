@@ -64,6 +64,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
   const liveImageUrl = user?.imageUrl || imageUrl;
 
   const [profile, setProfile] = useState({
+    fullName: '',
     title: '',
     experience: '',
     location: '',
@@ -105,6 +106,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
           setCandidateStatus(data?.status ?? 'new');
           if (data) {
             setProfile({
+              fullName:           data.full_name            || [firstName, lastName].filter(Boolean).join(' ') || '',
               title:              data.job_title           || '',
               experience:         data.years_experience    || '',
               location:           data.location            || '',
@@ -143,8 +145,8 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
     })();
   }, []);
 
-  const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Your Name';
-  const initials = [firstName?.[0], lastName?.[0]].filter(Boolean).join('').toUpperCase() || 'TX';
+  const fullName = profile.fullName || [firstName, lastName].filter(Boolean).join(' ') || 'Your Name';
+  const initials = fullName.trim().split(/\s+/).map(w => w[0]).filter(Boolean).join('').slice(0, 2).toUpperCase() || 'TX';
 
   const handleSpecialismToggle = (s: string) => {
     setProfile(p => ({
@@ -214,7 +216,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
       const res = await fetch('/api/candidate/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...profile, availability: profile.availabilityStatus, isVisible, firstName, lastName }),
+        body: JSON.stringify({ ...profile, availability: profile.availabilityStatus, isVisible }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -225,6 +227,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
       if (data) {
         setProfile(p => ({
           ...p,
+          fullName:          data.full_name           ?? p.fullName,
           title:             data.job_title          ?? p.title,
           experience:        data.years_experience   ?? p.experience,
           location:          data.location           ?? p.location,
@@ -264,19 +267,20 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
     }
   };
 
-  // Weighted profile strength — reflects real completeness across all sections
+  // Weighted profile strength — must match API route calculation exactly
   const profileScore = [
+    { value: profile.fullName,                weight: 8  }, // Full name — critical for admin
     { value: profile.title,                   weight: 12 }, // Job title — core
     { value: profile.experience,              weight: 10 }, // Years of experience
-    { value: profile.location,                weight: 10 }, // Location
+    { value: profile.location,                weight: 8  }, // Location
     { value: profile.specialisms.length > 0,  weight: 12 }, // Specialisms
     { value: profile.bio,                     weight: 12 }, // Professional summary
-    { value: profile.linkedinUrl,             weight: 10 }, // LinkedIn
+    { value: profile.linkedinUrl,             weight: 8  }, // LinkedIn
     { value: profile.phone,                   weight: 8  }, // Phone
     { value: profile.currentCompany,          weight: 8  }, // Current employer
     { value: profile.certifications.length > 0 || !!profile.otherCertification, weight: 8 }, // Certifications
-    { value: profile.salaryAmount,            weight: 5  }, // Salary expectation
-    { value: (profile.degreeType || profile.school || profile.institution), weight: 5 }, // Education
+    { value: profile.salaryAmount,            weight: 3  }, // Salary expectation
+    { value: (profile.degreeType || profile.school || profile.institution), weight: 3 }, // Education
   ];
   const totalWeight = profileScore.reduce((sum, f) => sum + f.weight, 0); // = 100
   const earnedWeight = profileScore.filter(f => Boolean(f.value)).reduce((sum, f) => sum + f.weight, 0);
@@ -504,7 +508,8 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
               {completePct < 100 && (
                 <div className="mt-4 pt-4 border-t border-white/8 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5">
                   {[
-                    { label: 'Job Title',       done: !!profile.title },
+                    { label: 'Full Name',        done: !!profile.fullName },
+                    { label: 'Job Title',        done: !!profile.title },
                     { label: 'Experience',       done: !!profile.experience },
                     { label: 'Location',         done: !!profile.location },
                     { label: 'Specialisms',      done: profile.specialisms.length > 0 },
@@ -948,6 +953,12 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                 <h3 className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest mb-1">Contact Details</h3>
                 <p className="text-xs text-gray-400 mb-4">Shared with employers only after they unlock your profile.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Full Name <span className="text-[#C9A84C]">*</span></label>
+                    <input type="text" placeholder="First name and last name" value={profile.fullName}
+                      onChange={e => setProfile({ ...profile, fullName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]" />
+                  </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1.5">Email Address</label>
                     <input type="email" value={email} readOnly

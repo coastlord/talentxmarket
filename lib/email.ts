@@ -2,7 +2,9 @@
 // All outbound emails go through this file. Uses Resend REST API directly
 // (no SDK) to match the pattern already used in verify-email/route.ts.
 
-const FROM = 'TalentX Market <verify@talentxmarket.com>';
+// Use hello@ as the from address — better inbox delivery than verify@
+const FROM      = 'TalentX Market <hello@talentxmarket.com>';
+const REPLY_TO  = 'hello@talentxmarket.com';
 const RESEND_URL = 'https://api.resend.com/emails';
 
 // ─── Core send helper ─────────────────────────────────────────────────────────
@@ -27,12 +29,20 @@ export async function sendEmail({
       Authorization: `Bearer ${key}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    body: JSON.stringify({
+      from:     FROM,
+      reply_to: REPLY_TO,
+      to:       [to],
+      subject,
+      html,
+    }),
   });
 
   if (!res.ok) {
-    const body = await res.text();
-    console.error('[email] Resend error:', body);
+    const errBody = await res.text();
+    console.error('[email] Resend error:', errBody);
+  } else {
+    console.log(`[email] Sent to ${to} — "${subject}"`);
   }
 }
 
