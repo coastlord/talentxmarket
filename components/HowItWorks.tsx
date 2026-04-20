@@ -6,6 +6,7 @@ const professionalSteps = [
   {
     step: '01',
     title: 'Create Your Profile',
+    mobileDescription: 'Tell us about your compliance specialism.',
     description:
       'Tell us about your compliance specialism — AML, Risk, MLRO, Trust & Safety and more. Highlight your qualifications, experience, and the roles you\'re open to.',
     icon: (
@@ -17,6 +18,7 @@ const professionalSteps = [
   {
     step: '02',
     title: 'Post Your Availability',
+    mobileDescription: 'Set your status to Open to Work and share your role preferences.',
     description:
       'Set your status to "Open to Work" and let employers know your preferred role type — contract, permanent, interim — and your location preferences.',
     icon: (
@@ -28,6 +30,7 @@ const professionalSteps = [
   {
     step: '03',
     title: 'Get Matched & Hired',
+    mobileDescription: 'Employers find you directly and reach out with opportunities.',
     description:
       'Employers find you directly. Receive enquiries from verified compliance-hiring organisations and move forward with the right opportunity on your terms.',
     icon: (
@@ -42,6 +45,7 @@ const employerSteps = [
   {
     step: '01',
     title: 'Browse Verified Talent',
+    mobileDescription: 'Explore a curated pool of verified compliance professionals.',
     description:
       'Explore a curated pool of compliance professionals — AML, MLRO, Risk, KYC, Trust & Safety and more. Filter by specialism, experience level, location, and availability status.',
     icon: (
@@ -53,6 +57,7 @@ const employerSteps = [
   {
     step: '02',
     title: 'Unlock the Full Profile',
+    mobileDescription: "Access the candidate's full details — contact, CV, and LinkedIn.",
     description:
       'Found the right fit? Request access to the candidate\'s complete details — full name, contact information, CV, and LinkedIn — directly through TalentX with no agency gatekeeping.',
     icon: (
@@ -64,6 +69,7 @@ const employerSteps = [
   {
     step: '03',
     title: 'Interview & Hire Directly',
+    mobileDescription: 'Connect directly. No recruiters, no inflated fees, no delays.',
     description:
       'Connect with your chosen candidate on your terms. No recruiters, no inflated fees, no delays. Build your compliance team with specialists who are genuinely ready to move.',
     icon: (
@@ -132,7 +138,7 @@ export default function HowItWorks() {
               </div>
               <div>
                 <p className="text-sm font-bold text-brand-dark">{step.title}</p>
-                <p className="text-xs text-brand-gray mt-0.5 leading-relaxed line-clamp-2">{step.description}</p>
+                <p className="text-xs text-brand-gray mt-0.5 leading-relaxed">{step.mobileDescription}</p>
               </div>
             </div>
           ))}
