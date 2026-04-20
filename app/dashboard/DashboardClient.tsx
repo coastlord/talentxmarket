@@ -1150,6 +1150,15 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                       {c}
                     </button>
                   ))}
+                  {/* None option — clears all certs */}
+                  <button
+                    onClick={() => {
+                      setProfile({ ...profile, certifications: [], otherCertification: '' });
+                      setOtherCertVisible(false);
+                    }}
+                    className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all ${profile.certifications.length === 0 && !profile.otherCertification && !otherCertVisible ? 'bg-gray-800 border-gray-800 text-white' : 'border-gray-200 text-gray-600 hover:border-gray-400'}`}>
+                    None
+                  </button>
                   {/* Other toggle */}
                   <button
                     onClick={() => {
