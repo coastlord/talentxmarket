@@ -38,7 +38,7 @@ export async function GET() {
         location:           candidate.location            || '',
         experience:         candidate.years_experience    || '',
         skills:             candidate.specialisms         || [],
-        certifications:     candidate.certifications      || [],
+        certifications:     (candidate.certifications || []).filter((c: string) => c !== 'None'),
         headline:           candidate.bio                 || '',
         workPreference:     candidate.work_preference     || '',
         salaryAmount:       candidate.salary_amount       || '',

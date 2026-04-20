@@ -233,7 +233,7 @@ export async function POST(
         location:           candidate.location            || '',
         experience:         candidate.years_experience    || '',
         skills:             candidate.specialisms         || [],
-        certifications:     candidate.certifications      || [],
+        certifications:     (candidate.certifications || []).filter((c: string) => c !== 'None'),
         otherCertification: candidate.other_certification || null,
         headline:           candidate.bio                 || '',
         availabilityStatus: candidate.availability_status || 'Available Now',

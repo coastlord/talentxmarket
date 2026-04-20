@@ -158,9 +158,10 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
   const handleCertToggle = (c: string) => {
     setProfile(p => ({
       ...p,
+      // Remove 'None' marker whenever a real cert is selected/deselected
       certifications: p.certifications.includes(c)
         ? p.certifications.filter(x => x !== c)
-        : [...p.certifications, c],
+        : [...p.certifications.filter(x => x !== 'None'), c],
     }));
   };
 
@@ -273,7 +274,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
     { value: profile.linkedinUrl,             weight: 10 }, // LinkedIn
     { value: profile.phone,                   weight: 8  }, // Phone
     { value: profile.currentCompany,          weight: 8  }, // Current employer
-    { value: profile.certifications.length > 0, weight: 8 }, // Certifications
+    { value: profile.certifications.length > 0 || !!profile.otherCertification, weight: 8 }, // Certifications
     { value: profile.salaryAmount,            weight: 5  }, // Salary expectation
     { value: (profile.degreeType || profile.school || profile.institution), weight: 5 }, // Education
   ];
@@ -511,7 +512,7 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                     { label: 'LinkedIn',         done: !!profile.linkedinUrl },
                     { label: 'Phone',            done: !!profile.phone },
                     { label: 'Current Employer', done: !!profile.currentCompany },
-                    { label: 'Certifications',   done: profile.certifications.length > 0 },
+                    { label: 'Certifications',   done: profile.certifications.length > 0 || !!profile.otherCertification },
                     { label: 'Salary',           done: !!profile.salaryAmount },
                     { label: 'Education',        done: !!(profile.degreeType || profile.school || profile.institution) },
                   ].map(item => (
@@ -600,10 +601,10 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                     </div>
 
                     {/* Certifications */}
-                    {(profile.certifications.length > 0 || profile.otherCertification) && (
+                    {(profile.certifications.filter(c => c !== 'None').length > 0 || profile.otherCertification) && (
                       <div className="mb-4">
                         <div className="flex flex-wrap gap-1.5 justify-center">
-                          {profile.certifications.map(c => (
+                          {profile.certifications.filter(c => c !== 'None').map(c => (
                             <span key={c} className="text-[11px] px-2.5 py-1 bg-[#C9A84C]/10 text-[#8a6d25] border border-[#C9A84C]/30 rounded-full font-bold tracking-wide">
                               {c}
                             </span>
@@ -1150,13 +1151,13 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                       {c}
                     </button>
                   ))}
-                  {/* None option — clears all certs */}
+                  {/* None option — marks as intentionally no certs */}
                   <button
                     onClick={() => {
-                      setProfile({ ...profile, certifications: [], otherCertification: '' });
+                      setProfile({ ...profile, certifications: ['None'], otherCertification: '' });
                       setOtherCertVisible(false);
                     }}
-                    className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all ${profile.certifications.length === 0 && !profile.otherCertification && !otherCertVisible ? 'bg-gray-800 border-gray-800 text-white' : 'border-gray-200 text-gray-600 hover:border-gray-400'}`}>
+                    className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all ${profile.certifications.includes('None') ? 'bg-gray-800 border-gray-800 text-white' : 'border-gray-200 text-gray-600 hover:border-gray-400'}`}>
                     None
                   </button>
                   {/* Other toggle */}
@@ -1510,11 +1511,11 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                   )}
 
                   {/* Certifications */}
-                  {(profile.certifications.length > 0 || profile.otherCertification) && (
+                  {(profile.certifications.filter(c => c !== 'None').length > 0 || profile.otherCertification) && (
                     <div className="px-5 py-4 border-b border-gray-100">
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Certifications</p>
                       <div className="flex flex-wrap gap-2">
-                        {profile.certifications.map(c => (
+                        {profile.certifications.filter(c => c !== 'None').map(c => (
                           <span key={c} className="text-xs font-bold text-[#C9A84C] bg-[#C9A84C]/10 border border-[#C9A84C]/30 px-3 py-1.5 rounded-full">{c}</span>
                         ))}
                         {profile.otherCertification && (
