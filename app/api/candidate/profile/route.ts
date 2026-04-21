@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
     // ── Step 1: Check if a row already exists for this Clerk user ──────────────
     const { data: existing } = await supabaseAdmin
       .from('candidates')
-      .select('id')
+      .select('id, profile_completion')
       .eq('clerk_user_id', user.id)
       .single();
 
@@ -116,6 +116,19 @@ export async function POST(req: NextRequest) {
       if (error) {
         console.error('Supabase UPDATE error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      // Fire notification if this is the first time the profile has any content
+      // (existing completion was 0 — catches users whose row was pre-created but never filled in)
+      const wasEmpty = !existing.profile_completion || existing.profile_completion === 0;
+      if (wasEmpty && data.status === 'pending') {
+        sendNewCandidateAlert({
+          candidateName:  data.full_name   || body.fullName || email,
+          candidateEmail: email,
+          jobTitle:       data.job_title   || '',
+          location:       data.location    || '',
+          specialisms:    data.specialisms || [],
+        }).catch(err => console.error('[email] new candidate alert (first-save UPDATE) failed:', err));
       }
 
       return NextResponse.json(data);

@@ -2,8 +2,8 @@
 // All outbound emails go through this file. Uses Resend REST API directly
 // (no SDK) to match the pattern already used in verify-email/route.ts.
 
-// Use hello@ as the from address — better inbox delivery than verify@
-const FROM      = 'TalentX Market <hello@talentxmarket.com>';
+// verify@ is the DNS-verified Resend sender — confirmed working for OTPs
+const FROM      = 'TalentX Market <verify@talentxmarket.com>';
 const REPLY_TO  = 'hello@talentxmarket.com';
 const RESEND_URL = 'https://api.resend.com/emails';
 
