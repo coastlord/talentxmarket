@@ -59,6 +59,7 @@ interface Candidate {
   is_anonymous: boolean;
   status: 'pending' | 'approved' | 'rejected' | 'suspended';
   profile_completion: number;
+  certification_verified: boolean | null;
   created_at: string;
   approved_at: string;
 }
@@ -576,10 +577,23 @@ export default function AdminClient() {
                           </div>
                         )}
                         {c.certifications?.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-1.5">
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                             {c.certifications.map(cert => (
                               <span key={cert} className="text-xs px-2 py-0.5 bg-[#C9A84C]/10 text-[#0A0A0A] border border-[#C9A84C]/30 rounded-full font-semibold">{cert}</span>
                             ))}
+                            {/* Certification badge toggle */}
+                            <button
+                              onClick={() => handleAction(c.id, c.certification_verified === false ? 'verify_cert' : 'unverify_cert')}
+                              disabled={actionLoading === c.id + 'verify_cert' || actionLoading === c.id + 'unverify_cert'}
+                              title={c.certification_verified === false ? 'Badge hidden — click to show on public card' : 'Badge visible — click to hide from public card'}
+                              className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border transition-colors disabled:opacity-50 ${
+                                c.certification_verified === false
+                                  ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
+                                  : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
+                              }`}
+                            >
+                              {c.certification_verified === false ? '🚫 Badge hidden' : '✓ Badge visible'}
+                            </button>
                           </div>
                         )}
                         {c.linkedin_url && (

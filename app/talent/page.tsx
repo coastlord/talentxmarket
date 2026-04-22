@@ -19,6 +19,8 @@ interface Professional {
   skills: string[];
   certifications: string[];
   headline: string;
+  // null = not reviewed (show badge); false = admin suppressed (hide badge)
+  certificationVerified: boolean | null;
 }
 
 interface UnlockedProfile {
@@ -192,7 +194,7 @@ function ProfessionalCard({ pro, onUnlock }: { pro: Professional; onUnlock: (pro
               <span className="truncate">{pro.availabilityStatus || 'Open to Offers'}</span>
             </div>
           )}
-          {primaryCert && (
+          {primaryCert && pro.certificationVerified !== false && (
             <div className="inline-flex items-center gap-1 bg-brand-black text-brand-gold text-[10px] font-bold px-2 py-1 rounded-full max-w-full">
               <span className="flex-shrink-0"><ShieldIcon /></span>
               <span className="truncate">{primaryCert}</span>
@@ -1209,7 +1211,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     {pro.location && <span className="text-xs text-gray-500">{pro.location}</span>}
                     {pro.experience && <span className="text-xs text-gray-400">· {pro.experience}</span>}
-                    {pro.certifications[0] && (
+                    {pro.certifications[0] && pro.certificationVerified !== false && (
                       <span className="inline-flex items-center gap-1 bg-brand-black text-brand-gold text-[10px] font-bold px-2 py-0.5 rounded-full">
                         <ShieldIcon /> {pro.certifications[0]}
                       </span>

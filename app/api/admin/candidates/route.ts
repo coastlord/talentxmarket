@@ -43,7 +43,19 @@ export async function PATCH(req: NextRequest) {
     }
 
     const { candidateId, action } = await req.json();
-    // action: 'approve' | 'reject' | 'suspend' | 'restore'
+    // action: 'approve' | 'reject' | 'suspend' | 'restore' | 'verify_cert' | 'unverify_cert'
+
+    // ── Certification toggle (separate fast path) ──────────────────────────
+    if (action === 'verify_cert' || action === 'unverify_cert') {
+      const { data, error } = await supabaseAdmin
+        .from('candidates')
+        .update({ certification_verified: action === 'verify_cert' })
+        .eq('id', candidateId)
+        .select()
+        .single();
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ success: true, candidate: data });
+    }
 
     const statusMap: Record<string, string> = {
       approve:  'approved',
