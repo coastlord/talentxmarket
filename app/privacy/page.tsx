@@ -265,14 +265,6 @@ export default function PrivacyPage() {
               we reserve the right to charge a reasonable fee for manifestly unfounded or
               excessive requests.
             </p>
-            <p>
-              If you are not satisfied with our response, you have the right to lodge a complaint
-              with the UK Information Commissioner&apos;s Office (ICO) at{' '}
-              <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:underline">
-                ico.org.uk
-              </a>{' '}
-              or by calling 0303 123 1113.
-            </p>
           </Section>
 
           <Section number="8" title="Data Security">
