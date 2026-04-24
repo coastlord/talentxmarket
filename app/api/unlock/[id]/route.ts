@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth, currentUser, clerkClient } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const FREE_UNLOCKS = 2;
+const FREE_UNLOCKS = 1;
 const ADMIN_EMAILS = ['soa.tidjani@gmail.com'];
 
 // ── Blocked free / personal email domains ─────────────────────────────────────
@@ -144,7 +144,7 @@ export async function POST(
     // ── 3b. Check credits (admins always pass) ────────────────────────────
     if (!isAdmin && isNewUnlock && creditsRemaining <= 0) {
       return NextResponse.json(
-        { error: 'no_credits', message: 'You have used all your free unlocks. Upgrade to continue.' },
+        { error: 'no_credits', message: 'You have used your free unlock. Contact us at hello@talentxmarket.com to access more profiles.' },
         { status: 402 }
       );
     }

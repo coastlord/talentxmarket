@@ -1086,15 +1086,15 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-brand-black mb-2">Free Unlocks Used</h3>
+              <h3 className="text-xl font-bold text-brand-black mb-2">Free Unlock Used</h3>
               <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto mb-6">
-                You&apos;ve used your 3 free unlocks. Upgrade to continue accessing vetted compliance talent.
+                You&apos;ve used your 1 free unlock. To access more vetted compliance profiles, get in touch with us directly.
               </p>
               <a
-                href="mailto:hello@talentxmarket.com?subject=Employer Access Upgrade&body=Hi, I'd like to upgrade my TalentX employer access."
+                href="mailto:hello@talentxmarket.com?subject=Employer Access — More Unlocks&body=Hi TalentX Market Team, I'd like to access more compliance profiles. Please get in touch."
                 className="block w-full py-3.5 bg-brand-gold text-brand-black text-sm font-bold rounded-xl hover:bg-brand-gold/90 transition-all duration-200 text-center mb-3"
               >
-                Contact Us to Upgrade
+                Message Us at hello@talentxmarket.com
               </a>
               <button onClick={onClose} className="text-xs text-gray-400 hover:text-brand-black transition-colors">
                 Browse talent (limited view)
@@ -1110,7 +1110,7 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
-                Profile unlocked · {isAdmin ? 'Unlimited admin access' : `${unlockedProfile.creditsRemaining} free ${unlockedProfile.creditsRemaining === 1 ? 'unlock' : 'unlocks'} remaining`}
+                Profile unlocked · {isAdmin ? 'Unlimited admin access' : unlockedProfile.creditsRemaining === 0 ? 'No free unlocks remaining — contact hello@talentxmarket.com for more' : `${unlockedProfile.creditsRemaining} free ${unlockedProfile.creditsRemaining === 1 ? 'unlock' : 'unlocks'} remaining`}
               </div>
 
               {/* Quick profile preview */}
