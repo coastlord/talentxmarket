@@ -76,7 +76,7 @@ export default function SignUp() {
                 <div className="flex items-center gap-2 mb-8">
                   <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                   <span className="text-green-400 text-xs font-bold uppercase tracking-widest">
-                    Now Accepting Profiles
+                    For Professionals
                   </span>
                 </div>
 
