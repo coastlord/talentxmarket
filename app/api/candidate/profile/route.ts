@@ -82,6 +82,8 @@ export async function POST(req: NextRequest) {
       salary_amount:       body.salaryAmount       || null,
       salary_currency:     body.salaryCurrency     || 'GBP',
       salary_period:       body.salaryPeriod       || 'Year',
+      current_industry:    body.currentIndustry    || null,
+      employment_type:     body.employmentType     || null,
       current_company:     body.currentCompany     || null,
       current_start_year:  body.currentStartYear   || null,
       previous_role:       body.previousRole       || null,

@@ -358,7 +358,7 @@ function Skeleton() {
 // ─── Filter bar constants ────────────────────────────────────────────────────
 const EMP_TYPES = ['All', 'Permanent', 'Contract', 'Interim', 'Advisory', 'Freelance'];
 const INDUSTRIES = ['All', 'Banking', 'FinTech', 'Insurance', 'Asset Management', 'Payments', 'Crypto / Web3', 'Consulting', 'Other'];
-const AVAILABILITY_OPTIONS = ['All', 'Available Now', 'Open to Offers', 'Notice Period'];
+const AVAILABILITY_OPTIONS = ['All', 'Available Now', 'Open to Offers', 'Notice Period', 'Actively Looking'];
 const SPECIALISM_OPTIONS = ['All', 'AML', 'KYC', 'MLRO', 'Financial Crime', 'Risk Management', 'Compliance Officer', 'Sanctions', 'Trust & Safety', 'Fraud', 'RegTech', 'Data Privacy', 'Internal Audit'];
 const EXPERIENCE_OPTIONS = ['All', '0–3 years', '3–5 years', '5–10 years', '10+ years'];
 
@@ -1599,7 +1599,7 @@ export default function TalentPage() {
 
   const filtered = useMemo(() => professionals.filter((p) => {
     if (empType !== 'All' && p.employmentType !== empType) return false;
-    if (industry !== 'All' && p.industry !== industry) return false;
+    if (industry !== 'All' && !(p.industry || '').toLowerCase().includes(industry.toLowerCase())) return false;
     if (availability !== 'All' && p.availabilityStatus !== availability) return false;
     if (specialism !== 'All') {
       const q = specialism.toLowerCase();

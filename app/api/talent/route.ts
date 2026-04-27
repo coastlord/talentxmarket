@@ -9,7 +9,7 @@ export async function GET() {
     const { data, error } = await supabaseAdmin
       .from('candidates')
       .select(
-        'id, full_name, job_title, location, years_experience, specialisms, certifications, bio, availability_status, work_preference, salary_amount, salary_currency, salary_period, is_anonymous, status, is_visible, certification_verified'
+        'id, full_name, job_title, location, years_experience, specialisms, certifications, bio, availability_status, work_preference, salary_amount, salary_currency, salary_period, is_anonymous, status, is_visible, certification_verified, current_industry, employment_type'
       )
       .eq('status', 'approved')
       .eq('is_visible', true)
@@ -44,7 +44,9 @@ export async function GET() {
         salaryAmount:       candidate.salary_amount       || '',
         salaryCurrency:     candidate.salary_currency     || 'GBP',
         salaryPeriod:       candidate.salary_period       || 'Year',
-        isAnonymous:           candidate.is_anonymous        ?? true,
+        industry:              candidate.current_industry     || '',
+        employmentType:        candidate.employment_type      || '',
+        isAnonymous:           candidate.is_anonymous         ?? true,
         // null = not yet reviewed → show badge (backward-compatible default)
         // false = admin suppressed → hide badge
         certificationVerified: candidate.certification_verified ?? null,

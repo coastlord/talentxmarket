@@ -75,6 +75,8 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
     salaryPeriod: 'Year',
     workPreference: 'Hybrid',
     availabilityStatus: '',
+    currentIndustry: '',
+    employmentType: '',
     bio: '',
     // Experience – current
     currentCompany: '',
@@ -117,6 +119,8 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
               salaryPeriod:       data.salary_period        || 'Year',
               workPreference:     (data.work_preference === 'Both' ? 'Hybrid' : data.work_preference) || 'Hybrid',
               availabilityStatus: data.availability_status  || '',
+              currentIndustry:    data.current_industry     || '',
+              employmentType:     data.employment_type      || '',
               bio:                data.bio                  || '',
               currentCompany:   data.current_company     || '',
               currentStartYear: data.current_start_year  || '',
@@ -238,6 +242,8 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
           salaryPeriod:      data.salary_period      ?? p.salaryPeriod,
           workPreference:     data.work_preference     ?? p.workPreference,
           availabilityStatus: data.availability_status ?? p.availabilityStatus,
+          currentIndustry:    data.current_industry    ?? p.currentIndustry,
+          employmentType:     data.employment_type     ?? p.employmentType,
           bio:                data.bio                 ?? p.bio,
           currentCompany:    data.current_company    ?? p.currentCompany,
           currentStartYear:  data.current_start_year ?? p.currentStartYear,
@@ -999,6 +1005,12 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                       {experienceLevels.map(l => <option key={l} value={l}>{l}</option>)}
                     </select>
                   </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Current Industry</label>
+                    <input type="text" placeholder="e.g. Banking, FinTech, Insurance, Payments, Crypto" value={profile.currentIndustry}
+                      onChange={e => setProfile({ ...profile, currentIndustry: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]" />
+                  </div>
                 </div>
               </div>
 
@@ -1127,6 +1139,17 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
                         <button key={p} onClick={() => setProfile({ ...profile, workPreference: p })}
                           className={`flex-1 py-2.5 text-xs font-semibold rounded-lg border transition-all ${profile.workPreference === p ? 'bg-[#0A0A0A] border-[#0A0A0A] text-white' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
                           {p}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Employment Type</label>
+                    <div className="flex flex-wrap gap-2">
+                      {['Permanent', 'Contract', 'Interim', 'Advisory', 'Freelance'].map(t => (
+                        <button key={t} onClick={() => setProfile({ ...profile, employmentType: profile.employmentType === t ? '' : t })}
+                          className={`px-4 py-2.5 text-xs font-semibold rounded-lg border transition-all ${profile.employmentType === t ? 'bg-[#0A0A0A] border-[#0A0A0A] text-white' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                          {t}
                         </button>
                       ))}
                     </div>
