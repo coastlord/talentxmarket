@@ -3,7 +3,7 @@
 //  Run: node outreach/send-outreach-uae.mjs
 // ─────────────────────────────────────────────────────────────
 
-const RESEND_API_KEY = 're_ixL4pUV3_K9secyMqcJRYVYzi4WPUPBR3';
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
 const FROM     = 'Sulaiman | TalentX Market <sulaiman@talentxmarket.com>';
 const REPLY_TO = 'sulaiman@talentxmarket.com';
