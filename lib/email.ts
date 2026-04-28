@@ -177,10 +177,12 @@ export async function sendCandidateApprovedEmail({
   candidateEmail,
   candidateName,
   jobTitle,
+  candidateId,
 }: {
   candidateEmail: string;
   candidateName: string;
   jobTitle: string;
+  candidateId?: string;
 }): Promise<void> {
   const firstName = candidateName?.split(' ')[0] || 'there';
 
@@ -237,6 +239,27 @@ export async function sendCandidateApprovedEmail({
        style="display:inline-block;background:#C9A84C;color:#0A0A0A;font-size:14px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:12px;letter-spacing:0.2px;">
       View Your Dashboard →
     </a>
+
+    ${candidateId ? `
+    <!-- Share on LinkedIn -->
+    <div style="margin:28px 0 0;background:#F8F8F8;border:1px solid #EDEDED;border-radius:14px;padding:20px 24px;">
+      <p style="font-size:10px;font-weight:700;color:#C9A84C;text-transform:uppercase;letter-spacing:2px;margin:0 0 8px;">🔗 Share Your Profile</p>
+      <p style="font-size:13px;font-weight:700;color:#0A0A0A;margin:0 0 6px;">Your shareable profile link</p>
+      <p style="font-size:12px;color:#666;margin:0 0 12px;line-height:1.6;">Post this on LinkedIn to let employers and your network find you directly on TalentX Market.</p>
+      <a href="https://talentxmarket.com/talent/${candidateId}"
+         style="display:inline-block;background:#0A0A0A;color:#C9A84C;font-size:12px;font-weight:700;text-decoration:none;padding:10px 20px;border-radius:10px;margin:0 0 14px;word-break:break-all;">
+        talentxmarket.com/talent/${candidateId}
+      </a>
+      <p style="font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin:0 0 8px;">Suggested LinkedIn post</p>
+      <div style="background:#fff;border:1px solid #E5E5E5;border-radius:10px;padding:14px 16px;">
+        <p style="font-size:12px;color:#333;margin:0;line-height:1.8;font-style:italic;">
+          "I&apos;m now listed on TalentX Market — a verified platform connecting compliance professionals with employers in AML, MLRO, KYC, Financial Crime and Risk Management.<br><br>
+          If you&apos;re a compliance employer or hiring manager looking for experienced talent, you can view my profile here 👉 https://talentxmarket.com/talent/${candidateId}<br><br>
+          #Compliance #AML #MLRO #FinancialCrime #OpenToWork #TalentXMarket"
+        </p>
+      </div>
+    </div>
+    ` : ''}
 
     <p style="color:#AAA;font-size:12px;margin:20px 0 0;line-height:1.6;">
       Keep your profile up to date — a complete profile gets significantly more attention from employers.

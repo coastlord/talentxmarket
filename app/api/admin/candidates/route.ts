@@ -92,6 +92,7 @@ export async function PATCH(req: NextRequest) {
         candidateEmail: data.email        || '',
         candidateName:  data.full_name    || '',
         jobTitle:       data.job_title    || '',
+        candidateId:    data.id           || '',
       }).catch(err => console.error('[email] candidate approved email failed:', err));
     }
 

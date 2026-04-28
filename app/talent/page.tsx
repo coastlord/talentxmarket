@@ -305,16 +305,28 @@ function ProfessionalCard({ pro, onUnlock }: { pro: Professional; onUnlock: (pro
         </div>
       </div>
 
-      {/* ── UNLOCK BUTTON ── */}
-      <button
-        onClick={() => onUnlock(pro)}
-        className="mt-auto w-full flex items-center justify-center gap-2 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold py-3 rounded-xl transition-all duration-200 group-hover:bg-brand-gold group-hover:text-brand-black"
-      >
-        <span className="text-brand-gold group-hover:text-brand-black transition-colors duration-200">
-          <UnlockIcon />
-        </span>
-        Unlock Profile
-      </button>
+      {/* ── BUTTONS ROW ── */}
+      <div className="mt-auto flex flex-col gap-2">
+        <button
+          onClick={() => onUnlock(pro)}
+          className="w-full flex items-center justify-center gap-2 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold py-3 rounded-xl transition-all duration-200 group-hover:bg-brand-gold group-hover:text-brand-black"
+        >
+          <span className="text-brand-gold group-hover:text-brand-black transition-colors duration-200">
+            <UnlockIcon />
+          </span>
+          Unlock Profile
+        </button>
+        <Link
+          href={`/talent/${pro.id}`}
+          className="w-full flex items-center justify-center gap-1.5 border border-gray-200 text-gray-500 hover:border-brand-black hover:text-brand-black text-xs font-semibold py-2 rounded-xl transition-all duration-200"
+          onClick={(e) => e.stopPropagation()}
+        >
+          View Public Profile
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </Link>
+      </div>
 
     </div>
   );
