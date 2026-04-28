@@ -456,76 +456,49 @@ export default function DashboardClient({ firstName, lastName, email, imageUrl }
               </div>
             )}
 
-            {/* ── LinkedIn Share Banner — approved candidates only ── */}
+            {/* ── Share Profile Strip — approved candidates only ── */}
             {candidateStatus === 'approved' && candidateId && (
-              <div className="bg-white border border-[#C9A84C]/30 rounded-2xl p-5 mb-5">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#C9A84C]/10 border border-[#C9A84C]/30 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-[#C9A84C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-[#0A0A0A] mb-0.5">Share your profile — get found faster</p>
-                    <p className="text-xs text-gray-500 leading-relaxed">
-                      Post your profile link on LinkedIn to let employers and your network find you directly. Every share puts TalentX in front of more hiring managers.
-                    </p>
-                  </div>
+              <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-5 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[#C9A84C]/10 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-[#C9A84C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
                 </div>
-
-                {/* Profile URL */}
-                <div className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 mb-3 flex items-center justify-between gap-3">
-                  <span className="text-xs font-mono text-gray-600 truncate">
-                    talentxmarket.com/talent/{candidateId}
-                  </span>
-                  <a
-                    href={`https://talentxmarket.com/talent/${candidateId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-shrink-0 text-[10px] font-bold text-[#C9A84C] hover:underline"
-                  >
-                    View →
-                  </a>
-                </div>
-
-                {/* Pre-written LinkedIn post */}
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Copy & paste to LinkedIn</p>
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 mb-3 relative">
-                  <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-line pr-6">
-                    {`I'm now listed on TalentX Market — a verified platform connecting compliance professionals with employers in AML, MLRO, KYC, Financial Crime and Risk Management.
-
-If you're a compliance employer or hiring manager looking for experienced talent, you can view my profile here 👉 https://talentxmarket.com/talent/${candidateId}
-
-#Compliance #AML #MLRO #FinancialCrime #OpenToWork #TalentXMarket`}
-                  </p>
-                </div>
-
+                <span className="text-xs font-semibold text-gray-700 flex-1 min-w-0">Share your profile</span>
                 <button
                   onClick={() => {
                     const post = `I'm now listed on TalentX Market — a verified platform connecting compliance professionals with employers in AML, MLRO, KYC, Financial Crime and Risk Management.\n\nIf you're a compliance employer or hiring manager looking for experienced talent, you can view my profile here 👉 https://talentxmarket.com/talent/${candidateId}\n\n#Compliance #AML #MLRO #FinancialCrime #OpenToWork #TalentXMarket`;
                     navigator.clipboard.writeText(post).then(() => {
                       setLinkedInCopied(true);
-                      setTimeout(() => setLinkedInCopied(false), 3000);
+                      setTimeout(() => setLinkedInCopied(false), 2500);
                     });
                   }}
-                  className="w-full flex items-center justify-center gap-2 bg-[#0A0A0A] hover:bg-[#C9A84C] text-white hover:text-[#0A0A0A] text-xs font-bold py-2.5 rounded-xl transition-all duration-200"
+                  className="flex-shrink-0 flex items-center gap-1.5 bg-[#0A0A0A] hover:bg-[#C9A84C] text-white hover:text-[#0A0A0A] text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all duration-200"
                 >
                   {linkedInCopied ? (
                     <>
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                       </svg>
-                      Copied to clipboard!
+                      Copied
                     </>
                   ) : (
                     <>
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                       </svg>
-                      Copy LinkedIn Post
+                      Copy post
                     </>
                   )}
                 </button>
+                <a
+                  href={`https://talentxmarket.com/talent/${candidateId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 text-[11px] font-bold text-[#C9A84C] hover:underline"
+                >
+                  View →
+                </a>
               </div>
             )}
 
