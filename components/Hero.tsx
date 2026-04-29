@@ -49,7 +49,7 @@ export default function Hero() {
         <div className="mt-8 md:mt-10 flex items-center gap-4 md:gap-6 justify-center flex-wrap">
           {[
             { icon: '✔', text: 'Pre-vetted professionals' },
-            { icon: '🎯', text: 'No agency fees' },
+            { icon: '🎯', text: 'Direct connection' },
           ].map(item => (
             <div key={item.text} className="flex items-center gap-1.5 text-white/70 text-xs md:text-sm">
               <span>{item.icon}</span>
