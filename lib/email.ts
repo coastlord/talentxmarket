@@ -215,7 +215,7 @@ export async function sendCandidateApprovedEmail({
       <table style="width:100%;border-collapse:collapse;">
         ${[
           ['Employers browse your profile', 'Your card is visible to compliance employers searching TalentX Market.'],
-          ['They unlock your contact details', 'When an employer wants to reach you, they pay to unlock your full profile.'],
+          ['They unlock your contact details', 'When an employer wants to reach you, they unlock your details with a verified company email account.'],
           ['You hear from them directly', 'They will contact you via the email and phone on your profile.'],
         ].map(([title, desc], i) => `
         <tr>
@@ -250,14 +250,7 @@ export async function sendCandidateApprovedEmail({
          style="display:inline-block;background:#0A0A0A;color:#C9A84C;font-size:12px;font-weight:700;text-decoration:none;padding:10px 20px;border-radius:10px;margin:0 0 14px;word-break:break-all;">
         talentxmarket.com/talent/${candidateId}
       </a>
-      <p style="font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin:0 0 8px;">Suggested LinkedIn post</p>
-      <div style="background:#fff;border:1px solid #E5E5E5;border-radius:10px;padding:14px 16px;">
-        <p style="font-size:12px;color:#333;margin:0;line-height:1.8;font-style:italic;">
-          "I&apos;m now listed on TalentX Market — a verified platform connecting compliance professionals with employers in AML, MLRO, KYC, Financial Crime and Risk Management.<br><br>
-          If you&apos;re a compliance employer or hiring manager looking for experienced talent, you can view my profile here 👉 https://talentxmarket.com/talent/${candidateId}<br><br>
-          #Compliance #AML #MLRO #FinancialCrime #OpenToWork #TalentXMarket"
-        </p>
-      </div>
+      <p style="font-size:12px;color:#666;margin:0;line-height:1.6;">Share your profile with your professional network.</p>
     </div>
     ` : ''}
 
