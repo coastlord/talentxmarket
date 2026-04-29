@@ -1680,15 +1680,9 @@ export default function TalentPage() {
 
             {/* Get Matched CTA strip */}
             <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
-              <a
-                href="/#hiring"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-brand-gold text-brand-black font-bold rounded-xl hover:bg-brand-gold/90 transition-all duration-200 text-sm shadow-lg shadow-brand-gold/20 hover:-translate-y-0.5"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Get Matched in 48 Hours
-              </a>
+              <div className="inline-flex items-center gap-2 px-6 py-3 bg-brand-gold text-brand-black font-bold rounded-xl text-sm shadow-lg shadow-brand-gold/20">
+                Hire the perfect candidate in 48 hours, No time wasting.
+              </div>
               <p className="text-white/40 text-sm">
                 Prefer not to browse? Tell us your role and we&apos;ll send you 2–3 vetted candidates.
               </p>
