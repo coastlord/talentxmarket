@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'Vetting Process | TalentX Market',
@@ -58,8 +59,22 @@ export default function VettingPage() {
   return (
     <main className="min-h-screen bg-white">
 
-      {/* Nav spacer */}
-      <div className="h-20 bg-brand-black" />
+      {/* Logo header */}
+      <header className="bg-brand-black border-b border-white/8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+          <Link href="/" className="inline-flex items-center shrink-0">
+            <Image
+              src="/tx-icon-gold.png"
+              alt="TalentX Market"
+              width={501}
+              height={302}
+              className="w-auto object-contain"
+              style={{ height: '50px' }}
+              priority
+            />
+          </Link>
+        </div>
+      </header>
 
       {/* Hero */}
       <section className="bg-brand-black pt-16 pb-20 px-6">
