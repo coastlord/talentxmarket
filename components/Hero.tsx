@@ -17,7 +17,7 @@ export default function Hero() {
         <div className="inline-flex items-center gap-2 bg-brand-gold/10 border border-brand-gold/30 rounded-full px-4 py-2 mb-6 md:mb-8">
           <span className="w-2 h-2 rounded-full bg-brand-gold animate-pulse" />
           <span className="text-brand-gold text-xs sm:text-sm font-medium">
-            Pre-vetted Compliance Talent · Introductions in 48 Hours
+            Verified Compliance &amp; Risk Professionals Only
           </span>
         </div>
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight">
