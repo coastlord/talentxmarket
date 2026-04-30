@@ -1588,6 +1588,9 @@ export default function TalentPage() {
   const [specialism, setSpecialism] = useState('All');
   const [experience, setExperience] = useState('All');
   const [unlockPro, setUnlockPro] = useState<Professional | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const CARDS_PER_PAGE = 12;
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch('/api/talent')
@@ -1637,6 +1640,34 @@ export default function TalentPage() {
     }
     return true;
   }), [professionals, empType, industry, availability, specialism, experience, search]);
+
+  // Reset to page 1 whenever any filter changes
+  useEffect(() => { setCurrentPage(1); }, [empType, industry, search, availability, specialism, experience]);
+
+  const totalPages = Math.ceil(filtered.length / CARDS_PER_PAGE);
+  const paginated = filtered.slice((currentPage - 1) * CARDS_PER_PAGE, currentPage * CARDS_PER_PAGE);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of grid smoothly
+    if (gridRef.current) {
+      const top = gridRef.current.getBoundingClientRect().top + window.scrollY - 100;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  };
+
+  // Build page number array with ellipsis: [1, '…', 4, 5, 6, '…', 10]
+  const getPageNumbers = (): (number | '…')[] => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | '…')[] = [1];
+    if (currentPage > 3) pages.push('…');
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      pages.push(i);
+    }
+    if (currentPage < totalPages - 2) pages.push('…');
+    pages.push(totalPages);
+    return pages;
+  };
 
   const clearFilters = () => {
     setEmpType('All');
@@ -1828,11 +1859,13 @@ export default function TalentPage() {
         </div>
 
         {/* ── Grid ── */}
-        <div className="max-w-7xl mx-auto px-4 py-12">
+        <div ref={gridRef} className="max-w-7xl mx-auto px-4 py-12">
           <p className="text-brand-gray text-sm mb-6">
             {loading
               ? 'Loading professionals...'
-              : `Showing ${filtered.length} ${filtered.length === 1 ? 'professional' : 'professionals'}`}
+              : filtered.length === 0
+              ? 'No professionals match your filters.'
+              : `Showing ${(currentPage - 1) * CARDS_PER_PAGE + 1}–${Math.min(currentPage * CARDS_PER_PAGE, filtered.length)} of ${filtered.length} ${filtered.length === 1 ? 'professional' : 'professionals'}`}
           </p>
 
           {loading ? (
@@ -1847,11 +1880,90 @@ export default function TalentPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {filtered.map((pro) => (
-                <ProfessionalCard key={pro.id} pro={pro} onUnlock={setUnlockPro} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {paginated.map((pro) => (
+                  <ProfessionalCard key={pro.id} pro={pro} onUnlock={setUnlockPro} />
+                ))}
+              </div>
+
+              {/* ── Pagination ── */}
+              {totalPages > 1 && (
+                <div className="mt-12 flex flex-col items-center gap-4">
+
+                  {/* Mobile: Prev / Page X of Y / Next */}
+                  <div className="flex sm:hidden items-center gap-3 w-full justify-between">
+                    <button
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-brand-black disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-gold hover:text-brand-gold transition-colors"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                      Prev
+                    </button>
+                    <span className="text-sm font-medium text-brand-black">
+                      Page <span className="text-brand-gold font-bold">{currentPage}</span> of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-brand-black disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-gold hover:text-brand-gold transition-colors"
+                    >
+                      Next
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                  </div>
+
+                  {/* Desktop: numbered buttons with ellipsis */}
+                  <div className="hidden sm:flex items-center gap-2">
+                    {/* Prev arrow */}
+                    <button
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      aria-label="Previous page"
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-brand-black disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-gold hover:text-brand-gold transition-colors"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+
+                    {/* Page numbers */}
+                    {getPageNumbers().map((p, i) =>
+                      p === '…' ? (
+                        <span key={`ellipsis-${i}`} className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm select-none">…</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => goToPage(p as number)}
+                          className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-semibold transition-colors ${
+                            currentPage === p
+                              ? 'bg-brand-black text-brand-gold border border-brand-black'
+                              : 'border border-gray-200 text-brand-black hover:border-brand-gold hover:text-brand-gold'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+
+                    {/* Next arrow */}
+                    <button
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      aria-label="Next page"
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-brand-black disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-gold hover:text-brand-gold transition-colors"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                  </div>
+
+                  {/* Total count below on desktop */}
+                  <p className="hidden sm:block text-xs text-gray-400">
+                    {filtered.length} professionals · {totalPages} pages
+                  </p>
+
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -1875,6 +1987,7 @@ export default function TalentPage() {
 
       </main>
       <Footer />
+
 
       {/* ── Unlock Modal ── */}
       {unlockPro && (
