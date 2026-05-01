@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
     const { data: allRows, error: empErr } = await supabaseAdmin
       .from('employers')
-      .select('id, email, company_name, contact_name, unlock_credits, subscription_status, created_at, pref_role, pref_specialism, pref_employment_type, pref_work_preference, pref_experience')
+      .select('id, email, company_name, contact_name, unlock_credits, subscription_status, created_at, pref_role, pref_specialism, pref_employment_type, pref_work_preference, pref_experience, pref_location')
       .eq('email', email)
       .order('created_at', { ascending: false });
 
@@ -125,7 +125,7 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, prefRole, prefSpecialism, prefEmploymentType, prefWorkPreference, prefExperience } = body;
+    const { email, prefRole, prefSpecialism, prefEmploymentType, prefWorkPreference, prefExperience, prefLocation } = body;
 
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
 
@@ -148,6 +148,7 @@ export async function PATCH(req: NextRequest) {
         pref_employment_type: prefEmploymentType  || null,
         pref_work_preference: prefWorkPreference  || null,
         pref_experience:      prefExperience      || null,
+        pref_location:        prefLocation        || null,
       })
       .eq('id', rows[0].id);
 
@@ -171,7 +172,7 @@ function formatEmployer(
     unlock_credits: number | null; subscription_status: string | null;
     pref_role?: string | null; pref_specialism?: string | null;
     pref_employment_type?: string | null; pref_work_preference?: string | null;
-    pref_experience?: string | null;
+    pref_experience?: string | null; pref_location?: string | null;
   },
   isAdmin: boolean
 ) {
@@ -187,5 +188,12 @@ function formatEmployer(
     prefEmploymentType:  e.pref_employment_type || '',
     prefWorkPreference:  e.pref_work_preference || '',
     prefExperience:      e.pref_experience      || '',
+    prefLocation:        e.pref_location        || '',
   };
 }
+    prefWorkPreference:  e.pref_work_preference || '',
+    prefExperience:      e.pref_experience      || '',
+    prefLocation:        e.pref_location        || '',
+  };
+}
+EOF

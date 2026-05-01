@@ -13,7 +13,7 @@ const SPECIALISM_OPTIONS = ['Any', 'AML', 'KYC', 'Sanctions', 'Financial Crime',
 const EMP_TYPE_OPTIONS   = ['Any', 'Contract', 'Permanent'];
 const WORK_PREF_OPTIONS  = ['Any', 'Remote', 'Hybrid', 'On-site'];
 const EXPERIENCE_OPTIONS = ['Any', '0\u20133 years', '3\u20135 years', '5\u201310 years', '10+ years'];
-const EMPTY_PREFS        = { role: '', specialism: 'Any', employmentType: 'Any', workPreference: 'Any', experience: 'Any' };
+const EMPTY_PREFS        = { role: '', specialism: 'Any', employmentType: 'Any', workPreference: 'Any', experience: 'Any', location: '' };
 
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -58,6 +58,7 @@ interface Employer {
   prefEmploymentType: string;
   prefWorkPreference: string;
   prefExperience: string;
+  prefLocation: string;
 }
 
 interface EmployerPreferences {
@@ -66,6 +67,7 @@ interface EmployerPreferences {
   employmentType: string;
   workPreference: string;
   experience: string;
+  location: string;
 }
 
 interface MatchCandidate {
@@ -663,14 +665,14 @@ function PreferencesCard({ prefs, email, onSaved }: { prefs: EmployerPreferences
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState('');
   const hasPrefs = prefs.specialism !== 'Any' || prefs.employmentType !== 'Any' ||
-    prefs.workPreference !== 'Any' || prefs.experience !== 'Any' || !!prefs.role;
+    prefs.workPreference !== 'Any' || prefs.experience !== 'Any' || !!prefs.role || !!prefs.location;
 
   const handleSave = async () => {
     setSaving(true); setError('');
     try {
       const res = await fetch('/api/employers', {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, prefRole: form.role, prefSpecialism: form.specialism, prefEmploymentType: form.employmentType, prefWorkPreference: form.workPreference, prefExperience: form.experience }),
+        body: JSON.stringify({ email, prefRole: form.role, prefSpecialism: form.specialism, prefEmploymentType: form.employmentType, prefWorkPreference: form.workPreference, prefExperience: form.experience, prefLocation: form.location }),
       });
       if (!res.ok) throw new Error('Save failed');
       onSaved(form); setEditing(false);
@@ -714,6 +716,7 @@ function PreferencesCard({ prefs, email, onSaved }: { prefs: EmployerPreferences
               {prefs.employmentType !== 'Any' && <span className="text-xs font-semibold bg-gray-50 text-brand-black border border-gray-100 px-3 py-1.5 rounded-full">{prefs.employmentType}</span>}
               {prefs.workPreference !== 'Any' && <span className="text-xs font-semibold bg-gray-50 text-brand-black border border-gray-100 px-3 py-1.5 rounded-full">{prefs.workPreference}</span>}
               {prefs.experience !== 'Any' && <span className="text-xs font-semibold bg-gray-50 text-brand-black border border-gray-100 px-3 py-1.5 rounded-full">{prefs.experience}</span>}
+              {prefs.location && <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-gray-50 text-brand-black border border-gray-100 px-3 py-1.5 rounded-full"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>{prefs.location}</span>}
             </div>
           ) : (
             <p className="text-sm text-gray-400 leading-relaxed">Tell us who you&apos;re looking for — specialism, contract type, experience — and we&apos;ll surface your best matches automatically every time you log in.</p>
@@ -754,6 +757,12 @@ function PreferencesCard({ prefs, email, onSaved }: { prefs: EmployerPreferences
               </select>
             </div>
           </div>
+          <div>
+            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Location (city &amp; country)</label>
+            <input type="text" placeholder="e.g. London, UK · Dubai, UAE · Remote / Global…"
+              value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
+              className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30 text-brand-black font-medium" />
+          </div>
           {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
           <div className="flex items-center gap-2 pt-1">
             <button onClick={handleSave} disabled={saving}
@@ -773,7 +782,7 @@ function MatchedSection({ prefs, unlockedIds }: { prefs: EmployerPreferences; un
   const [candidates, setCandidates] = useState<MatchCandidate[]>([]);
   const [loading, setLoading]       = useState(true);
   const hasPrefs = prefs.specialism !== 'Any' || prefs.employmentType !== 'Any' ||
-    prefs.workPreference !== 'Any' || prefs.experience !== 'Any' || !!prefs.role;
+    prefs.workPreference !== 'Any' || prefs.experience !== 'Any' || !!prefs.role || !!prefs.location;
 
   useEffect(() => {
     setLoading(true);
@@ -857,8 +866,8 @@ function MatchedSection({ prefs, unlockedIds }: { prefs: EmployerPreferences; un
                       Already Unlocked
                     </div>
                   ) : (
-                    <Link href="/talent" className="w-full flex items-center justify-center gap-2 py-2.5 bg-brand-gold hover:bg-brand-gold/90 text-brand-black text-xs font-bold rounded-xl transition-colors">
-                      Unlock Profile →
+                    <Link href={`/talent/${c.id}`} className="w-full flex items-center justify-center gap-2 py-2.5 bg-brand-gold hover:bg-brand-gold/90 text-brand-black text-xs font-bold rounded-xl transition-colors">
+                      View &amp; Unlock →
                     </Link>
                   )}
                 </div>
@@ -932,6 +941,7 @@ export default function EmployerDashboard() {
         employmentType: data.employer.prefEmploymentType  || 'Any',
         workPreference: data.employer.prefWorkPreference  || 'Any',
         experience:     data.employer.prefExperience      || 'Any',
+        location:       data.employer.prefLocation        || '',
       });
       // Persist session so /talent page can skip OTP for 30 min
       if (!data.employer.isAdmin) {
