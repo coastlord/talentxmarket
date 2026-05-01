@@ -9,6 +9,13 @@ import Footer from '@/components/Footer';
 // ─── Constants ────────────────────────────────────────────────────────────────
 const ADMIN_EMAILS = ['soa.tidjani@gmail.com'];
 
+const SPECIALISM_OPTIONS = ['Any', 'AML', 'KYC', 'Sanctions', 'Financial Crime', 'MLRO', 'Regulatory Compliance', 'Trust & Safety', 'Operational Risk', 'Risk Management'];
+const EMP_TYPE_OPTIONS   = ['Any', 'Contract', 'Permanent'];
+const WORK_PREF_OPTIONS  = ['Any', 'Remote', 'Hybrid', 'On-site'];
+const EXPERIENCE_OPTIONS = ['Any', '0\u20133 years', '3\u20135 years', '5\u201310 years', '10+ years'];
+const EMPTY_PREFS        = { role: '', specialism: 'Any', employmentType: 'Any', workPreference: 'Any', experience: 'Any' };
+
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Candidate {
   id: string;
@@ -46,7 +53,62 @@ interface Employer {
   contactName: string;
   creditsRemaining: number;
   isAdmin: boolean;
+  prefRole: string;
+  prefSpecialism: string;
+  prefEmploymentType: string;
+  prefWorkPreference: string;
+  prefExperience: string;
 }
+
+interface EmployerPreferences {
+  role: string;
+  specialism: string;
+  employmentType: string;
+  workPreference: string;
+  experience: string;
+}
+
+interface MatchCandidate {
+  id: string;
+  initials: string;
+  role: string;
+  location: string;
+  experience: string;
+  skills: string[];
+  availabilityStatus: string;
+  workPreference: string;
+  employmentType: string;
+  matchScore: number;
+}
+
+// ─── Scoring ─────────────────────────────────────────────────────────────────────────────────
+function scoreCandidate(c: MatchCandidate, p: EmployerPreferences): number {
+  let score = 0;
+  if (!p.specialism || p.specialism === 'Any') { score += 40; }
+  else {
+    const q = p.specialism.toLowerCase();
+    const skillHit = (c.skills || []).some((s) => s.toLowerCase().includes(q));
+    const roleHit  = (c.role  || '').toLowerCase().includes(q);
+    if (skillHit) score += 40; else if (roleHit) score += 20;
+  }
+  if (!p.employmentType || p.employmentType === 'Any') { score += 25; }
+  else if (c.employmentType === p.employmentType) { score += 25; }
+  if (!p.workPreference || p.workPreference === 'Any') { score += 20; }
+  else if (c.workPreference === p.workPreference) { score += 20; }
+  else if (p.workPreference === 'Hybrid' && c.workPreference === 'Remote') { score += 10; }
+  if (!p.experience || p.experience === 'Any') { score += 15; }
+  else {
+    const yrs = parseInt(c.experience || '0');
+    const ok =
+      (p.experience === '0\u20133 years'  && yrs <= 3) ||
+      (p.experience === '3\u20135 years'  && yrs >= 3  && yrs <= 5)  ||
+      (p.experience === '5\u201310 years' && yrs >= 5  && yrs <= 10) ||
+      (p.experience === '10+ years'  && yrs >= 10);
+    if (ok) score += 15;
+  }
+  return score;
+}
+
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 const MailIcon = ({ size = 14 }: { size?: number }) => (
@@ -593,6 +655,222 @@ function UnlockedCard({
   );
 }
 
+
+// ─── Preferences Card ─────────────────────────────────────────────────────────
+function PreferencesCard({ prefs, email, onSaved }: { prefs: EmployerPreferences; email: string; onSaved: (p: EmployerPreferences) => void; }) {
+  const [editing, setEditing] = useState(false);
+  const [form, setForm]       = useState<EmployerPreferences>(prefs);
+  const [saving, setSaving]   = useState(false);
+  const [error, setError]     = useState('');
+  const hasPrefs = prefs.specialism !== 'Any' || prefs.employmentType !== 'Any' ||
+    prefs.workPreference !== 'Any' || prefs.experience !== 'Any' || !!prefs.role;
+
+  const handleSave = async () => {
+    setSaving(true); setError('');
+    try {
+      const res = await fetch('/api/employers', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, prefRole: form.role, prefSpecialism: form.specialism, prefEmploymentType: form.employmentType, prefWorkPreference: form.workPreference, prefExperience: form.experience }),
+      });
+      if (!res.ok) throw new Error('Save failed');
+      onSaved(form); setEditing(false);
+    } catch { setError('Could not save preferences. Please try again.'); }
+    finally { setSaving(false); }
+  };
+  const handleCancel = () => { setForm(prefs); setEditing(false); setError(''); };
+  const sel = 'w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30 text-brand-black font-medium appearance-none cursor-pointer';
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden mb-6">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-brand-gold/10 flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-black text-brand-black leading-tight">Hiring Preferences</p>
+            <p className="text-[10px] text-gray-400 font-medium">{hasPrefs ? 'Used to surface your best matches below' : 'Set once — we find the right people for you'}</p>
+          </div>
+        </div>
+        {!editing && (
+          <button onClick={() => { setForm(prefs); setEditing(true); }}
+            className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-brand-gold transition-colors px-3 py-1.5 rounded-lg hover:bg-brand-gold/5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            {hasPrefs ? 'Edit' : 'Set Preferences'}
+          </button>
+        )}
+      </div>
+      {!editing && (
+        <div className="px-5 py-4">
+          {hasPrefs ? (
+            <div className="flex flex-wrap gap-2">
+              {prefs.role && <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand-gold/8 text-brand-gold border border-brand-gold/20 px-3 py-1.5 rounded-full">Role: {prefs.role}</span>}
+              {prefs.specialism !== 'Any' && <span className="text-xs font-semibold bg-gray-50 text-brand-black border border-gray-100 px-3 py-1.5 rounded-full">{prefs.specialism}</span>}
+              {prefs.employmentType !== 'Any' && <span className="text-xs font-semibold bg-gray-50 text-brand-black border border-gray-100 px-3 py-1.5 rounded-full">{prefs.employmentType}</span>}
+              {prefs.workPreference !== 'Any' && <span className="text-xs font-semibold bg-gray-50 text-brand-black border border-gray-100 px-3 py-1.5 rounded-full">{prefs.workPreference}</span>}
+              {prefs.experience !== 'Any' && <span className="text-xs font-semibold bg-gray-50 text-brand-black border border-gray-100 px-3 py-1.5 rounded-full">{prefs.experience}</span>}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400 leading-relaxed">Tell us who you&apos;re looking for — specialism, contract type, experience — and we&apos;ll surface your best matches automatically every time you log in.</p>
+          )}
+        </div>
+      )}
+      {editing && (
+        <div className="px-5 py-5 space-y-4">
+          <div>
+            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Role you&apos;re hiring for</label>
+            <input type="text" placeholder="e.g. MLRO, Head of Compliance, KYC Manager…"
+              value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
+              className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30 text-brand-black font-medium" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Specialism needed</label>
+              <select value={form.specialism} onChange={(e) => setForm({ ...form, specialism: e.target.value })} className={sel}>
+                {SPECIALISM_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Contract or permanent</label>
+              <select value={form.employmentType} onChange={(e) => setForm({ ...form, employmentType: e.target.value })} className={sel}>
+                {EMP_TYPE_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Work arrangement</label>
+              <select value={form.workPreference} onChange={(e) => setForm({ ...form, workPreference: e.target.value })} className={sel}>
+                {WORK_PREF_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Experience level</label>
+              <select value={form.experience} onChange={(e) => setForm({ ...form, experience: e.target.value })} className={sel}>
+                {EXPERIENCE_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+          </div>
+          {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
+          <div className="flex items-center gap-2 pt-1">
+            <button onClick={handleSave} disabled={saving}
+              className="flex items-center gap-2 px-5 py-2.5 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-xs font-bold rounded-xl transition-all duration-200 disabled:opacity-50">
+              {saving ? 'Saving…' : 'Save Preferences'}
+            </button>
+            <button onClick={handleCancel} className="px-4 py-2.5 text-xs font-semibold text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-50 transition-colors">Cancel</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Matched Candidates Section ───────────────────────────────────────────────
+function MatchedSection({ prefs, unlockedIds }: { prefs: EmployerPreferences; unlockedIds: Set<string>; }) {
+  const [candidates, setCandidates] = useState<MatchCandidate[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const hasPrefs = prefs.specialism !== 'Any' || prefs.employmentType !== 'Any' ||
+    prefs.workPreference !== 'Any' || prefs.experience !== 'Any' || !!prefs.role;
+
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/talent').then((r) => r.json()).then((data: MatchCandidate[]) => {
+      if (!Array.isArray(data)) { setLoading(false); return; }
+      const scored = data.map((c) => ({ ...c, matchScore: scoreCandidate(c, prefs) }))
+        .filter((c) => c.matchScore >= 30).sort((a, b) => b.matchScore - a.matchScore).slice(0, 6);
+      setCandidates(scored); setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [prefs]);
+
+  if (!hasPrefs) return null;
+
+  return (
+    <div className="mb-8">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-brand-gold animate-pulse" />
+          <h2 className="text-base font-black text-brand-black">Matched for You</h2>
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{loading ? '…' : `${candidates.length} matches`}</span>
+        </div>
+        <Link href="/talent" className="text-xs font-bold text-brand-gold hover:underline underline-offset-2">Browse all talent →</Link>
+      </div>
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-white border border-gray-100 rounded-2xl p-5 animate-pulse h-44" />)}
+        </div>
+      ) : candidates.length === 0 ? (
+        <div className="bg-white border border-gray-100 rounded-2xl px-6 py-8 text-center">
+          <p className="text-brand-black font-bold mb-1 text-sm">No close matches yet</p>
+          <p className="text-gray-400 text-xs leading-relaxed max-w-xs mx-auto">Try broadening your preferences, or browse the full talent pool.</p>
+          <Link href="/talent" className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-brand-gold hover:underline">Browse all professionals →</Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {candidates.map((c) => {
+            const isUnlocked = unlockedIds.has(c.id);
+            const pct = Math.round(c.matchScore);
+            const isAvailable = (c.availabilityStatus || '').toLowerCase().includes('available now');
+            return (
+              <div key={c.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col">
+                <div className="bg-brand-black px-4 py-3.5 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-brand-gold/20 border border-brand-gold/30 flex items-center justify-center flex-shrink-0">
+                      <span className="text-brand-gold font-black text-xs">{c.initials}</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-white font-bold text-xs leading-tight truncate">{c.role}</p>
+                      {c.location && <p className="text-white/40 text-[10px] truncate">{c.location}</p>}
+                    </div>
+                  </div>
+                  <div className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-black ${pct >= 80 ? 'bg-brand-gold text-brand-black' : pct >= 60 ? 'bg-brand-gold/20 text-brand-gold border border-brand-gold/30' : 'bg-white/10 text-white/60'}`}>
+                    {pct}%
+                  </div>
+                </div>
+                <div className="px-4 py-3 flex-1 space-y-2.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {isAvailable ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />Available Now
+                      </span>
+                    ) : c.availabilityStatus ? (
+                      <span className="text-[10px] font-semibold text-orange-600 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full">{c.availabilityStatus}</span>
+                    ) : null}
+                    {c.workPreference && <span className="text-[10px] text-gray-500 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-full font-medium">{c.workPreference}</span>}
+                    {c.experience && <span className="text-[10px] text-gray-500 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-full font-medium">{c.experience} yrs</span>}
+                  </div>
+                  {c.skills && c.skills.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {c.skills.slice(0, 3).map((s) => (
+                        <span key={s} className="text-[10px] font-semibold text-brand-gold bg-brand-gold/8 border border-brand-gold/15 px-2 py-0.5 rounded-full">{s}</span>
+                      ))}
+                      {c.skills.length > 3 && <span className="text-[10px] text-gray-400 px-1">+{c.skills.length - 3}</span>}
+                    </div>
+                  )}
+                </div>
+                <div className="px-4 pb-4">
+                  {isUnlocked ? (
+                    <div className="w-full flex items-center justify-center gap-2 py-2.5 bg-green-50 border border-green-200 text-green-700 text-xs font-bold rounded-xl">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      Already Unlocked
+                    </div>
+                  ) : (
+                    <Link href="/talent" className="w-full flex items-center justify-center gap-2 py-2.5 bg-brand-gold hover:bg-brand-gold/90 text-brand-black text-xs font-bold rounded-xl transition-colors">
+                      Unlock Profile →
+                    </Link>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function EmployerDashboard() {
   const { user, isLoaded: clerkLoaded } = useUser();
@@ -613,6 +891,7 @@ export default function EmployerDashboard() {
   const [unlocks, setUnlocks] = useState<Unlock[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [filter, setFilter] = useState<'all' | 'liked'>('all');
+  const [prefs,  setPrefs]  = useState<EmployerPreferences>(EMPTY_PREFS);
 
   // Prevent the admin auto-load effect from running more than once
   const adminInitialised = useRef(false);
@@ -646,6 +925,14 @@ export default function EmployerDashboard() {
       }
       setEmployer(data.employer);
       setUnlocks(data.unlocks || []);
+      // Extract saved preferences
+      setPrefs({
+        role:           data.employer.prefRole            || '',
+        specialism:     data.employer.prefSpecialism      || 'Any',
+        employmentType: data.employer.prefEmploymentType  || 'Any',
+        workPreference: data.employer.prefWorkPreference  || 'Any',
+        experience:     data.employer.prefExperience      || 'Any',
+      });
       // Persist session so /talent page can skip OTP for 30 min
       if (!data.employer.isAdmin) {
         try {
@@ -1072,6 +1359,19 @@ export default function EmployerDashboard() {
                 <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mt-1">Company</p>
               </div>
             </div>
+
+            {/* Hiring Preferences */}
+            <PreferencesCard
+              prefs={prefs}
+              email={submittedEmail}
+              onSaved={(p) => setPrefs(p)}
+            />
+
+            {/* Matched for You */}
+            <MatchedSection
+              prefs={prefs}
+              unlockedIds={new Set(unlocks.map((u) => u.candidate.id))}
+            />
 
             {/* Filter tabs */}
             <div className="flex flex-wrap items-center gap-2 mb-6">

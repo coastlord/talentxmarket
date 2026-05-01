@@ -4,20 +4,14 @@ import { supabaseAdmin } from '@/lib/supabase';
 export const dynamic = 'force-dynamic';
 
 // ─── GET /api/employers?email=work@company.com ────────────────────────────────
-// Returns employer record + all their unlocked candidate profiles.
-// Handles duplicate employer rows gracefully — aggregates unlocks across ALL
-// employer records for the same email so nothing is lost from earlier DB eras.
 export async function GET(req: NextRequest) {
   try {
     const email = req.nextUrl.searchParams.get('email')?.toLowerCase().trim();
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
 
-    // Fetch ALL employer records for this email (there may be duplicates from
-    // different code eras — don't limit to 1 or use maybeSingle which throws
-    // on multiple rows)
     const { data: allRows, error: empErr } = await supabaseAdmin
       .from('employers')
-      .select('id, email, company_name, contact_name, unlock_credits, subscription_status, created_at')
+      .select('id, email, company_name, contact_name, unlock_credits, subscription_status, created_at, pref_role, pref_specialism, pref_employment_type, pref_work_preference, pref_experience')
       .eq('email', email)
       .order('created_at', { ascending: false });
 
@@ -30,16 +24,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ employer: null, unlocks: [] });
     }
 
-    // Use the most-recent record as the canonical employer for display
     const employer = allRows[0];
     const isAdmin = allRows.some((r) => r.subscription_status === 'admin');
-
-    // Collect ALL employer IDs for this email so we don't miss unlocks that
-    // were written against an older employer row
     const allEmployerIds = allRows.map((r) => r.id);
 
-    // Fetch all unlock records across every employer ID for this email
-    // Note: employer_unlocks table has no created_at column — no order clause
     const { data: unlockRecords, error: unlockErr } = await supabaseAdmin
       .from('employer_unlocks')
       .select('id, candidate_id, liked, employer_id')
@@ -57,8 +45,6 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // De-duplicate: if the same candidate was unlocked multiple times across
-    // employer rows, keep only the most recent record per candidate
     const seen = new Set<string>();
     const deduped = unlockRecords.filter((u) => {
       if (seen.has(u.candidate_id)) return false;
@@ -66,7 +52,6 @@ export async function GET(req: NextRequest) {
       return true;
     });
 
-    // Fetch all candidate profiles in one query
     const candidateIds = deduped.map((u) => u.candidate_id);
     const { data: candidates, error: candErr } = await supabaseAdmin
       .from('candidates')
@@ -136,16 +121,71 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// ─── PATCH /api/employers — save hiring preferences ───────────────────────────
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { email, prefRole, prefSpecialism, prefEmploymentType, prefWorkPreference, prefExperience } = body;
+
+    if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
+
+    const { data: rows, error: fetchErr } = await supabaseAdmin
+      .from('employers')
+      .select('id')
+      .eq('email', email.toLowerCase().trim())
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (fetchErr || !rows || rows.length === 0) {
+      return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
+    }
+
+    const { error: updateErr } = await supabaseAdmin
+      .from('employers')
+      .update({
+        pref_role:            prefRole            || null,
+        pref_specialism:      prefSpecialism      || null,
+        pref_employment_type: prefEmploymentType  || null,
+        pref_work_preference: prefWorkPreference  || null,
+        pref_experience:      prefExperience      || null,
+      })
+      .eq('id', rows[0].id);
+
+    if (updateErr) {
+      console.error('Employers PATCH error:', updateErr);
+      return NextResponse.json({ error: updateErr.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : JSON.stringify(err);
+    console.error('Employers PATCH catch:', msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatEmployer(
-  e: { id: string; email: string; company_name: string | null; contact_name: string | null; unlock_credits: number | null; subscription_status: string | null },
+  e: {
+    id: string; email: string; company_name: string | null; contact_name: string | null;
+    unlock_credits: number | null; subscription_status: string | null;
+    pref_role?: string | null; pref_specialism?: string | null;
+    pref_employment_type?: string | null; pref_work_preference?: string | null;
+    pref_experience?: string | null;
+  },
   isAdmin: boolean
 ) {
   return {
-    id: e.id,
-    email: e.email,
-    companyName: e.company_name || '',
-    contactName: e.contact_name || '',
+    id:               e.id,
+    email:            e.email,
+    companyName:      e.company_name      || '',
+    contactName:      e.contact_name      || '',
     creditsRemaining: isAdmin ? 999 : (e.unlock_credits ?? 0),
     isAdmin,
+    prefRole:            e.pref_role            || '',
+    prefSpecialism:      e.pref_specialism      || '',
+    prefEmploymentType:  e.pref_employment_type || '',
+    prefWorkPreference:  e.pref_work_preference || '',
+    prefExperience:      e.pref_experience      || '',
   };
 }
