@@ -191,9 +191,3 @@ function formatEmployer(
     prefLocation:        e.pref_location        || '',
   };
 }
-    prefWorkPreference:  e.pref_work_preference || '',
-    prefExperience:      e.pref_experience      || '',
-    prefLocation:        e.pref_location        || '',
-  };
-}
-EOF
