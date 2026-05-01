@@ -1695,22 +1695,23 @@ export default function TalentPage() {
       <main className="bg-gray-50 min-h-screen">
 
         {/* ── Hero ── */}
-        <div className="bg-brand-black pt-20 pb-16 px-4">
+        <div className="bg-brand-black pt-14 pb-6 sm:pt-20 sm:pb-16 px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-brand-gold/10 text-brand-gold text-xs font-semibold px-3 py-1.5 rounded-full border border-brand-gold/20 mb-4">
+            <div className="inline-flex items-center gap-2 bg-brand-gold/10 text-brand-gold text-xs font-semibold px-3 py-1 sm:py-1.5 rounded-full border border-brand-gold/20 mb-3 sm:mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
               {loading ? 'Loading...' : `${professionals.length} Verified Professionals`}
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white mb-2 sm:mb-4 leading-tight">
               Browse Compliance
               <span className="block text-brand-gold">Talent</span>
             </h1>
-            <p className="text-white/60 max-w-xl leading-relaxed">
+            {/* Hidden on mobile — too heavy before cards */}
+            <p className="hidden sm:block text-white/60 max-w-xl leading-relaxed">
               Pre-screened compliance professionals — AML, MLRO, Risk, KYC, Trust & Safety — available now or open to offers. Unlock profiles to connect directly.
             </p>
 
-            {/* Get Matched CTA strip */}
-            <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
+            {/* Get Matched CTA strip — desktop only */}
+            <div className="hidden sm:flex mt-8 flex-col sm:flex-row items-center gap-4">
               <div className="inline-flex items-center gap-2 px-6 py-3 bg-brand-gold text-brand-black font-bold rounded-xl text-sm shadow-lg shadow-brand-gold/20">
                 Hire the perfect candidate in 48 hours, No time wasting.
               </div>
@@ -1721,8 +1722,8 @@ export default function TalentPage() {
           </div>
         </div>
 
-        {/* ── Info Banner ── */}
-        <div className="bg-brand-gold/10 border-b border-brand-gold/20 py-3 px-4">
+        {/* ── Info Banner — desktop only ── */}
+        <div className="hidden sm:block bg-brand-gold/10 border-b border-brand-gold/20 py-3 px-4">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-sm text-brand-dark">
               All profiles are verified and actively available. Subscribe to unlock full contact details, CV and LinkedIn.
