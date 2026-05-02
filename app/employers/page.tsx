@@ -9,6 +9,10 @@ import Footer from '@/components/Footer';
 // ─── Constants ────────────────────────────────────────────────────────────────
 const ADMIN_EMAILS = ['soa.tidjani@gmail.com'];
 
+// Preview bypass — typing this email skips OTP and resets the account to a
+// clean new-employer state so you can see exactly what a first-time employer sees.
+const PREVIEW_EMAILS = ['preview@talentxmarket.com'];
+
 const SPECIALISM_OPTIONS = ['Any', 'AML', 'KYC', 'Sanctions', 'Financial Crime', 'MLRO', 'Regulatory Compliance', 'Trust & Safety', 'Operational Risk', 'Risk Management'];
 const EMP_TYPE_OPTIONS   = ['Any', 'Contract', 'Permanent'];
 const WORK_PREF_OPTIONS  = ['Any', 'Remote', 'Hybrid', 'On-site'];
@@ -978,6 +982,23 @@ export default function EmployerDashboard() {
     }
   }, [fetchDashboard]);
 
+  // ── Preview bypass — resets account to fresh state, no OTP needed ────────
+  const ensurePreviewAndLoad = useCallback(async (previewEmail: string) => {
+    try {
+      const res = await fetch('/api/employers/ensure-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: previewEmail }),
+      });
+      if (!res.ok) { setNotFound(true); return; }
+      setStep('dashboard');
+      await fetchDashboard(previewEmail);
+    } catch (err) {
+      console.error('ensure-preview error:', err);
+      setNotFound(true);
+    }
+  }, [fetchDashboard]);
+
   // ── Auto-load for signed-in admin (bypasses OTP) ─────────────────────────
   useEffect(() => {
     if (!clerkLoaded) return;
@@ -1023,13 +1044,22 @@ export default function EmployerDashboard() {
     } catch { /* localStorage unavailable or bad JSON */ }
   }, [clerkLoaded, fetchDashboard]);
 
-  // ── Step 1: Submit email → send OTP ──────────────────────────────────────
+  // ── Step 1: Submit email → send OTP (or bypass for preview email) ────────
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = email.toLowerCase().trim();
     if (!trimmed) return;
     setOtpError('');
     setOtpLoading(true);
+
+    // Preview bypass — skip OTP entirely and reset to clean new-employer state
+    if (PREVIEW_EMAILS.includes(trimmed)) {
+      setSubmittedEmail(trimmed);
+      await ensurePreviewAndLoad(trimmed);
+      setOtpLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch('/api/employers/send-otp', {
         method: 'POST',
