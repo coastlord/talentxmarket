@@ -1710,9 +1710,6 @@ export default function TalentPage() {
               <div className="inline-flex items-center gap-2 px-6 py-3 bg-brand-gold text-brand-black font-bold rounded-xl text-sm shadow-lg shadow-brand-gold/20">
                 Hire the perfect candidate in 48 hours, No time wasting.
               </div>
-              <p className="text-white/40 text-sm">
-                Prefer not to browse? Tell us your role and we&apos;ll send you 2–3 vetted candidates.
-              </p>
             </div>
           </div>
         </div>
