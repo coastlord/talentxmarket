@@ -29,7 +29,7 @@ const steps = [
   {
     number: '03',
     title: 'Certification & Qualification Check',
-    body: 'Professional certifications are reviewed for validity and relevance. This includes CAMS, ICA Certificates and Diplomas, ACAMS, CFE, and jurisdiction-specific regulatory qualifications. Unverified or unsupported claims are flagged and queried.',
+    body: 'Professional certifications are reviewed for validity and relevance. This includes CAMS, ICA Certificates and Diplomas, ACAMS, CFE, and jurisdiction-specific regulatory qualifications. Unverified or unsupported claims are disqualified.',
     note: 'Candidates must evidence their qualifications — not simply list them.',
   },
   {
