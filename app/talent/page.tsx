@@ -1701,12 +1701,7 @@ export default function TalentPage() {
               <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
               {loading ? 'Loading...' : `${professionals.length} Verified Professionals`}
             </div>
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white mb-2 sm:mb-4 leading-tight">
-              Browse Compliance
-              <span className="block text-brand-gold">Talent</span>
-            </h1>
-            {/* Hidden on mobile — too heavy before cards */}
-            <p className="hidden sm:block text-white/60 max-w-xl leading-relaxed">
+            <p className="text-white/60 max-w-xl leading-relaxed">
               Pre-screened compliance professionals — AML, MLRO, Risk, KYC, Trust & Safety — available now or open to offers. Unlock profiles to connect directly.
             </p>
 

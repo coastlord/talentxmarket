@@ -60,7 +60,7 @@ export default function Navbar() {
             </a>
             <Link href="/talent" className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              Browse Talent
+              Browse Professionals
             </Link>
           </div>
 
@@ -148,7 +148,7 @@ export default function Navbar() {
               <a href="/#about" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>About</a>
               <Link href="/talent" className="flex items-center gap-1.5 text-brand-gold text-sm font-medium py-1.5" onClick={() => setMenuOpen(false)}>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                Browse Talent
+                Browse Professionals
               </Link>
               <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
                 <Link href="/employers" className="text-center text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg py-2.5 hover:bg-brand-gold/10 hover:border-brand-gold transition-all" onClick={() => setMenuOpen(false)}>
