@@ -1644,16 +1644,18 @@ export default function TalentPage() {
   // Reset to page 1 whenever any filter changes
   useEffect(() => { setCurrentPage(1); }, [empType, industry, search, availability, specialism, experience]);
 
+  // Scroll to top after every page change (fires post-render, works reliably on mobile)
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
+
   const totalPages = Math.ceil(filtered.length / CARDS_PER_PAGE);
   const paginated = filtered.slice((currentPage - 1) * CARDS_PER_PAGE, currentPage * CARDS_PER_PAGE);
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    // Scroll to top of grid smoothly
-    if (gridRef.current) {
-      const top = gridRef.current.getBoundingClientRect().top + window.scrollY - 100;
-      window.scrollTo({ top, behavior: 'smooth' });
-    }
   };
 
   // Build page number array with ellipsis: [1, '…', 4, 5, 6, '…', 10]
