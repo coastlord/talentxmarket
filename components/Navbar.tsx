@@ -103,8 +103,8 @@ export default function Navbar() {
                 </UserButton>
               </>
             ) : (
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/30 pr-0.5">
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/55">
                   For Professionals
                 </span>
                 <div className="flex items-center border border-white/10 rounded-lg overflow-hidden">
@@ -165,7 +165,7 @@ export default function Navbar() {
                   </Link>
                 ) : (
                   <div className="flex flex-col gap-1">
-                    <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/30 text-center">
+                    <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/55 text-center">
                       For Professionals
                     </span>
                     <div className="flex border border-white/10 rounded-lg overflow-hidden">
