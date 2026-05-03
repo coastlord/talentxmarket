@@ -103,20 +103,25 @@ export default function Navbar() {
                 </UserButton>
               </>
             ) : (
-              <>
-                <Link
-                  href="/sign-in"
-                  className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors duration-200"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/sign-up"
-                  className="px-4 py-2 text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg hover:bg-brand-gold/10 hover:border-brand-gold transition-all duration-200"
-                >
-                  Sign Up
-                </Link>
-              </>
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/30 pr-0.5">
+                  For Professionals
+                </span>
+                <div className="flex items-center border border-white/10 rounded-lg overflow-hidden">
+                  <Link
+                    href="/sign-in"
+                    className="px-4 py-1.5 text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all duration-200 border-r border-white/10"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/sign-up"
+                    className="px-4 py-1.5 text-sm font-semibold text-brand-gold hover:bg-brand-gold/10 transition-all duration-200"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
 
@@ -159,14 +164,27 @@ export default function Navbar() {
                     My Dashboard
                   </Link>
                 ) : (
-                  <>
-                    <Link href="/sign-in" className="text-center text-sm font-medium text-white/70 hover:text-white py-2.5 border border-white/20 rounded-lg hover:border-white/40 transition-all" onClick={() => setMenuOpen(false)}>
-                      Sign In
-                    </Link>
-                    <Link href="/sign-up" className="text-center text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg py-2.5 hover:bg-brand-gold/10 hover:border-brand-gold transition-all" onClick={() => setMenuOpen(false)}>
-                      Sign Up
-                    </Link>
-                  </>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/30 text-center">
+                      For Professionals
+                    </span>
+                    <div className="flex border border-white/10 rounded-lg overflow-hidden">
+                      <Link
+                        href="/sign-in"
+                        className="flex-1 text-center text-sm font-medium text-white/60 hover:text-white py-2.5 border-r border-white/10 hover:bg-white/5 transition-all"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Sign In
+                      </Link>
+                      <Link
+                        href="/sign-up"
+                        className="flex-1 text-center text-sm font-semibold text-brand-gold hover:bg-brand-gold/10 py-2.5 transition-all"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
