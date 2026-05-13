@@ -6,6 +6,7 @@ const professionalSteps = [
   {
     step: '01',
     title: 'Create Your Profile',
+    mobileDescription: 'Tell us about your compliance specialism.',
     description:
       'Tell us about your compliance specialism — AML, Risk, MLRO, Trust & Safety and more. Highlight your qualifications, experience, and the roles you\'re open to.',
     icon: (
@@ -17,6 +18,7 @@ const professionalSteps = [
   {
     step: '02',
     title: 'Post Your Availability',
+    mobileDescription: 'Set your status to Open to Work and share your role preferences.',
     description:
       'Set your status to "Open to Work" and let employers know your preferred role type — contract, permanent, interim — and your location preferences.',
     icon: (
@@ -28,6 +30,7 @@ const professionalSteps = [
   {
     step: '03',
     title: 'Get Matched & Hired',
+    mobileDescription: 'Employers find you directly and reach out with opportunities.',
     description:
       'Employers find you directly. Receive enquiries from verified compliance-hiring organisations and move forward with the right opportunity on your terms.',
     icon: (
@@ -42,6 +45,7 @@ const employerSteps = [
   {
     step: '01',
     title: 'Browse Verified Talent',
+    mobileDescription: 'Explore a curated pool of verified compliance professionals.',
     description:
       'Explore a curated pool of compliance professionals — AML, MLRO, Risk, KYC, Trust & Safety and more. Filter by specialism, experience level, location, and availability status.',
     icon: (
@@ -53,6 +57,7 @@ const employerSteps = [
   {
     step: '02',
     title: 'Unlock the Full Profile',
+    mobileDescription: "Access the candidate's full details — contact, CV, and LinkedIn.",
     description:
       'Found the right fit? Request access to the candidate\'s complete details — full name, contact information, CV, and LinkedIn — directly through TalentX with no agency gatekeeping.',
     icon: (
@@ -64,6 +69,7 @@ const employerSteps = [
   {
     step: '03',
     title: 'Interview & Hire Directly',
+    mobileDescription: 'Connect directly. No recruiters, no inflated fees, no delays.',
     description:
       'Connect with your chosen candidate on your terms. No recruiters, no inflated fees, no delays. Build your compliance team with specialists who are genuinely ready to move.',
     icon: (
@@ -79,24 +85,25 @@ export default function HowItWorks() {
   const steps = activeTab === 'professional' ? professionalSteps : employerSteps;
 
   return (
-    <section id="how-it-works" className="py-24 bg-brand-off-white">
+    <section id="how-it-works" className="py-14 md:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="gold-line mx-auto mb-6" />
+        <div className="text-center mb-8 md:mb-16">
+          <div className="gold-line mx-auto mb-4 md:mb-6" />
           <h2 className="section-heading">How TalentX Works</h2>
-          <p className="section-subheading mx-auto text-center">
+          {/* Subheading hidden on mobile — too wordy */}
+          <p className="hidden md:block section-subheading mx-auto text-center">
             Whether you&apos;re a compliance professional ready for your next move, or an
             employer seeking specialist talent — TalentX makes the connection simple.
           </p>
         </div>
 
         {/* Tab Toggle */}
-        <div className="flex justify-center mb-14">
+        <div className="flex justify-center mb-8 md:mb-14">
           <div className="inline-flex bg-white border border-brand-light-gray rounded-xl p-1.5 shadow-sm">
             <button
               onClick={() => setActiveTab('professional')}
-              className={`px-8 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              className={`px-5 md:px-8 py-2.5 md:py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 activeTab === 'professional'
                   ? 'bg-brand-black text-white shadow-md'
                   : 'text-brand-gray hover:text-brand-dark'
@@ -106,7 +113,7 @@ export default function HowItWorks() {
             </button>
             <button
               onClick={() => setActiveTab('employer')}
-              className={`px-8 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              className={`px-5 md:px-8 py-2.5 md:py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 activeTab === 'employer'
                   ? 'bg-brand-gold text-brand-black shadow-md'
                   : 'text-brand-gray hover:text-brand-dark'
@@ -117,10 +124,30 @@ export default function HowItWorks() {
           </div>
         </div>
 
-        {/* Steps */}
-        <div className="grid md:grid-cols-3 gap-8 relative">
-          {/* Connector Line (desktop) */}
-          <div className="hidden md:block absolute top-12 left-1/6 right-1/6 h-px bg-gradient-to-r from-transparent via-brand-gold/30 to-transparent" />
+        {/* ── MOBILE: compact numbered steps ── */}
+        <div className="md:hidden space-y-3 mb-8">
+          {steps.map((step, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-4 bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4"
+            >
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0 ${
+                activeTab === 'professional' ? 'bg-brand-black text-white' : 'bg-brand-gold text-brand-black'
+              }`}>
+                {step.step}
+              </div>
+              <div>
+                <p className="text-sm font-bold text-brand-dark">{step.title}</p>
+                <p className="text-xs text-brand-gray mt-0.5 leading-relaxed">{step.mobileDescription}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── DESKTOP: full cards grid ── */}
+        <div className="hidden md:grid md:grid-cols-3 gap-8 relative">
+          {/* Connector Line (desktop only) */}
+          <div className="absolute top-12 left-1/6 right-1/6 h-px bg-gradient-to-r from-transparent via-brand-gold/30 to-transparent" />
 
           {steps.map((step, index) => (
             <div key={index} className="relative">
@@ -150,9 +177,9 @@ export default function HowItWorks() {
         </div>
 
         {/* CTA */}
-        <div className="text-center mt-14">
+        <div className="text-center mt-8 md:mt-14">
           {activeTab === 'professional' ? (
-            <a href="#open-to-work" className="btn-dark">
+            <a href="/sign-up" className="btn-dark">
               Post My Availability →
             </a>
           ) : (

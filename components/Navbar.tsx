@@ -3,12 +3,18 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth, UserButton } from '@clerk/nextjs';
+import { useAuth, useUser, UserButton } from '@clerk/nextjs';
+
+const ADMIN_EMAILS = ['soa.tidjani@gmail.com'];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
+  const isAdmin = ADMIN_EMAILS.includes(
+    (user?.primaryEmailAddress?.emailAddress ?? '').toLowerCase()
+  );
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -19,67 +25,58 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-brand-black ${
-        scrolled ? 'shadow-lg shadow-black/40' : 'border-b border-white/5'
+        scrolled ? 'shadow-lg shadow-black/40' : 'border-b border-white/8'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-28">
+        <div className="flex items-center justify-between py-2.5">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center group -ml-2">
+          <Link href="/" className="flex items-center shrink-0">
             <Image
-              src="/tx-icon-black.png"
+              src="/tx-icon-gold.png"
               alt="TalentX Market"
-              width={120}
-              height={120}
-              className="w-24 h-24 object-contain"
+              width={501}
+              height={302}
+              className="w-auto object-contain"
+              style={{ height: '50px' }}
               priority
             />
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <a
-              href="#how-it-works"
-              className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium"
-            >
+          <div className="hidden md:flex items-center gap-6">
+            <a href="/#how-it-works" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
               How It Works
             </a>
-            <a
-              href="#roles"
-              className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium"
-            >
-              Specialisms
+            <a href="/vetting" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
+              Vetting Process
             </a>
-            <a
-              href="#why-talentx"
-              className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium"
-            >
+            <a href="/#why-talentx" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
               Why TalentX
             </a>
-            <a
-              href="#about"
-              className="text-white/80 hover:text-brand-gold transition-colors duration-200 text-sm font-medium"
-            >
+            <a href="/#about" className="text-white/70 hover:text-white transition-colors duration-200 text-sm">
               About
             </a>
-            <Link
-              href="/talent"
-              className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-semibold"
-            >
+            <Link href="/talent" className="flex items-center gap-1.5 text-brand-gold hover:text-brand-gold/80 transition-colors duration-200 text-sm font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              Browse Talent
+              Browse Professionals
             </Link>
           </div>
 
-          {/* CTA / Auth Buttons */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* CTA / Auth */}
+          <div className="hidden md:flex items-center gap-2">
+            <Link
+              href="/employers"
+              className="px-4 py-2 text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg hover:bg-brand-gold/10 hover:border-brand-gold transition-all duration-200"
+            >
+              Employer Dashboard
+            </Link>
             {isLoaded && isSignedIn ? (
-              // Logged-in state: Dashboard link + User avatar
               <>
                 <Link
                   href="/dashboard"
-                  className="px-5 py-2.5 text-sm font-semibold text-brand-gold border border-brand-gold/30 rounded-lg hover:border-brand-gold hover:bg-brand-gold/5 transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium text-brand-gold border border-brand-gold/30 rounded-lg hover:border-brand-gold hover:bg-brand-gold/5 transition-all duration-200"
                 >
                   My Dashboard
                 </Link>
@@ -87,49 +84,59 @@ export default function Navbar() {
                   afterSignOutUrl="/"
                   appearance={{
                     variables: { colorPrimary: '#C9A84C' },
-                    elements: {
-                      avatarBox: 'w-9 h-9',
-                    },
+                    elements: { avatarBox: 'w-8 h-8' },
                   }}
-                />
+                >
+                  {isAdmin && (
+                    <UserButton.MenuItems>
+                      <UserButton.Link
+                        label="Admin Panel"
+                        labelIcon={
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                        }
+                        href="/admin"
+                      />
+                    </UserButton.MenuItems>
+                  )}
+                </UserButton>
               </>
             ) : (
-              // Logged-out state: Original CTAs + Sign In
-              <>
-                <a
-                  href="#open-to-work"
-                  className="px-5 py-2.5 text-sm font-semibold text-white border border-white/30 rounded-lg hover:border-brand-gold hover:text-brand-gold transition-all duration-200"
-                >
-                  I&apos;m a Professional
-                </a>
-                <a
-                  href="/talent"
-                  className="px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-black rounded-lg hover:bg-brand-gold-light transition-all duration-200"
-                >
-                  I&apos;m Hiring
-                </a>
-                <Link
-                  href="/sign-in"
-                  className="px-4 py-2.5 text-sm font-medium text-white/60 hover:text-white transition-colors duration-200"
-                >
-                  Sign In
-                </Link>
-              </>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/55">
+                  For Professionals
+                </span>
+                <div className="flex items-center border border-white/10 rounded-lg overflow-hidden">
+                  <Link
+                    href="/sign-in"
+                    className="px-4 py-1.5 text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all duration-200 border-r border-white/10"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/sign-up"
+                    className="px-4 py-1.5 text-sm font-semibold text-brand-gold hover:bg-brand-gold/10 transition-all duration-200"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
 
           {/* Mobile Menu Toggle */}
           <button
-            className="md:hidden text-white p-2"
+            className="md:hidden text-white/80 hover:text-white p-1.5 transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
             {menuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             )}
@@ -138,33 +145,46 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div className="md:hidden bg-brand-black border-t border-white/10 py-4">
-            <div className="flex flex-col gap-4 px-4">
-              <a href="#how-it-works" className="text-white/80 hover:text-brand-gold text-sm font-medium" onClick={() => setMenuOpen(false)}>How It Works</a>
-              <a href="#roles" className="text-white/80 hover:text-brand-gold text-sm font-medium" onClick={() => setMenuOpen(false)}>Specialisms</a>
-              <a href="#why-talentx" className="text-white/80 hover:text-brand-gold text-sm font-medium" onClick={() => setMenuOpen(false)}>Why TalentX</a>
-              <a href="#about" className="text-white/80 hover:text-brand-gold text-sm font-medium" onClick={() => setMenuOpen(false)}>About</a>
-              <Link href="/talent" className="flex items-center gap-1.5 text-brand-gold text-sm font-semibold" onClick={() => setMenuOpen(false)}>
+          <div className="md:hidden border-t border-white/10 py-4">
+            <div className="flex flex-col gap-3 px-2">
+              <a href="/#how-it-works" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>How It Works</a>
+              <a href="/vetting" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>Vetting Process</a>
+              <a href="/#why-talentx" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>Why TalentX</a>
+              <a href="/#about" className="text-white/70 hover:text-white text-sm py-1.5" onClick={() => setMenuOpen(false)}>About</a>
+              <Link href="/talent" className="flex items-center gap-1.5 text-brand-gold text-sm font-medium py-1.5" onClick={() => setMenuOpen(false)}>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                Browse Talent
+                Browse Professionals
               </Link>
-              <div className="flex flex-col gap-3 pt-2 border-t border-white/10">
+              <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
+                <Link href="/employers" className="text-center text-sm font-semibold text-brand-gold border border-brand-gold/40 rounded-lg py-2.5 hover:bg-brand-gold/10 hover:border-brand-gold transition-all" onClick={() => setMenuOpen(false)}>
+                  Employer Dashboard
+                </Link>
                 {isLoaded && isSignedIn ? (
-                  <Link href="/dashboard" className="btn-secondary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
+                  <Link href="/dashboard" className="text-center text-sm font-medium text-brand-gold border border-brand-gold/30 rounded-lg py-2.5 hover:bg-brand-gold/5 transition-all" onClick={() => setMenuOpen(false)}>
                     My Dashboard
                   </Link>
                 ) : (
-                  <>
-                    <a href="#open-to-work" className="btn-secondary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
-                      I&apos;m a Professional
-                    </a>
-                    <a href="/talent" className="btn-primary text-center text-sm py-3" onClick={() => setMenuOpen(false)}>
-                      I&apos;m Hiring
-                    </a>
-                    <Link href="/sign-in" className="text-center text-sm text-white/60 hover:text-white py-2" onClick={() => setMenuOpen(false)}>
-                      Sign In
-                    </Link>
-                  </>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/55 text-center">
+                      For Professionals
+                    </span>
+                    <div className="flex border border-white/10 rounded-lg overflow-hidden">
+                      <Link
+                        href="/sign-in"
+                        className="flex-1 text-center text-sm font-medium text-white/60 hover:text-white py-2.5 border-r border-white/10 hover:bg-white/5 transition-all"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Sign In
+                      </Link>
+                      <Link
+                        href="/sign-up"
+                        className="flex-1 text-center text-sm font-semibold text-brand-gold hover:bg-brand-gold/10 py-2.5 transition-all"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

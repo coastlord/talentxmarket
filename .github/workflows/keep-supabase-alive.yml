@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: Keep Supabase Alive
+=======
+name: Keep Supabase Staging Alive
+>>>>>>> origin/staging
 
 on:
   schedule:
@@ -15,6 +19,7 @@ jobs:
             -H "apikey: ${{ secrets.SUPABASE_STAGING_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_STAGING_ANON_KEY }}" \
             "https://fajparwvugllhpinkxgx.supabase.co/rest/v1/candidates?select=id&limit=1" \
+<<<<<<< HEAD
             > /dev/null && echo "Staging ping successful"
 
       - name: Ping Supabase production
@@ -24,3 +29,6 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.SUPABASE_PROD_ANON_KEY }}" \
             "https://ywtbkvkfvnwpyaaqczly.supabase.co/rest/v1/candidates?select=id&limit=1" \
             > /dev/null && echo "Production ping successful"
+=======
+            > /dev/null && echo "Ping successful"
+>>>>>>> origin/staging

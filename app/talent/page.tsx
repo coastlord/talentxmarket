@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useUser } from '@clerk/nextjs';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
@@ -17,6 +18,41 @@ interface Professional {
   experience: string;
   skills: string[];
   certifications: string[];
+  headline: string;
+  // null = not reviewed (show badge); false = admin suppressed (hide badge)
+  certificationVerified: boolean | null;
+}
+
+interface UnlockedProfile {
+  profileImageUrl: string | null;
+  fullName: string | null;
+  contactEmail: string | null;
+  phone: string | null;
+  linkedinUrl: string | null;
+  certificationLink: string | null;
+  role: string;
+  location: string;
+  experience: string;
+  skills: string[];
+  certifications: string[];
+  otherCertification: string | null;
+  headline: string;
+  availabilityStatus: string;
+  workPreference: string;
+  salaryAmount: string;
+  salaryCurrency: string;
+  salaryPeriod: string;
+  creditsRemaining: number;
+  currentCompany: string | null;
+  currentStartYear: string | null;
+  previousRole: string | null;
+  previousCompany: string | null;
+  previousStartYear: string | null;
+  previousEndYear: string | null;
+  degreeType: string | null;
+  schoolName: string | null;
+  institutionName: string | null;
+  graduationYear: string | null;
 }
 
 // ─── Icons (inline SVG helpers) ─────────────────────────────────────────────
@@ -76,8 +112,8 @@ const PersonIcon = () => (
   </svg>
 );
 
-const MailIcon = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const MailIcon = ({ size = 11 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
     <polyline points="22,6 12,13 2,6" />
   </svg>
@@ -92,11 +128,30 @@ const FileIcon = () => (
   </svg>
 );
 
-const LinkedInIcon = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const LinkedInIcon = ({ size = 11 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
     <rect x="2" y="9" width="4" height="12" />
     <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+const PhoneIcon = ({ size = 11 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.97a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+);
+
+const GraduationIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+    <path d="M6 12v5c3 3 9 3 12 0v-5" />
+  </svg>
+);
+
+const ChevronRightIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18l6-6-6-6" />
   </svg>
 );
 
@@ -111,38 +166,38 @@ function ProfessionalCard({ pro, onUnlock }: { pro: Professional; onUnlock: (pro
     <div className="bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-xl hover:border-brand-gold/25 transition-all duration-300 flex flex-col group">
 
       {/* ── TOP ROW: Avatar+Location LEFT | Status+Cert RIGHT ── */}
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-3 gap-2">
 
         {/* Left: Avatar then Location below */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5 min-w-0">
           <div className="w-11 h-11 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm tracking-wide">{pro.initials}</span>
           </div>
           {pro.location && (
             <div className="flex items-center gap-1 text-xs text-gray-500">
-              <span className="text-brand-gold"><PinIcon /></span>
-              <span>{pro.location}</span>
+              <span className="text-brand-gold flex-shrink-0"><PinIcon /></span>
+              <span className="truncate">{pro.location}</span>
             </div>
           )}
         </div>
 
         {/* Right: Availability badge then Cert badge below */}
-        <div className="flex flex-col items-end gap-1.5">
+        <div className="flex flex-col items-end gap-1.5 flex-shrink-0 max-w-[55%]">
           {isAvailableNow ? (
-            <div className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              Available Now
+            <div className="inline-flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 text-[10px] font-semibold px-2 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+              <span>Available Now</span>
             </div>
           ) : (
-            <div className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-              {pro.availabilityStatus || 'Open to Offers'}
+            <div className="inline-flex items-center gap-1 bg-orange-50 border border-orange-200 text-orange-700 text-[10px] font-semibold px-2 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 flex-shrink-0" />
+              <span className="truncate">{pro.availabilityStatus || 'Open to Offers'}</span>
             </div>
           )}
-          {primaryCert && (
-            <div className="inline-flex items-center gap-1.5 bg-brand-black text-brand-gold text-[10.5px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
-              <ShieldIcon />
-              {primaryCert}
+          {primaryCert && pro.certificationVerified !== false && (
+            <div className="inline-flex items-center gap-1 bg-brand-black text-brand-gold text-[10px] font-bold px-2 py-1 rounded-full max-w-full">
+              <span className="flex-shrink-0"><ShieldIcon /></span>
+              <span className="truncate">{primaryCert}</span>
             </div>
           )}
         </div>
@@ -150,6 +205,16 @@ function ProfessionalCard({ pro, onUnlock }: { pro: Professional; onUnlock: (pro
 
       {/* Divider */}
       <div className="border-t border-gray-100 mb-3" />
+
+      {/* ── ROLE TITLE + PROOF LINE ── */}
+      <div className="mb-3">
+        <p className="text-sm font-bold text-brand-black leading-snug">{pro.role}</p>
+        {pro.headline ? (
+          <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2 italic">&ldquo;{pro.headline}&rdquo;</p>
+        ) : (
+          <p className="text-xs text-gray-400 mt-1 italic">Compliance professional — profile details locked</p>
+        )}
+      </div>
 
       {/* ── META ROWS ── */}
       <div className="space-y-2 mb-3">
@@ -240,16 +305,18 @@ function ProfessionalCard({ pro, onUnlock }: { pro: Professional; onUnlock: (pro
         </div>
       </div>
 
-      {/* ── UNLOCK BUTTON ── */}
-      <button
-        onClick={() => onUnlock(pro)}
-        className="mt-auto w-full flex items-center justify-center gap-2 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold py-3 rounded-xl transition-all duration-200 group-hover:bg-brand-gold group-hover:text-brand-black"
-      >
-        <span className="text-brand-gold group-hover:text-brand-black transition-colors duration-200">
-          <UnlockIcon />
-        </span>
-        Unlock Profile
-      </button>
+      {/* ── BUTTONS ROW ── */}
+      <div className="mt-auto flex flex-col gap-2">
+        <button
+          onClick={() => onUnlock(pro)}
+          className="w-full flex items-center justify-center gap-2 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold py-3 rounded-xl transition-all duration-200 group-hover:bg-brand-gold group-hover:text-brand-black"
+        >
+          <span className="text-brand-gold group-hover:text-brand-black transition-colors duration-200">
+            <UnlockIcon />
+          </span>
+          Unlock Profile
+        </button>
+      </div>
 
     </div>
   );
@@ -293,144 +360,1061 @@ function Skeleton() {
 // ─── Filter bar constants ────────────────────────────────────────────────────
 const EMP_TYPES = ['All', 'Permanent', 'Contract', 'Interim', 'Advisory', 'Freelance'];
 const INDUSTRIES = ['All', 'Banking', 'FinTech', 'Insurance', 'Asset Management', 'Payments', 'Crypto / Web3', 'Consulting', 'Other'];
+const AVAILABILITY_OPTIONS = ['All', 'Available Now', 'Open to Offers', 'Notice Period', 'Actively Looking'];
+const SPECIALISM_OPTIONS = ['All', 'AML', 'KYC', 'MLRO', 'Financial Crime', 'Risk Management', 'Compliance Officer', 'Sanctions', 'Trust & Safety', 'Fraud', 'RegTech', 'Data Privacy', 'Internal Audit'];
+const EXPERIENCE_OPTIONS = ['All', '0–3 years', '3–5 years', '5–10 years', '10+ years'];
 
-// ─── Page ────────────────────────────────────────────────────────────────────
-// ─── Unlock Modal ────────────────────────────────────────────────────────────
+// ─── Urgency options ─────────────────────────────────────────────────────────
 const URGENCY_OPTIONS = ['Within 1 week', '2–4 weeks', '1–3 months', 'No urgency / exploring'];
 
-function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void }) {
-  const [form, setForm] = useState({ companyName: '', workEmail: '', roleHiringFor: '', urgency: '' });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
+// ─── OTP Input — 6 individual digit boxes ────────────────────────────────────
+function OtpInput({ value, onChange, disabled }: { value: string; onChange: (v: string) => void; disabled?: boolean }) {
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus('loading');
-    setErrorMsg('');
-    try {
-      const res = await fetch('/api/employer-request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          candidateId: pro.id,
-          candidateRole: pro.role,
-        }),
-      });
-      if (!res.ok) throw new Error('Request failed');
-      setStatus('success');
-    } catch {
-      setStatus('error');
-      setErrorMsg('Something went wrong. Please try again or email us at hello@talentxmarket.com');
+  const handleChange = (index: number, char: string) => {
+    const digit = char.replace(/\D/g, '').slice(-1);
+    const digits = value.padEnd(6, '').split('');
+    digits[index] = digit;
+    const next = digits.join('').slice(0, 6);
+    onChange(next);
+    if (digit && index < 5) inputsRef.current[index + 1]?.focus();
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace') {
+      if (value[index]) {
+        const digits = value.padEnd(6, '').split('');
+        digits[index] = '';
+        onChange(digits.join('').slice(0, 6));
+      } else if (index > 0) {
+        inputsRef.current[index - 1]?.focus();
+      }
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    onChange(pasted.padEnd(6, '').slice(0, 6).trimEnd());
+    const focusIndex = Math.min(pasted.length, 5);
+    inputsRef.current[focusIndex]?.focus();
+  };
+
+  return (
+    <div className="flex gap-2 justify-center">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <input
+          key={i}
+          ref={(el) => { inputsRef.current[i] = el; }}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={value[i] || ''}
+          disabled={disabled}
+          onChange={(e) => handleChange(i, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(i, e)}
+          onPaste={handlePaste}
+          onFocus={(e) => e.target.select()}
+          className="w-11 h-13 text-center text-xl font-black border-2 rounded-xl focus:outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 text-brand-black disabled:opacity-50 transition-all"
+          style={{ height: '52px' }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Full CV Modal ────────────────────────────────────────────────────────────
+function CandidateProfileModal({
+  pro,
+  profile,
+  onClose,
+}: {
+  pro: Professional;
+  profile: UnlockedProfile;
+  onClose: () => void;
+}) {
+  const isAvailableNow = profile.availabilityStatus?.toLowerCase().includes('available now');
+
+  const allCerts = [
+    ...(profile.certifications || []),
+    ...(profile.otherCertification ? [profile.otherCertification] : []),
+  ];
+
+  const hasSalary = profile.salaryAmount;
+  const salaryLabel = hasSalary
+    ? `${profile.salaryCurrency || 'GBP'} ${Number(profile.salaryAmount).toLocaleString()} / ${profile.salaryPeriod || 'Year'}`
+    : null;
+
+  const hasCurrentJob = profile.currentCompany || profile.currentStartYear;
+  const hasPreviousJob = profile.previousRole || profile.previousCompany;
+  const hasEducation = profile.degreeType || profile.schoolName || profile.institutionName || profile.graduationYear;
+
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      style={{ background: 'rgba(10,10,10,0.75)', backdropFilter: 'blur(4px)' }}
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+      style={{ background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(8px)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+      <div
+        className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+        style={{ maxHeight: '92vh' }}
+      >
 
-        {/* Modal header */}
-        <div className="bg-brand-black px-6 py-5 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
-              <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest">Request Access</span>
+        {/* ── HEADER BAR ── */}
+        <div className="bg-brand-black px-4 sm:px-7 py-4 sm:py-5 flex items-center justify-between gap-3 flex-shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center flex-shrink-0">
+              {profile.profileImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.profileImageUrl} alt={profile.fullName || 'Candidate'} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-brand-gold font-bold text-sm">{pro.initials}</span>
+              )}
             </div>
-            <h2 className="text-white text-lg font-bold">Unlock This Profile</h2>
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold text-brand-gold uppercase tracking-widest mb-0.5">Full Profile — Unlocked</p>
+              <p className="text-white font-bold text-sm sm:text-base leading-tight truncate">{profile.fullName || profile.role}</p>
+            </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0"
+          >
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {status === 'success' ? (
-          /* ── SUCCESS STATE ── */
-          <div className="px-6 py-10 text-center">
-            <div className="w-14 h-14 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-7 h-7 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-brand-black mb-2">Request Received</h3>
-            <p className="text-gray-500 text-sm leading-relaxed max-w-sm mx-auto mb-6">
-              We&apos;ll review your request and introduce you to this professional within <strong>24–48 hours</strong>.
-            </p>
-            <button
-              onClick={onClose}
-              className="px-6 py-2.5 bg-brand-black text-white text-sm font-semibold rounded-xl hover:bg-brand-gold hover:text-brand-black transition-all duration-200"
-            >
-              Browse More Talent
-            </button>
-          </div>
-        ) : (
-          <div className="px-6 py-6">
+        {/* ── SCROLLABLE BODY ── */}
+        <div className="overflow-y-auto flex-1">
 
-            {/* Candidate preview */}
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 mb-6 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold text-sm">{pro.initials}</span>
+          {/* ── HERO SECTION ── */}
+          <div className="bg-gradient-to-b from-gray-50 to-white px-4 sm:px-7 pt-5 sm:pt-6 pb-4 sm:pb-5 border-b border-gray-100">
+
+            {/* Avatar + Name row */}
+            <div className="flex items-start gap-4 mb-3">
+              {/* Avatar */}
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-brand-black flex items-center justify-center flex-shrink-0 shadow-lg">
+                {profile.profileImageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={profile.profileImageUrl} alt={profile.fullName || 'Candidate'} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white font-black text-lg sm:text-xl">{pro.initials}</span>
+                )}
               </div>
+
+              {/* Name + role */}
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-400 font-medium mb-0.5">You are requesting access to</p>
-                <p className="text-sm font-bold text-brand-black">{pro.role}</p>
-                <div className="flex items-center gap-3 mt-1 flex-wrap">
-                  {pro.location && <span className="text-xs text-gray-500">{pro.location}</span>}
-                  {pro.experience && <span className="text-xs text-gray-400">· {pro.experience}</span>}
-                  {pro.certifications[0] && (
-                    <span className="inline-flex items-center gap-1 bg-brand-black text-brand-gold text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      <ShieldIcon /> {pro.certifications[0]}
+                <h2 className="text-lg sm:text-xl font-black text-brand-black leading-tight mb-0.5 break-words">
+                  {profile.fullName || 'Name Withheld'}
+                </h2>
+                <p className="text-sm font-semibold text-gray-600">{profile.role}</p>
+              </div>
+            </div>
+
+            {/* Tags + salary */}
+            <div className="flex flex-wrap items-center gap-2">
+              {profile.location && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                  <span className="text-brand-gold"><PinIcon /></span>
+                  {profile.location}
+                </span>
+              )}
+              {profile.experience && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                  <span className="text-brand-gold"><ClockIcon /></span>
+                  {profile.experience}
+                </span>
+              )}
+              {profile.workPreference && (
+                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full">
+                  {profile.workPreference}
+                </span>
+              )}
+              {isAvailableNow ? (
+                <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  Available Now
+                </span>
+              ) : profile.availabilityStatus ? (
+                <span className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                  {profile.availabilityStatus}
+                </span>
+              ) : null}
+            </div>
+
+            {/* Salary — below on its own line, doesn't compete for space */}
+            {salaryLabel && (
+              <div className="mt-3 inline-flex flex-col bg-brand-black/5 border border-gray-200 rounded-xl px-3 py-2">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Salary Expectation</p>
+                <p className="text-sm font-black text-brand-black">{salaryLabel}</p>
+              </div>
+            )}
+          </div>
+
+          {/* ── CONTACT DETAILS ── */}
+          <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Contact Details</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+              {profile.contactEmail && (
+                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                  <div className="w-8 h-8 rounded-lg bg-brand-black flex items-center justify-center flex-shrink-0">
+                    <span className="text-brand-gold"><MailIcon size={13} /></span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Email</p>
+                    <a
+                      href={`mailto:${profile.contactEmail}`}
+                      className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors truncate block"
+                    >
+                      {profile.contactEmail}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {profile.phone && (
+                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                  <div className="w-8 h-8 rounded-lg bg-brand-black flex items-center justify-center flex-shrink-0">
+                    <span className="text-brand-gold"><PhoneIcon size={13} /></span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Phone</p>
+                    <a
+                      href={`tel:${profile.phone}`}
+                      className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors"
+                    >
+                      {profile.phone}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {profile.linkedinUrl && (
+                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                  <div className="w-8 h-8 rounded-lg bg-brand-black flex items-center justify-center flex-shrink-0">
+                    <span className="text-brand-gold"><LinkedInIcon size={13} /></span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-0.5">LinkedIn</p>
+                    <a
+                      href={profile.linkedinUrl.startsWith('http') ? profile.linkedinUrl : `https://${profile.linkedinUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors flex items-center gap-1"
+                    >
+                      View Profile
+                      <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {profile.certificationLink && (
+                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                  <div className="w-8 h-8 rounded-lg bg-brand-black flex items-center justify-center flex-shrink-0">
+                    <span className="text-brand-gold"><ShieldIcon /></span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Verify Credentials</p>
+                    <a
+                      href={profile.certificationLink.startsWith('http') ? profile.certificationLink : `https://${profile.certificationLink}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-brand-black hover:text-brand-gold transition-colors flex items-center gap-1"
+                    >
+                      View Certificate
+                      <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {!profile.contactEmail && !profile.phone && !profile.linkedinUrl && (
+                <div className="col-span-2 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                  <span className="text-gray-400 text-lg">ℹ️</span>
+                  <p className="text-xs text-gray-500">This candidate has not added contact details to their profile yet.</p>
+                </div>
+              )}
+            </div>
+
+            {/* ── SEND EMAIL CTA ── */}
+            {profile.contactEmail ? (
+              <a
+                href={`mailto:${profile.contactEmail}?subject=${encodeURIComponent('Opportunity via TalentX Market')}&body=${encodeURIComponent(`Hi ${profile.fullName ? profile.fullName.split(' ')[0] : ''},\n\nI came across your profile on TalentX Market and would love to connect regarding a ${pro.role} opportunity.\n\nLooking forward to hearing from you.\n\nKind regards`)}`}
+                className="mt-4 w-full flex items-center justify-center gap-2.5 bg-brand-gold hover:bg-brand-gold/90 text-brand-black text-sm font-bold py-3.5 rounded-xl transition-all duration-200 shadow-md shadow-brand-gold/20"
+              >
+                <MailIcon size={14} />
+                Send Email to Candidate
+              </a>
+            ) : (
+              <div className="mt-4 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center">
+                <p className="text-xs text-gray-500">No email address on file. Contact via LinkedIn or phone above.</p>
+              </div>
+            )}
+          </div>
+
+          {/* ── PROFESSIONAL SUMMARY ── */}
+          {profile.headline && (
+            <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Professional Summary</p>
+              <p className="text-sm text-gray-700 leading-relaxed italic">&ldquo;{profile.headline}&rdquo;</p>
+            </div>
+          )}
+
+          {/* ── EXPERIENCE ── */}
+          {(hasCurrentJob || hasPreviousJob) && (
+            <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Experience</p>
+              <div className="space-y-4">
+
+                {/* Current position */}
+                {hasCurrentJob && (
+                  <div className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-lg bg-brand-gold/15 border border-brand-gold/30 flex items-center justify-center flex-shrink-0">
+                        <span className="text-brand-gold"><BriefcaseIcon /></span>
+                      </div>
+                      <div className="flex-1 w-px bg-gray-200 mt-2" />
+                    </div>
+                    <div className="flex-1 pb-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-sm font-bold text-brand-black">{profile.role}</p>
+                          {profile.currentCompany && (
+                            <p className="text-xs font-semibold text-gray-600 mt-0.5">{profile.currentCompany}</p>
+                          )}
+                        </div>
+                        {profile.currentStartYear && (
+                          <span className="text-xs text-gray-400 font-medium whitespace-nowrap bg-gray-100 px-2.5 py-1 rounded-full flex-shrink-0">
+                            {profile.currentStartYear} – Present
+                          </span>
+                        )}
+                      </div>
+                      <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                        Current Role
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Previous position */}
+                {hasPreviousJob && (
+                  <div className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center flex-shrink-0">
+                        <span className="text-gray-500"><BriefcaseIcon /></span>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-sm font-bold text-brand-black">{profile.previousRole || 'Previous Role'}</p>
+                          {profile.previousCompany && (
+                            <p className="text-xs font-semibold text-gray-600 mt-0.5">{profile.previousCompany}</p>
+                          )}
+                        </div>
+                        {(profile.previousStartYear || profile.previousEndYear) && (
+                          <span className="text-xs text-gray-400 font-medium whitespace-nowrap bg-gray-100 px-2.5 py-1 rounded-full flex-shrink-0">
+                            {profile.previousStartYear || '?'} – {profile.previousEndYear || '?'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── EDUCATION ── */}
+          {hasEducation && (
+            <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Education</p>
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-lg bg-brand-gold/15 border border-brand-gold/30 flex items-center justify-center flex-shrink-0">
+                  <span className="text-brand-gold"><GraduationIcon /></span>
+                </div>
+                <div className="flex-1">
+                  {profile.degreeType && (
+                    <p className="text-sm font-bold text-brand-black">{profile.degreeType}</p>
+                  )}
+                  {profile.schoolName && (
+                    <p className="text-xs font-semibold text-gray-600 mt-0.5">{profile.schoolName}</p>
+                  )}
+                  {profile.institutionName && (
+                    <p className="text-xs text-gray-500 mt-0.5">{profile.institutionName}</p>
+                  )}
+                  {profile.graduationYear && (
+                    <span className="inline-block mt-2 text-xs text-gray-400 font-medium bg-gray-100 px-2.5 py-1 rounded-full">
+                      Class of {profile.graduationYear}
                     </span>
                   )}
                 </div>
               </div>
-              <div className="flex-shrink-0">
-                <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-2 py-1 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                  {pro.availabilityStatus || 'Available'}
+            </div>
+          )}
+
+          {/* ── SPECIALISMS ── */}
+          {profile.skills.length > 0 && (
+            <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Specialisms</p>
+              <div className="flex flex-wrap gap-2">
+                {profile.skills.map((s) => (
+                  <span key={s} className="text-xs font-medium text-gray-700 bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-full">
+                    {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── CERTIFICATIONS ── */}
+          {allCerts.length > 0 && (
+            <div className="px-4 sm:px-7 py-4 sm:py-5 border-b border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Certifications</p>
+              <div className="flex flex-wrap gap-2">
+                {allCerts.map((c) => (
+                  <span key={c} className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-gold bg-brand-black px-3 py-1.5 rounded-full">
+                    <ShieldIcon />
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── FOOTER NOTE ── */}
+          <div className="px-4 sm:px-7 py-4 sm:py-5">
+            <div className="flex items-center gap-2.5 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+              <svg className="w-4 h-4 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <p className="text-xs text-gray-500">Profile manually verified by TalentX Market · Candidate has consented to employer contact</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Admin emails — bypass all unlock steps ───────────────────────────────────
+const ADMIN_EMAILS = ['soa.tidjani@gmail.com'];
+
+// ─── Unlock Modal ─────────────────────────────────────────────────────────────
+function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void }) {
+  const { user, isLoaded } = useUser();
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [form, setForm] = useState({ contactName: '', companyName: '', workEmail: '', roleHiringFor: '', urgency: '' });
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'no_credits' | 'personal_email'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [unlockedProfile, setUnlockedProfile] = useState<UnlockedProfile | null>(null);
+  const [showFullProfile, setShowFullProfile] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // OTP state
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // Quick session — skip form + OTP if employer verified recently
+  interface QuickSession { email: string; name: string; company: string; expiresAt: number; }
+  const [quickSession, setQuickSession] = useState<QuickSession | null>(null);
+  const [bypassQuick, setBypassQuick] = useState(false);
+
+  // Countdown for resend button
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const t = setTimeout(() => setResendTimer((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendTimer]);
+
+  // ── Read quick session from localStorage on mount ────────────────────────
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('tx_employer_session');
+      if (!raw) return;
+      const s: QuickSession = JSON.parse(raw);
+      if (s.expiresAt > Date.now()) {
+        setQuickSession(s);
+        setForm(prev => ({
+          ...prev,
+          contactName: s.name || prev.contactName,
+          companyName: s.company || prev.companyName,
+          workEmail: s.email,
+        }));
+      } else {
+        localStorage.removeItem('tx_employer_session');
+      }
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Admin auto-unlock: only when signed in to Clerk as admin email ─────────
+  useEffect(() => {
+    if (!isLoaded) return;
+    const clerkEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase().trim();
+    if (clerkEmail && ADMIN_EMAILS.includes(clerkEmail)) {
+      const adminForm = {
+        contactName: 'Admin',
+        companyName: 'TalentX Market',
+        workEmail: clerkEmail,
+        roleHiringFor: '',
+        urgency: '',
+      };
+      setForm(adminForm);
+      callUnlockApi(adminForm);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, user]);
+
+  // ── Step 2 → send OTP (or skip if already verified / admin) ──────────────
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const res = await fetch('/api/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.workEmail }),
+      });
+      const data = await res.json();
+      if (data?.error === 'personal_email') {
+        setStatus('personal_email');
+        setOtpLoading(false);
+        return;
+      }
+      if (res.status === 429) {
+        setOtpError(data.message || 'Please wait before requesting another code.');
+        setOtpLoading(false);
+        return;
+      }
+      if (!res.ok) throw new Error(data?.error || 'Failed to send code');
+
+      if (data.alreadyVerified) {
+        // Email already verified in this session — go straight to unlock
+        await callUnlockApi();
+      } else {
+        // Show OTP entry step
+        setOtpCode('');
+        setResendTimer(60);
+        setStep(3);
+      }
+    } catch (err) {
+      setOtpError(String(err));
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // ── Step 3 → verify OTP then unlock ──────────────────────────────────────
+  const handleVerifyAndUnlock = async () => {
+    if (otpCode.replace(/\s/g, '').length < 6) {
+      setOtpError('Please enter all 6 digits.');
+      return;
+    }
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const confirmRes = await fetch('/api/verify-email/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.workEmail, code: otpCode }),
+      });
+      const confirmData = await confirmRes.json();
+      if (!confirmRes.ok) {
+        setOtpError(confirmData?.error || 'Incorrect code. Please try again.');
+        setOtpLoading(false);
+        return;
+      }
+      // Save session so future unlocks in this tab skip OTP
+      try {
+        localStorage.setItem('tx_employer_session', JSON.stringify({
+          email: form.workEmail,
+          name: form.contactName,
+          company: form.companyName,
+          expiresAt: Date.now() + 30 * 60_000,
+        }));
+        setQuickSession({ email: form.workEmail, name: form.contactName, company: form.companyName, expiresAt: Date.now() + 30 * 60_000 });
+      } catch { /* ignore */ }
+      // OTP confirmed → call unlock
+      await callUnlockApi();
+    } catch (err) {
+      setOtpError(String(err));
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // ── Shared: call the actual unlock API ────────────────────────────────────
+  const callUnlockApi = useCallback(async (formOverride?: { contactName: string; companyName: string; workEmail: string; roleHiringFor: string; urgency: string }) => {
+    setStatus('loading');
+    setErrorMsg('');
+    try {
+      const payload = formOverride ?? form;
+      const res = await fetch(`/api/unlock/${pro.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...payload }),
+      });
+      const data = await res.json();
+      if (res.status === 402) { setStatus('no_credits'); return; }
+      if (data?.error === 'personal_email') { setStatus('personal_email'); return; }
+      if (!res.ok) throw new Error(data?.error || 'Request failed');
+      setIsAdmin(!!data.isAdmin);
+      setUnlockedProfile({
+        profileImageUrl:    data.profile.profileImageUrl   ?? null,
+        fullName:           data.profile.fullName,
+        contactEmail:       data.profile.contactEmail,
+        phone:              data.profile.phone,
+        linkedinUrl:        data.profile.linkedinUrl,
+        certificationLink:  data.profile.certificationLink,
+        role:               data.profile.role,
+        location:           data.profile.location,
+        experience:         data.profile.experience,
+        skills:             data.profile.skills,
+        certifications:     data.profile.certifications,
+        otherCertification: data.profile.otherCertification,
+        headline:           data.profile.headline,
+        availabilityStatus: data.profile.availabilityStatus,
+        workPreference:     data.profile.workPreference,
+        salaryAmount:       data.profile.salaryAmount,
+        salaryCurrency:     data.profile.salaryCurrency,
+        salaryPeriod:       data.profile.salaryPeriod,
+        creditsRemaining:   data.creditsRemaining,
+        currentCompany:     data.profile.currentCompany,
+        currentStartYear:   data.profile.currentStartYear,
+        previousRole:       data.profile.previousRole,
+        previousCompany:    data.profile.previousCompany,
+        previousStartYear:  data.profile.previousStartYear,
+        previousEndYear:    data.profile.previousEndYear,
+        degreeType:         data.profile.degreeType,
+        schoolName:         data.profile.schoolName,
+        institutionName:    data.profile.institutionName,
+        graduationYear:     data.profile.graduationYear,
+      });
+      setStatus('success');
+      // Refresh session window on every successful unlock (rolling 30 min)
+      try {
+        const raw = localStorage.getItem('tx_employer_session');
+        if (raw) {
+          const s = JSON.parse(raw);
+          if (s.email === payload.workEmail) {
+            localStorage.setItem('tx_employer_session', JSON.stringify({ ...s, expiresAt: Date.now() + 30 * 60_000 }));
+          }
+        }
+      } catch { /* ignore */ }
+    } catch {
+      setStatus('error');
+      setErrorMsg('Something went wrong. Please try again or email us at hello@talentxmarket.com');
+    }
+  }, [form, pro.id]);
+
+  const REVEAL_ITEMS = [
+    { icon: '👤', label: 'Full Name', sub: 'Hidden on public card' },
+    { icon: '📧', label: 'Contact Email', sub: 'Direct line to candidate' },
+    { icon: '🔗', label: 'LinkedIn Profile', sub: 'Verify experience instantly' },
+    { icon: '📄', label: 'Full CV / Resume', sub: 'Work history, education' },
+  ];
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        style={{ background: 'rgba(10,10,10,0.80)', backdropFilter: 'blur(6px)' }}
+        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      >
+        <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] overflow-y-auto">
+
+          {/* ── HEADER ── */}
+          <div className="bg-brand-black px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-3 sticky top-0 z-10">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse flex-shrink-0" />
+                <span className="text-brand-gold text-[10px] font-bold uppercase tracking-widest truncate">
+                  {status === 'success' ? 'Profile Unlocked' : step === 1 ? 'Employer Access' : step === 2 && quickSession && !bypassQuick ? 'Returning Employer' : step === 2 ? 'Step 2 of 3' : 'Step 3 — Verify Email'}
+                </span>
+              </div>
+              <h2 className="text-white text-base sm:text-lg font-bold leading-tight">
+                {status === 'success' ? 'You\'re on the list' : step === 1 ? 'Unlock This Profile' : step === 2 && quickSession && !bypassQuick ? 'Quick Unlock' : step === 2 ? 'Create Your Access' : 'Check Your Inbox'}
+              </h2>
+            </div>
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* ── PERSONAL EMAIL BLOCKED ── */}
+          {status === 'personal_email' ? (
+            <div className="px-4 sm:px-6 py-8 sm:py-10 text-center">
+              <div className="w-16 h-16 rounded-full bg-red-50 border-2 border-red-200 flex items-center justify-center mx-auto mb-5">
+                <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-brand-black mb-2">Work Email Required</h3>
+              <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto mb-6">
+                Personal email addresses (Gmail, Yahoo, Hotmail etc.) are not accepted. Please use your company work email to unlock profiles.
+              </p>
+              <button
+                onClick={() => setStatus('idle')}
+                className="block w-full py-3.5 bg-brand-black text-white text-sm font-bold rounded-xl hover:bg-brand-gold hover:text-brand-black transition-all duration-200 text-center mb-3"
+              >
+                Try Again with Work Email
+              </button>
+              <button onClick={onClose} className="text-xs text-gray-400 hover:text-brand-black transition-colors">
+                Cancel
+              </button>
+            </div>
+
+          ) : status === 'no_credits' ? (
+            <div className="px-4 sm:px-6 py-8 sm:py-10 text-center">
+              <div className="w-16 h-16 rounded-full bg-brand-gold/10 border-2 border-brand-gold/30 flex items-center justify-center mx-auto mb-5">
+                <svg className="w-8 h-8 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-brand-black mb-2">Free Unlock Used</h3>
+              <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto mb-6">
+                You&apos;ve used your 1 free unlock. To access more vetted compliance profiles, get in touch with us directly.
+              </p>
+              <a
+                href="mailto:hello@talentxmarket.com?subject=Employer Access — More Unlocks&body=Hi TalentX Market Team, I'd like to access more compliance profiles. Please get in touch."
+                className="block w-full py-3.5 bg-brand-gold text-brand-black text-sm font-bold rounded-xl hover:bg-brand-gold/90 transition-all duration-200 text-center mb-3"
+              >
+                Message Us at hello@talentxmarket.com
+              </a>
+              <button onClick={onClose} className="text-xs text-gray-400 hover:text-brand-black transition-colors">
+                Browse talent (limited view)
+              </button>
+            </div>
+
+          ) : status === 'success' && unlockedProfile ? (
+            /* ── PROFILE REVEALED — quick summary + CTA ── */
+            <div className="px-4 sm:px-6 py-5 sm:py-6">
+
+              {/* Unlocked banner */}
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-3 py-2 rounded-xl mb-5">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+                Profile unlocked · {isAdmin ? 'Unlimited admin access' : unlockedProfile.creditsRemaining === 0 ? 'No free unlocks remaining — contact hello@talentxmarket.com for more' : `${unlockedProfile.creditsRemaining} free ${unlockedProfile.creditsRemaining === 1 ? 'unlock' : 'unlocks'} remaining`}
+              </div>
+
+              {/* Quick profile preview */}
+              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-5">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 rounded-xl bg-brand-black flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-base">{pro.initials}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-bold text-brand-black leading-tight truncate">
+                      {unlockedProfile.fullName || pro.role}
+                    </p>
+                    <p className="text-sm text-gray-500">{unlockedProfile.role}</p>
+                    {unlockedProfile.location && (
+                      <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+                        <PinIcon /> {unlockedProfile.location}
+                        {unlockedProfile.experience ? ` · ${unlockedProfile.experience}` : ''}
+                      </p>
+                    )}
+                  </div>
                 </div>
+
+                {/* Quick contact row */}
+                <div className="space-y-2">
+                  {unlockedProfile.contactEmail && (
+                    <div className="flex items-center gap-2.5 bg-white border border-gray-200 rounded-lg px-3 py-2">
+                      <span className="text-brand-gold"><MailIcon /></span>
+                      <span className="text-xs font-semibold text-brand-black truncate">{unlockedProfile.contactEmail}</span>
+                    </div>
+                  )}
+                  {unlockedProfile.linkedinUrl && (
+                    <div className="flex items-center gap-2.5 bg-white border border-gray-200 rounded-lg px-3 py-2">
+                      <span className="text-brand-gold"><LinkedInIcon /></span>
+                      <span className="text-xs font-semibold text-brand-black">LinkedIn Profile Available</span>
+                    </div>
+                  )}
+                  {!unlockedProfile.contactEmail && !unlockedProfile.linkedinUrl && (
+                    <div className="flex items-center gap-2.5 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                      <span className="text-gray-400 text-sm">ℹ️</span>
+                      <p className="text-xs text-gray-500">No contact details added yet — view full profile for more.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Primary CTA — View Full Profile */}
+              <button
+                onClick={() => setShowFullProfile(true)}
+                className="w-full py-3.5 bg-brand-gold hover:bg-brand-gold/90 text-brand-black text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-brand-gold/25 mb-3"
+              >
+                <FileIcon />
+                View Full Candidate Profile
+                <ChevronRightIcon />
+              </button>
+
+              {/* Secondary — Browse More */}
+              <button
+                onClick={onClose}
+                className="w-full py-2.5 border border-gray-200 text-gray-500 text-sm font-medium rounded-xl hover:border-brand-black hover:text-brand-black transition-all duration-200"
+              >
+                Browse More Talent
+              </button>
+
+              <p className="text-center text-[11px] text-gray-400 mt-3">
+                Full CV with experience, education and certifications revealed
+              </p>
+
+              {/* Dashboard link */}
+              <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+                <Link
+                  href="/employers"
+                  className="text-xs text-brand-gold hover:underline font-semibold"
+                >
+                  View your employer dashboard →
+                </Link>
+                <p className="text-[10px] text-gray-300 mt-0.5">All your unlocked profiles in one place</p>
               </div>
             </div>
 
-            {/* What you get */}
-            <div className="flex items-center gap-6 mb-6 px-1">
-              {[
-                { icon: '👤', label: 'Full Name' },
-                { icon: '📧', label: 'Contact' },
-                { icon: '📄', label: 'CV / LinkedIn' },
-              ].map((item) => (
-                <div key={item.label} className="flex items-center gap-1.5 text-xs text-gray-500">
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
+          ) : step === 1 ? (
+            /* ── STEP 1: VALUE PROP ── */
+            <div className="px-4 sm:px-6 py-5 sm:py-6">
+
+              {/* Free unlocks badge */}
+              <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                First 3 unlocks free — no subscription needed
+              </div>
+
+              {/* Candidate preview card */}
+              <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 mb-5 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-sm">{pro.initials}</span>
                 </div>
-              ))}
-              <div className="ml-auto text-xs text-brand-gold font-semibold flex items-center gap-1">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-0.5">You are unlocking</p>
+                  <p className="text-sm font-bold text-brand-black truncate">{pro.role}</p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    {pro.location && <span className="text-xs text-gray-500">{pro.location}</span>}
+                    {pro.experience && <span className="text-xs text-gray-400">· {pro.experience}</span>}
+                    {pro.certifications[0] && pro.certificationVerified !== false && (
+                      <span className="inline-flex items-center gap-1 bg-brand-black text-brand-gold text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <ShieldIcon /> {pro.certifications[0]}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex-shrink-0 hidden sm:block">
+                  <div className="flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 text-[10px] font-semibold px-2 py-1 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+                    <span className="truncate max-w-[80px]">{pro.availabilityStatus || 'Available'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* What you unlock */}
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">What you get access to</p>
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {REVEAL_ITEMS.map((item) => (
+                  <div key={item.label} className="flex items-start gap-3 bg-gray-50 border border-gray-100 rounded-xl p-3">
+                    <span className="text-lg leading-none">{item.icon}</span>
+                    <div>
+                      <p className="text-xs font-bold text-brand-black">{item.label}</p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">{item.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Trust line */}
+              <div className="flex items-center gap-2 mb-5 px-1">
+                <svg className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                Verified only
+                <p className="text-[11px] text-gray-400">All profiles are manually verified · Candidate has consented to contact</p>
               </div>
+
+              {/* CTA */}
+              <button
+                onClick={() => setStep(2)}
+                className="w-full py-3.5 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <UnlockIcon />
+                Continue to Unlock
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              <p className="text-center text-[11px] text-gray-400 mt-3">
+                Takes 30 seconds · No credit card required
+              </p>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-brand-black mb-1.5">Company Name <span className="text-red-400">*</span></label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. HSBC, Revolut"
-                    value={form.companyName}
-                    onChange={(e) => setForm({ ...form, companyName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
-                  />
+          ) : step === 2 && quickSession && !bypassQuick ? (
+            /* ── STEP 2: QUICK UNLOCK (returning employer with active session) ── */
+            <div className="px-4 sm:px-6 py-5 sm:py-6">
+
+              {/* Back */}
+              <button onClick={() => setStep(1)} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-black transition-colors mb-5">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+
+              {/* Session info card */}
+              <div className="bg-brand-black rounded-2xl px-5 py-5 mb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-green-400 text-[10px] font-bold uppercase tracking-widest">Verified Session Active</span>
                 </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-brand-gold/20 border border-brand-gold/30 flex items-center justify-center flex-shrink-0">
+                    <span className="text-brand-gold font-black text-sm">
+                      {(quickSession.name || quickSession.company || '?').slice(0, 2).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    {quickSession.name && <p className="text-white font-bold text-sm leading-tight truncate">{quickSession.name}</p>}
+                    {quickSession.company && <p className="text-white/50 text-xs truncate">{quickSession.company}</p>}
+                    <p className="text-brand-gold text-xs font-medium truncate">{quickSession.email}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mini candidate reminder */}
+              <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 mb-5">
+                <div className="w-8 h-8 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-xs">{pro.initials}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-brand-black truncate">{pro.role}</p>
+                  <p className="text-[10px] text-gray-400">{pro.location}{pro.experience ? ` · ${pro.experience}` : ''}</p>
+                </div>
+                <span className="text-[10px] font-semibold text-brand-gold bg-brand-black px-2 py-0.5 rounded-full flex-shrink-0">FREE</span>
+              </div>
+
+              {status === 'error' && (
+                <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">{errorMsg}</p>
+              )}
+
+              {/* One-tap unlock button */}
+              <button
+                onClick={() => callUnlockApi()}
+                disabled={status === 'loading'}
+                className="w-full py-3.5 bg-brand-gold hover:bg-brand-gold/90 text-brand-black text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-brand-gold/20"
+              >
+                {status === 'loading' ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Unlocking…
+                  </>
+                ) : (
+                  <>
+                    <UnlockIcon />
+                    Unlock Profile Now
+                  </>
+                )}
+              </button>
+
+              <p className="text-center text-[11px] text-gray-400 mt-3 mb-4">
+                No code needed — your session is verified ✓
+              </p>
+
+              {/* Switch account */}
+              <div className="border-t border-gray-100 pt-4 text-center">
+                <button
+                  onClick={() => {
+                    setBypassQuick(true);
+                    setForm({ contactName: '', companyName: '', workEmail: '', roleHiringFor: '', urgency: '' });
+                  }}
+                  className="text-xs text-gray-400 hover:text-brand-black transition-colors"
+                >
+                  Not you? Use a different account →
+                </button>
+              </div>
+
+            </div>
+
+          ) : step === 2 ? (
+            /* ── STEP 2: EMPLOYER DETAILS FORM (new employer / bypass quick) ── */
+            <div className="px-4 sm:px-6 py-5 sm:py-6">
+
+              {/* Back + progress */}
+              <div className="flex items-center gap-3 mb-5">
+                <button onClick={() => { setStep(1); setBypassQuick(false); }} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-black transition-colors">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Back
+                </button>
+                <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-brand-gold rounded-full w-full transition-all duration-500" />
+                </div>
+              </div>
+
+              {/* Mini candidate reminder */}
+              <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 mb-5">
+                <div className="w-8 h-8 rounded-full bg-brand-black flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-xs">{pro.initials}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-brand-black truncate">{pro.role}</p>
+                  <p className="text-[10px] text-gray-400">{pro.location}{pro.experience ? ` · ${pro.experience}` : ''}</p>
+                </div>
+                <span className="text-[10px] font-semibold text-brand-gold bg-brand-black px-2 py-0.5 rounded-full flex-shrink-0">
+                  FREE
+                </span>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-brand-black mb-1.5">Your Name <span className="text-red-400">*</span></label>
+                    <input
+                      type="text"
+                      required
+                      autoFocus
+                      placeholder="e.g. James Reid"
+                      value={form.contactName}
+                      onChange={(e) => setForm({ ...form, contactName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-brand-black mb-1.5">Company <span className="text-red-400">*</span></label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. HSBC, Revolut"
+                      value={form.companyName}
+                      onChange={(e) => setForm({ ...form, companyName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-xs font-semibold text-brand-black mb-1.5">Work Email <span className="text-red-400">*</span></label>
                   <input
@@ -442,65 +1426,154 @@ function UnlockModal({ pro, onClose }: { pro: Professional; onClose: () => void 
                     className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-brand-black mb-1.5">Role You Are Hiring For <span className="text-red-400">*</span></label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Senior MLRO, AML Analyst"
-                  value={form.roleHiringFor}
-                  onChange={(e) => setForm({ ...form, roleHiringFor: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
-                />
-              </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-brand-black mb-1.5">Role Hiring For <span className="text-red-400">*</span></label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Senior MLRO"
+                      value={form.roleHiringFor}
+                      onChange={(e) => setForm({ ...form, roleHiringFor: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-brand-black mb-1.5">Urgency</label>
+                    <select
+                      value={form.urgency}
+                      onChange={(e) => setForm({ ...form, urgency: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold bg-white"
+                    >
+                      <option value="">Optional</option>
+                      {URGENCY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </div>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-brand-black mb-1.5">Hiring Urgency</label>
-                <select
-                  value={form.urgency}
-                  onChange={(e) => setForm({ ...form, urgency: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-gold bg-white"
+                {status === 'error' && (
+                  <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">{errorMsg}</p>
+                )}
+
+                {otpError && step === 2 && (
+                  <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">{otpError}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={otpLoading}
+                  className="w-full py-3.5 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2"
                 >
-                  <option value="">Select urgency (optional)</option>
-                  {URGENCY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
+                  {otpLoading ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Sending code…
+                    </>
+                  ) : (
+                    <>
+                      <MailIcon size={13} />
+                      Send Verification Code
+                    </>
+                  )}
+                </button>
+
+                <p className="text-center text-[11px] text-gray-400">
+                  We&apos;ll send a 6-digit code to your work email to verify it&apos;s really you
+                </p>
+              </form>
+            </div>
+
+          ) : step === 3 ? (
+            /* ── STEP 3: OTP VERIFICATION ── */
+            <div className="px-4 sm:px-6 py-5 sm:py-6">
+
+              {/* Back */}
+              <button onClick={() => { setStep(2); setOtpCode(''); setOtpError(''); }} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-black transition-colors mb-5">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+
+              {/* Sent notice */}
+              <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-6 flex items-start gap-3">
+                <svg className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+                <div>
+                  <p className="text-xs font-bold text-green-800">Code sent to your work email</p>
+                  <p className="text-xs text-green-600 mt-0.5 break-all">{form.workEmail}</p>
+                </div>
               </div>
 
-              {status === 'error' && (
-                <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">{errorMsg}</p>
+              {/* OTP boxes */}
+              <div className="mb-2">
+                <p className="text-xs font-semibold text-brand-black text-center mb-4">Enter your 6-digit verification code</p>
+                <OtpInput value={otpCode} onChange={setOtpCode} disabled={otpLoading} />
+              </div>
+
+              {otpError && (
+                <p className="text-red-500 text-xs text-center bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-3">{otpError}</p>
               )}
 
+              {/* Verify button */}
               <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="w-full py-3.5 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2"
+                onClick={handleVerifyAndUnlock}
+                disabled={otpLoading || otpCode.replace(/\s/g,'').length < 6}
+                className="mt-5 w-full py-3.5 bg-brand-black hover:bg-brand-gold text-white hover:text-brand-black text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {status === 'loading' ? (
+                {otpLoading ? (
                   <>
                     <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Submitting…
+                    Verifying…
                   </>
                 ) : (
                   <>
                     <UnlockIcon />
-                    Request Access
+                    Verify &amp; Unlock Profile
                   </>
                 )}
               </button>
 
-              <p className="text-center text-xs text-gray-400">
-                We&apos;ll introduce you within 24–48 hours. No spam, no agency fees.
+              {/* Resend */}
+              <div className="mt-4 text-center">
+                {resendTimer > 0 ? (
+                  <p className="text-xs text-gray-400">Resend code in {resendTimer}s</p>
+                ) : (
+                  <button
+                    onClick={() => handleSendOtp({ preventDefault: () => {} } as React.FormEvent)}
+                    disabled={otpLoading}
+                    className="text-xs text-brand-gold hover:underline font-semibold disabled:opacity-50"
+                  >
+                    Didn&apos;t receive it? Resend code
+                  </button>
+                )}
+              </div>
+
+              <p className="text-center text-[10px] text-gray-300 mt-3">
+                Code expires in 10 minutes · Check your spam folder if not received
               </p>
-            </form>
-          </div>
-        )}
+            </div>
+          ) : null}
+        </div>
       </div>
-    </div>
+
+      {/* ── Full CV Modal (layered on top) ── */}
+      {showFullProfile && unlockedProfile && (
+        <CandidateProfileModal
+          pro={pro}
+          profile={unlockedProfile}
+          onClose={() => setShowFullProfile(false)}
+        />
+      )}
+    </>
   );
 }
 
@@ -511,7 +1584,13 @@ export default function TalentPage() {
   const [empType, setEmpType] = useState('All');
   const [industry, setIndustry] = useState('All');
   const [search, setSearch] = useState('');
+  const [availability, setAvailability] = useState('All');
+  const [specialism, setSpecialism] = useState('All');
+  const [experience, setExperience] = useState('All');
   const [unlockPro, setUnlockPro] = useState<Professional | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const CARDS_PER_PAGE = 12;
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch('/api/talent')
@@ -525,26 +1604,92 @@ export default function TalentPage() {
 
   const filtered = useMemo(() => professionals.filter((p) => {
     if (empType !== 'All' && p.employmentType !== empType) return false;
-    if (industry !== 'All' && p.industry !== industry) return false;
+    if (industry !== 'All' && !(p.industry || '').toLowerCase().includes(industry.toLowerCase())) return false;
+    if (availability !== 'All' && p.availabilityStatus !== availability) return false;
+    if (specialism !== 'All') {
+      const q = specialism.toLowerCase();
+      const matchesSkill = (p.skills || []).some((s) => (s || '').toLowerCase().includes(q));
+      const matchesRole = (p.role || '').toLowerCase().includes(q);
+      if (!matchesSkill && !matchesRole) return false;
+    }
+    if (experience !== 'All') {
+      const exp = (p.experience || '').toLowerCase();
+      if (experience === '0–3 years' && !exp.includes('0') && !exp.includes('1') && !exp.includes('2') && !exp.includes('3')) {
+        // check by numeric parse
+        const yrs = parseInt(exp);
+        if (isNaN(yrs) || yrs > 3) return false;
+      } else if (experience === '3–5 years') {
+        const yrs = parseInt(exp);
+        if (isNaN(yrs) || yrs < 3 || yrs > 5) return false;
+      } else if (experience === '5–10 years') {
+        const yrs = parseInt(exp);
+        if (isNaN(yrs) || yrs < 5 || yrs > 10) return false;
+      } else if (experience === '10+ years') {
+        const yrs = parseInt(exp);
+        if (isNaN(yrs) || yrs < 10) return false;
+      }
+    }
     if (search) {
       const q = search.toLowerCase();
       if (
-        !p.role.toLowerCase().includes(q) &&
-        !p.location.toLowerCase().includes(q) &&
-        !p.industry.toLowerCase().includes(q) &&
-        !p.skills.some((s) => s.toLowerCase().includes(q))
+        !(p.role || '').toLowerCase().includes(q) &&
+        !(p.location || '').toLowerCase().includes(q) &&
+        !(p.industry || '').toLowerCase().includes(q) &&
+        !(p.skills || []).some((s) => (s || '').toLowerCase().includes(q))
       ) return false;
     }
     return true;
-  }), [professionals, empType, industry, search]);
+  }), [professionals, empType, industry, availability, specialism, experience, search]);
+
+  // Reset to page 1 whenever any filter changes
+  useEffect(() => { setCurrentPage(1); }, [empType, industry, search, availability, specialism, experience]);
+
+  // Scroll to top after every page change (fires post-render, works reliably on mobile)
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
+
+  const totalPages = Math.ceil(filtered.length / CARDS_PER_PAGE);
+  const paginated = filtered.slice((currentPage - 1) * CARDS_PER_PAGE, currentPage * CARDS_PER_PAGE);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Build page number array with ellipsis: [1, '…', 4, 5, 6, '…', 10]
+  const getPageNumbers = (): (number | '…')[] => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | '…')[] = [1];
+    if (currentPage > 3) pages.push('…');
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      pages.push(i);
+    }
+    if (currentPage < totalPages - 2) pages.push('…');
+    pages.push(totalPages);
+    return pages;
+  };
 
   const clearFilters = () => {
     setEmpType('All');
     setIndustry('All');
     setSearch('');
+    setAvailability('All');
+    setSpecialism('All');
+    setExperience('All');
   };
 
-  const hasFilters = empType !== 'All' || industry !== 'All' || !!search;
+  const activeFilterCount = [
+    empType !== 'All',
+    industry !== 'All',
+    availability !== 'All',
+    specialism !== 'All',
+    experience !== 'All',
+    !!search,
+  ].filter(Boolean).length;
+
+  const hasFilters = activeFilterCount > 0;
 
   return (
     <div>
@@ -552,24 +1697,27 @@ export default function TalentPage() {
       <main className="bg-gray-50 min-h-screen">
 
         {/* ── Hero ── */}
-        <div className="bg-brand-black pt-28 pb-16 px-4">
+        <div className="bg-brand-black pt-20 pb-4 sm:pb-16 px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-brand-gold/10 text-brand-gold text-xs font-semibold px-3 py-1.5 rounded-full border border-brand-gold/20 mb-4">
+            <div className="inline-flex items-center gap-2 bg-brand-gold/10 text-brand-gold text-xs font-semibold px-3 py-1 sm:py-1.5 rounded-full border border-brand-gold/20 mb-3 sm:mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
               {loading ? 'Loading...' : `${professionals.length} Verified Professionals`}
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
-              Browse Compliance
-              <span className="block text-brand-gold">Talent</span>
-            </h1>
             <p className="text-white/60 max-w-xl leading-relaxed">
               Pre-screened compliance professionals — AML, MLRO, Risk, KYC, Trust & Safety — available now or open to offers. Unlock profiles to connect directly.
             </p>
+
+            {/* Get Matched CTA strip — desktop only */}
+            <div className="hidden sm:flex mt-8 flex-col sm:flex-row items-center gap-4">
+              <div className="inline-flex items-center gap-2 px-6 py-3 bg-brand-gold text-brand-black font-bold rounded-xl text-sm shadow-lg shadow-brand-gold/20">
+                Hire the perfect candidate in 48 hours, No time wasting.
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* ── Info Banner ── */}
-        <div className="bg-brand-gold/10 border-b border-brand-gold/20 py-3 px-4">
+        {/* ── Info Banner — desktop only ── */}
+        <div className="hidden sm:block bg-brand-gold/10 border-b border-brand-gold/20 py-3 px-4">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-sm text-brand-dark">
               All profiles are verified and actively available. Subscribe to unlock full contact details, CV and LinkedIn.
@@ -584,46 +1732,135 @@ export default function TalentPage() {
         </div>
 
         {/* ── Filter Bar ── */}
-        <div className="sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm py-4 px-4">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-3">
-            <input
-              type="text"
-              placeholder="Search by role, skill, or location..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 pl-4 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-gold"
-            />
-            <select
-              value={empType}
-              onChange={(e) => setEmpType(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-gold bg-white"
-            >
-              {EMP_TYPES.map((t) => <option key={t}>{t}</option>)}
-            </select>
-            <select
-              value={industry}
-              onChange={(e) => setIndustry(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-gold bg-white"
-            >
-              {INDUSTRIES.map((i) => <option key={i}>{i}</option>)}
-            </select>
-            {hasFilters && (
-              <button
-                onClick={clearFilters}
-                className="text-sm text-brand-gold hover:underline whitespace-nowrap"
-              >
-                Clear
-              </button>
-            )}
+        <div className="sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm py-3 px-4">
+          <div className="max-w-7xl mx-auto space-y-2.5">
+
+            {/* Row 1 — Search + clear */}
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search by role, skill, or location..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/10 transition-all"
+                />
+              </div>
+              {hasFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1.5 text-sm font-medium text-brand-gold hover:text-brand-gold/80 whitespace-nowrap transition-colors"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Clear {activeFilterCount > 1 ? `(${activeFilterCount})` : ''}
+                </button>
+              )}
+            </div>
+
+            {/* Row 2 — Filter dropdowns */}
+            <div className="flex flex-wrap gap-2">
+              {/* Availability */}
+              <div className="relative">
+                <select
+                  value={availability}
+                  onChange={(e) => setAvailability(e.target.value)}
+                  className={`appearance-none pl-3 pr-7 py-1.5 rounded-lg text-xs font-medium border transition-all focus:outline-none cursor-pointer ${
+                    availability !== 'All'
+                      ? 'border-brand-gold bg-brand-gold/5 text-brand-gold'
+                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  <option value="All">Availability</option>
+                  {AVAILABILITY_OPTIONS.filter((o) => o !== 'All').map((o) => <option key={o}>{o}</option>)}
+                </select>
+                <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </div>
+
+              {/* Industry */}
+              <div className="relative">
+                <select
+                  value={industry}
+                  onChange={(e) => setIndustry(e.target.value)}
+                  className={`appearance-none pl-3 pr-7 py-1.5 rounded-lg text-xs font-medium border transition-all focus:outline-none cursor-pointer ${
+                    industry !== 'All'
+                      ? 'border-brand-gold bg-brand-gold/5 text-brand-gold'
+                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  <option value="All">Industry</option>
+                  {INDUSTRIES.filter((i) => i !== 'All').map((i) => <option key={i}>{i}</option>)}
+                </select>
+                <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </div>
+
+              {/* Specialism */}
+              <div className="relative">
+                <select
+                  value={specialism}
+                  onChange={(e) => setSpecialism(e.target.value)}
+                  className={`appearance-none pl-3 pr-7 py-1.5 rounded-lg text-xs font-medium border transition-all focus:outline-none cursor-pointer ${
+                    specialism !== 'All'
+                      ? 'border-brand-gold bg-brand-gold/5 text-brand-gold'
+                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  <option value="All">Specialism</option>
+                  {SPECIALISM_OPTIONS.filter((o) => o !== 'All').map((o) => <option key={o}>{o}</option>)}
+                </select>
+                <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </div>
+
+              {/* Employment Type */}
+              <div className="relative">
+                <select
+                  value={empType}
+                  onChange={(e) => setEmpType(e.target.value)}
+                  className={`appearance-none pl-3 pr-7 py-1.5 rounded-lg text-xs font-medium border transition-all focus:outline-none cursor-pointer ${
+                    empType !== 'All'
+                      ? 'border-brand-gold bg-brand-gold/5 text-brand-gold'
+                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  <option value="All">Employment Type</option>
+                  {EMP_TYPES.filter((t) => t !== 'All').map((t) => <option key={t}>{t}</option>)}
+                </select>
+                <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </div>
+
+              {/* Experience */}
+              <div className="relative">
+                <select
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  className={`appearance-none pl-3 pr-7 py-1.5 rounded-lg text-xs font-medium border transition-all focus:outline-none cursor-pointer ${
+                    experience !== 'All'
+                      ? 'border-brand-gold bg-brand-gold/5 text-brand-gold'
+                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  <option value="All">Experience</option>
+                  {EXPERIENCE_OPTIONS.filter((o) => o !== 'All').map((o) => <option key={o}>{o}</option>)}
+                </select>
+                <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </div>
+            </div>
+
           </div>
         </div>
 
         {/* ── Grid ── */}
-        <div className="max-w-7xl mx-auto px-4 py-12">
+        <div ref={gridRef} className="max-w-7xl mx-auto px-4 py-12">
           <p className="text-brand-gray text-sm mb-6">
             {loading
               ? 'Loading professionals...'
-              : `Showing ${filtered.length} ${filtered.length === 1 ? 'professional' : 'professionals'}`}
+              : filtered.length === 0
+              ? 'No professionals match your filters.'
+              : `Showing ${(currentPage - 1) * CARDS_PER_PAGE + 1}–${Math.min(currentPage * CARDS_PER_PAGE, filtered.length)} of ${filtered.length} ${filtered.length === 1 ? 'professional' : 'professionals'}`}
           </p>
 
           {loading ? (
@@ -638,11 +1875,90 @@ export default function TalentPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {filtered.map((pro) => (
-                <ProfessionalCard key={pro.id} pro={pro} onUnlock={setUnlockPro} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {paginated.map((pro) => (
+                  <ProfessionalCard key={pro.id} pro={pro} onUnlock={setUnlockPro} />
+                ))}
+              </div>
+
+              {/* ── Pagination ── */}
+              {totalPages > 1 && (
+                <div className="mt-12 flex flex-col items-center gap-4">
+
+                  {/* Mobile: Prev / Page X of Y / Next */}
+                  <div className="flex sm:hidden items-center gap-3 w-full justify-between">
+                    <button
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-brand-black disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-gold hover:text-brand-gold transition-colors"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                      Prev
+                    </button>
+                    <span className="text-sm font-medium text-brand-black">
+                      Page <span className="text-brand-gold font-bold">{currentPage}</span> of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-brand-black disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-gold hover:text-brand-gold transition-colors"
+                    >
+                      Next
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                  </div>
+
+                  {/* Desktop: numbered buttons with ellipsis */}
+                  <div className="hidden sm:flex items-center gap-2">
+                    {/* Prev arrow */}
+                    <button
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      aria-label="Previous page"
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-brand-black disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-gold hover:text-brand-gold transition-colors"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+
+                    {/* Page numbers */}
+                    {getPageNumbers().map((p, i) =>
+                      p === '…' ? (
+                        <span key={`ellipsis-${i}`} className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm select-none">…</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => goToPage(p as number)}
+                          className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-semibold transition-colors ${
+                            currentPage === p
+                              ? 'bg-brand-black text-brand-gold border border-brand-black'
+                              : 'border border-gray-200 text-brand-black hover:border-brand-gold hover:text-brand-gold'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+
+                    {/* Next arrow */}
+                    <button
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      aria-label="Next page"
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-brand-black disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-gold hover:text-brand-gold transition-colors"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                  </div>
+
+                  {/* Total count below on desktop */}
+                  <p className="hidden sm:block text-xs text-gray-400">
+                    {filtered.length} professionals · {totalPages} pages
+                  </p>
+
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -666,6 +1982,7 @@ export default function TalentPage() {
 
       </main>
       <Footer />
+
 
       {/* ── Unlock Modal ── */}
       {unlockPro && (

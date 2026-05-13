@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     siteName: 'TalentX Market',
     images: [
       {
-        url: '/logo-icon.png',
+        url: '/tx-icon-gold.png',
         width: 1200,
         height: 630,
         alt: 'TalentX Market',
@@ -31,7 +31,12 @@ export const metadata: Metadata = {
       'Connecting compliance professionals with top employers worldwide.',
   },
   icons: {
-    icon: '/logo-icon.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: '/favicon-512.png',
+    shortcut: '/favicon.ico',
   },
 };
 

@@ -1,0 +1,788 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const PAGE_SIZE = 10;
+
+// ─── Employer types ───────────────────────────────────────────────────────────
+interface UnlockedCandidate {
+  id: string;
+  unlocked_at: string;
+  candidates: {
+    id: string;
+    job_title: string;
+    location: string;
+    years_experience: string;
+    specialisms: string[];
+    certifications: string[];
+  } | null;
+}
+
+interface JobRequest {
+  role_title: string;
+  urgency: string;
+  status: string;
+  created_at: string;
+}
+
+interface Employer {
+  id: string;
+  email: string;
+  company_name: string;
+  contact_name: string;
+  status: string;
+  subscription_status: string;
+  unlock_credits: number;
+  created_at: string;
+  unlocks: UnlockedCandidate[];
+  job_requests: JobRequest[];
+}
+
+interface Candidate {
+  id: string;
+  full_name: string;
+  email: string;
+  job_title: string;
+  location: string;
+  years_experience: string;
+  specialisms: string[];
+  certifications: string[];
+  bio: string;
+  linkedin_url: string;
+  phone_number: string;
+  salary_amount: string;
+  salary_currency: string;
+  salary_period: string;
+  work_preference: string;
+  availability_status: string;
+  is_visible: boolean;
+  is_anonymous: boolean;
+  status: 'pending' | 'approved' | 'rejected' | 'suspended';
+  profile_completion: number;
+  certification_verified: boolean | null;
+  created_at: string;
+  approved_at: string;
+}
+
+type FilterStatus = 'all' | 'pending' | 'approved' | 'rejected' | 'suspended';
+
+const STATUS_STYLES: Record<string, string> = {
+  pending:   'bg-amber-100 text-amber-800 border-amber-200',
+  approved:  'bg-green-100 text-green-800 border-green-200',
+  rejected:  'bg-red-100 text-red-800 border-red-200',
+  suspended: 'bg-gray-100 text-gray-600 border-gray-200',
+};
+
+// ─── Pagination component ─────────────────────────────────────────────────────
+function Pagination({
+  total,
+  page,
+  pageSize,
+  onChange,
+}: {
+  total: number;
+  page: number;
+  pageSize: number;
+  onChange: (p: number) => void;
+}) {
+  const totalPages = Math.ceil(total / pageSize);
+  if (totalPages <= 1) return null;
+
+  // Build page numbers with ellipsis logic
+  const pages: (number | '…')[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (page > 3) pages.push('…');
+    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) {
+      pages.push(i);
+    }
+    if (page < totalPages - 2) pages.push('…');
+    pages.push(totalPages);
+  }
+
+  const from = (page - 1) * pageSize + 1;
+  const to   = Math.min(page * pageSize, total);
+
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-5 px-1">
+      <p className="text-xs text-gray-400 font-medium">
+        Showing <span className="text-gray-600 font-semibold">{from}–{to}</span> of{' '}
+        <span className="text-gray-600 font-semibold">{total}</span> results
+      </p>
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => onChange(page - 1)}
+          disabled={page === 1}
+          className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:border-[#C9A84C] hover:text-[#C9A84C] disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
+        >
+          ‹
+        </button>
+        {pages.map((p, i) =>
+          p === '…' ? (
+            <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-gray-400 text-xs select-none">
+              …
+            </span>
+          ) : (
+            <button
+              key={p}
+              onClick={() => onChange(p as number)}
+              className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${
+                p === page
+                  ? 'bg-[#0A0A0A] text-white'
+                  : 'border border-gray-200 text-gray-600 hover:border-[#C9A84C] hover:text-[#C9A84C]'
+              }`}
+            >
+              {p}
+            </button>
+          )
+        )}
+        <button
+          onClick={() => onChange(page + 1)}
+          disabled={page === totalPages}
+          className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:border-[#C9A84C] hover:text-[#C9A84C] disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
+        >
+          ›
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+export default function AdminClient() {
+  const [activeTab, setActiveTab] = useState<'candidates' | 'employers'>('candidates');
+
+  // ── Candidates state ──
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [filter, setFilter] = useState<FilterStatus>('all');
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [candPage, setCandPage] = useState(1);
+
+  // ── Employers state ──
+  const [employers, setEmployers] = useState<Employer[]>([]);
+  const [empLoading, setEmpLoading] = useState(false);
+  const [empError, setEmpError] = useState('');
+  const [empSearch, setEmpSearch] = useState('');
+  const [empExpanded, setEmpExpanded] = useState<string | null>(null);
+  const [empActionLoading, setEmpActionLoading] = useState<string | null>(null);
+  const [creditInputs, setCreditInputs] = useState<Record<string, string>>({});
+  const [empPage, setEmpPage] = useState(1);
+
+  // Reset pages when search/filter changes
+  useEffect(() => { setCandPage(1); }, [filter, search]);
+  useEffect(() => { setEmpPage(1); }, [empSearch]);
+
+  useEffect(() => {
+    fetchCandidates();
+    fetchEmployers();
+  }, []);
+
+  async function fetchCandidates() {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/candidates');
+      if (res.status === 403) { setError('Access denied. Admin only.'); return; }
+      const data = await res.json();
+      if (Array.isArray(data)) setCandidates(data);
+      else setError(data.error || 'Failed to load candidates');
+    } catch (e) {
+      setError('Network error: ' + String(e));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleAction(candidateId: string, action: string) {
+    setActionLoading(candidateId + action);
+    try {
+      const res = await fetch('/api/admin/candidates', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ candidateId, action }),
+      });
+      if (res.ok) await fetchCandidates();
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function fetchEmployers() {
+    setEmpLoading(true);
+    try {
+      const res = await fetch('/api/admin/employers');
+      const data = await res.json();
+      if (Array.isArray(data)) setEmployers(data);
+      else setEmpError(data.error || 'Failed to load employers');
+    } catch (e) {
+      setEmpError('Network error: ' + String(e));
+    } finally {
+      setEmpLoading(false);
+    }
+  }
+
+  async function handleEmployerAction(employerId: string, action: string, credits?: number) {
+    setEmpActionLoading(employerId);
+    try {
+      const res = await fetch('/api/admin/employers', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employerId, action, credits }),
+      });
+      if (res.ok) await fetchEmployers();
+    } finally {
+      setEmpActionLoading(null);
+    }
+  }
+
+  // ── Filtered + paginated slices ───────────────────────────────────────────
+  const filtered = candidates.filter(c => {
+    const matchStatus = filter === 'all' || c.status === filter;
+    const q = search.toLowerCase();
+    const matchSearch = !q ||
+      c.full_name?.toLowerCase().includes(q) ||
+      c.email?.toLowerCase().includes(q) ||
+      c.job_title?.toLowerCase().includes(q) ||
+      c.location?.toLowerCase().includes(q) ||
+      c.specialisms?.some(s => s.toLowerCase().includes(q));
+    return matchStatus && matchSearch;
+  });
+
+  const filteredEmployers = employers.filter(e => {
+    const q = empSearch.toLowerCase();
+    return !q ||
+      e.company_name?.toLowerCase().includes(q) ||
+      e.email?.toLowerCase().includes(q) ||
+      e.contact_name?.toLowerCase().includes(q);
+  });
+
+  const candPageSlice    = filtered.slice((candPage - 1) * PAGE_SIZE, candPage * PAGE_SIZE);
+  const empPageSlice     = filteredEmployers.slice((empPage - 1) * PAGE_SIZE, empPage * PAGE_SIZE);
+
+  const counts = {
+    all:       candidates.length,
+    pending:   candidates.filter(c => c.status === 'pending').length,
+    approved:  candidates.filter(c => c.status === 'approved').length,
+    rejected:  candidates.filter(c => c.status === 'rejected').length,
+    suspended: candidates.filter(c => c.status === 'suspended').length,
+  };
+
+  const empCounts = {
+    total:   employers.length,
+    active:  employers.filter(e => e.status === 'active').length,
+    pending: employers.filter(e => e.status === 'pending').length,
+    unlocks: employers.reduce((sum, e) => sum + (e.unlocks?.length || 0), 0),
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F5F5F5]" style={{ fontFamily: 'Inter, sans-serif' }}>
+
+      {/* Nav */}
+      <nav className="bg-[#0A0A0A] sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/">
+              <Image src="/tx-icon-gold.png" alt="TalentX" width={501} height={302} className="h-6 w-auto object-contain" />
+            </Link>
+            <span className="text-[#C9A84C] text-xs font-bold uppercase tracking-widest border border-[#C9A84C]/30 px-2 py-0.5 rounded">
+              Admin
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/talent" className="text-xs text-white/50 hover:text-white transition-colors">Talent Page</Link>
+            <Link href="/" className="text-xs text-white/50 hover:text-white transition-colors">Home</Link>
+          </div>
+        </div>
+      </nav>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+        {/* Header + Tabs */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[#0A0A0A] mb-1">Admin Panel</h1>
+          <p className="text-sm text-gray-500 mb-5">Manage candidates, employers, and unlock activity</p>
+          <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit">
+            {(['candidates', 'employers'] as const).map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-5 py-2 text-sm font-semibold rounded-lg capitalize transition-all ${
+                  activeTab === tab ? 'bg-white text-[#0A0A0A] shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {tab === 'candidates' ? `Candidates (${candidates.length})` : `Employers (${employers.length})`}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ══ EMPLOYERS TAB ══ */}
+        {activeTab === 'employers' && (
+          <div>
+            {/* Employer stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+              {[
+                { label: 'Total', value: empCounts.total },
+                { label: 'Active', value: empCounts.active },
+                { label: 'Pending', value: empCounts.pending },
+                { label: 'Total Unlocks', value: empCounts.unlocks },
+              ].map(stat => (
+                <div key={stat.label} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                  <p className="text-2xl font-bold text-[#0A0A0A]">{stat.value}</p>
+                  <p className="text-xs text-gray-500 mt-0.5 font-medium">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Search */}
+            <div className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+              <input
+                type="text"
+                placeholder="Search by company, name, or email…"
+                value={empSearch}
+                onChange={e => setEmpSearch(e.target.value)}
+                className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]"
+              />
+            </div>
+
+            {empError && <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-sm text-red-700">{empError}</div>}
+            {empLoading && <div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin" /></div>}
+
+            {!empLoading && (
+              <>
+                <div className="space-y-3">
+                  {filteredEmployers.length === 0 && (
+                    <div className="bg-white rounded-xl p-12 text-center shadow-sm">
+                      <p className="text-gray-400 text-sm">No employer registrations yet.</p>
+                    </div>
+                  )}
+                  {empPageSlice.map(emp => {
+                    const isExpanded = empExpanded === emp.id;
+                    const statusStyle =
+                      emp.status === 'active'  ? 'bg-green-100 text-green-800 border-green-200' :
+                      emp.status === 'pending' ? 'bg-amber-100 text-amber-800 border-amber-200' :
+                      'bg-gray-100 text-gray-600 border-gray-200';
+
+                    return (
+                      <div key={emp.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                        <div className="p-5 flex items-start gap-4">
+
+                          {/* Avatar */}
+                          <div className="w-11 h-11 rounded-xl bg-[#0A0A0A] flex items-center justify-center flex-shrink-0">
+                            <span className="text-[#C9A84C] text-sm font-bold">
+                              {(emp.company_name || 'TX').slice(0, 2).toUpperCase()}
+                            </span>
+                          </div>
+
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <h3 className="text-sm font-bold text-[#0A0A0A]">{emp.company_name || 'Unknown Company'}</h3>
+                              <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold capitalize ${statusStyle}`}>
+                                {emp.status || 'pending'}
+                              </span>
+                              <span className="text-xs bg-[#C9A84C]/10 text-[#0A0A0A] border border-[#C9A84C]/20 px-2 py-0.5 rounded-full font-semibold">
+                                {emp.unlock_credits ?? 0} credits left
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-500 mb-1">{emp.contact_name} · {emp.email}</p>
+                            <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-gray-400">
+                              <span>🔓 {emp.unlocks?.length || 0} profiles unlocked</span>
+                              <span>📋 {emp.job_requests?.length || 0} role requests</span>
+                              <span>🕐 Registered {new Date(emp.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            </div>
+
+                            {emp.unlocks?.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+                                {emp.unlocks.slice(0, 3).map(u => u.candidates && (
+                                  <span key={u.id} className="text-[10px] bg-gray-50 border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full">
+                                    {u.candidates.job_title || 'Unknown role'}{u.candidates.location ? ` · ${u.candidates.location}` : ''}
+                                  </span>
+                                ))}
+                                {emp.unlocks.length > 3 && (
+                                  <span className="text-[10px] text-gray-400 px-2 py-0.5">+{emp.unlocks.length - 3} more</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex flex-col gap-2 flex-shrink-0 min-w-[160px]">
+
+                            {emp.status !== 'active' && (
+                              <button
+                                onClick={() => handleEmployerAction(emp.id, 'approve')}
+                                disabled={empActionLoading === emp.id}
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+                              >
+                                {empActionLoading === emp.id ? '…' : '✓ Approve'}
+                              </button>
+                            )}
+                            {emp.status === 'active' && (
+                              <button
+                                onClick={() => handleEmployerAction(emp.id, 'suspend')}
+                                disabled={empActionLoading === emp.id}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+                              >
+                                {empActionLoading === emp.id ? '…' : 'Suspend'}
+                              </button>
+                            )}
+
+                            {/* Credit Manager */}
+                            <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                              <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Unlock Credits</p>
+                              </div>
+                              <div className="flex items-center">
+                                <button
+                                  onClick={() => handleEmployerAction(emp.id, 'remove_credits', 1)}
+                                  disabled={!!empActionLoading || (emp.unlock_credits ?? 0) <= 0}
+                                  title="Remove 1 credit"
+                                  className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors border-r border-gray-100 text-base font-bold"
+                                >
+                                  −
+                                </button>
+                                <span className="flex-1 text-center text-sm font-black text-[#0A0A0A] tabular-nums py-2">
+                                  {empActionLoading?.startsWith(emp.id)
+                                    ? <span className="text-xs text-gray-400">…</span>
+                                    : (emp.unlock_credits ?? 0)}
+                                </span>
+                                <button
+                                  onClick={() => handleEmployerAction(emp.id, 'add_credits', 1)}
+                                  disabled={!!empActionLoading}
+                                  title="Add 1 credit"
+                                  className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-green-50 hover:text-green-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors border-l border-gray-100 text-base font-bold"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <div className="flex border-t border-gray-100">
+                                {[5, 10, 20].map(n => (
+                                  <button
+                                    key={n}
+                                    onClick={() => handleEmployerAction(emp.id, 'add_credits', n)}
+                                    disabled={!!empActionLoading}
+                                    className="flex-1 py-1.5 text-[10px] font-bold text-[#C9A84C] hover:bg-[#C9A84C]/10 disabled:opacity-40 transition-colors border-r border-gray-100 last:border-r-0"
+                                  >
+                                    +{n}
+                                  </button>
+                                ))}
+                              </div>
+                              <div className="flex border-t border-gray-100">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  placeholder="Set to…"
+                                  value={creditInputs[emp.id] ?? ''}
+                                  onChange={e => setCreditInputs(prev => ({ ...prev, [emp.id]: e.target.value }))}
+                                  className="flex-1 px-2.5 py-1.5 text-xs text-[#0A0A0A] placeholder-gray-300 focus:outline-none bg-transparent min-w-0"
+                                />
+                                <button
+                                  onClick={() => {
+                                    const val = parseInt(creditInputs[emp.id] ?? '', 10);
+                                    if (!isNaN(val) && val >= 0) {
+                                      handleEmployerAction(emp.id, 'set_credits', val);
+                                      setCreditInputs(prev => ({ ...prev, [emp.id]: '' }));
+                                    }
+                                  }}
+                                  disabled={!!empActionLoading || !creditInputs[emp.id]}
+                                  className="px-2.5 py-1.5 text-[10px] font-bold text-white bg-[#0A0A0A] hover:bg-[#C9A84C] hover:text-[#0A0A0A] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                >
+                                  Set
+                                </button>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => setEmpExpanded(isExpanded ? null : emp.id)}
+                              className="px-4 py-2 border border-gray-200 hover:border-gray-300 text-gray-500 text-xs font-medium rounded-lg transition-colors"
+                            >
+                              {isExpanded ? 'Less ↑' : 'Details ↓'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Expanded: full unlock history */}
+                        {isExpanded && (
+                          <div className="border-t border-gray-100 px-5 py-4 bg-[#FAFAFA]">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+                              <div>
+                                <p className="font-semibold text-[#0A0A0A] mb-2">Unlocked Profiles ({emp.unlocks?.length || 0})</p>
+                                {!emp.unlocks?.length ? (
+                                  <p className="text-gray-400">No profiles unlocked yet.</p>
+                                ) : (
+                                  <div className="space-y-2">
+                                    {emp.unlocks.map(u => (
+                                      <div key={u.id} className="bg-white border border-gray-200 rounded-lg px-3 py-2">
+                                        <p className="font-semibold text-[#0A0A0A]">{u.candidates?.job_title || 'Unknown role'}</p>
+                                        <p className="text-gray-500 mt-0.5">
+                                          {u.candidates?.location || '—'}
+                                          {u.candidates?.years_experience ? ` · ${u.candidates.years_experience}` : ''}
+                                        </p>
+                                        {u.candidates?.certifications?.length ? (
+                                          <p className="text-[#C9A84C] font-semibold mt-0.5">{u.candidates.certifications.join(', ')}</p>
+                                        ) : null}
+                                        <p className="text-gray-400 mt-0.5">
+                                          Unlocked {new Date(u.unlocked_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                        </p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-[#0A0A0A] mb-2">Role Requests ({emp.job_requests?.length || 0})</p>
+                                {!emp.job_requests?.length ? (
+                                  <p className="text-gray-400">No role requests submitted.</p>
+                                ) : (
+                                  <div className="space-y-2">
+                                    {emp.job_requests.map((jr, i) => (
+                                      <div key={i} className="bg-white border border-gray-200 rounded-lg px-3 py-2">
+                                        <p className="font-semibold text-[#0A0A0A]">{jr.role_title}</p>
+                                        {jr.urgency && <p className="text-gray-500 mt-0.5">Urgency: {jr.urgency}</p>}
+                                        <p className="text-gray-400 mt-0.5">
+                                          {new Date(jr.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                        </p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Employer pagination */}
+                <Pagination
+                  total={filteredEmployers.length}
+                  page={empPage}
+                  pageSize={PAGE_SIZE}
+                  onChange={p => { setEmpPage(p); setEmpExpanded(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                />
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ══ CANDIDATES TAB ══ */}
+        {activeTab === 'candidates' && (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+              {(['all', 'pending', 'approved', 'rejected', 'suspended'] as FilterStatus[]).map(s => (
+                <button key={s} onClick={() => setFilter(s)}
+                  className={`bg-white rounded-xl p-4 text-left border-2 transition-all ${filter === s ? 'border-[#C9A84C]' : 'border-transparent hover:border-gray-200'}`}>
+                  <p className="text-2xl font-bold text-[#0A0A0A]">{counts[s]}</p>
+                  <p className="text-xs text-gray-500 capitalize mt-0.5 font-medium">{s === 'all' ? 'Total' : s}</p>
+                </button>
+              ))}
+            </div>
+
+            <div className="bg-white rounded-xl p-4 mb-4 flex flex-col sm:flex-row gap-3 shadow-sm">
+              <input
+                type="text"
+                placeholder="Search by name, email, role, location, skill…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="flex-1 px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]"
+              />
+              <div className="flex gap-2 flex-wrap">
+                {(['all', 'pending', 'approved', 'rejected', 'suspended'] as FilterStatus[]).map(s => (
+                  <button key={s} onClick={() => setFilter(s)}
+                    className={`px-3 py-2 text-xs font-semibold rounded-lg capitalize transition-all ${
+                      filter === s ? 'bg-[#0A0A0A] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}>
+                    {s === 'all' ? 'All' : s} {s !== 'all' && `(${counts[s]})`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {error && <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-sm text-red-700">{error}</div>}
+            {loading && <div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin" /></div>}
+
+            {!loading && !error && (
+              <>
+                <div className="space-y-3">
+                  {filtered.length === 0 && (
+                    <div className="bg-white rounded-xl p-12 text-center shadow-sm">
+                      <p className="text-gray-400 text-sm">No candidates match this filter.</p>
+                    </div>
+                  )}
+                  {candPageSlice.map(c => {
+                    const isExpanded = expandedId === c.id;
+                    const initials = (() => {
+                      const parts = (c.full_name || '').trim().split(' ').filter(Boolean);
+                      if (parts.length === 0) return 'TX';
+                      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+                      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+                    })();
+
+                    return (
+                      <div key={c.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                        <div className="p-5 flex items-start gap-4">
+                          <div className="w-11 h-11 rounded-xl bg-[#0A0A0A] flex items-center justify-center flex-shrink-0">
+                            <span className="text-[#C9A84C] text-sm font-bold">{initials}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <h3 className="text-sm font-bold text-[#0A0A0A]">{c.full_name || 'No name'}</h3>
+                              <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold capitalize ${STATUS_STYLES[c.status] || ''}`}>
+                                {c.status}
+                              </span>
+                              {c.profile_completion > 0 && (
+                                <span className="text-xs text-gray-400">{c.profile_completion}% complete</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 mb-1">{c.email}</p>
+                            <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-gray-500">
+                              {c.job_title && <span>🧑‍💼 {c.job_title}</span>}
+                              {c.location && <span>📍 {c.location}</span>}
+                              {c.years_experience && <span>⏱ {c.years_experience}</span>}
+                              {c.work_preference && <span>🏢 {c.work_preference}</span>}
+                            </div>
+                            {c.specialisms?.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {c.specialisms.slice(0, 4).map(s => (
+                                  <span key={s} className="text-xs px-2 py-0.5 bg-[#F5F5F5] text-[#0A0A0A] rounded-full border border-gray-200 font-medium">{s}</span>
+                                ))}
+                                {c.specialisms.length > 4 && (
+                                  <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">+{c.specialisms.length - 4} more</span>
+                                )}
+                              </div>
+                            )}
+                            {c.certifications?.length > 0 && (
+                              <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                {c.certifications.map(cert => (
+                                  <span key={cert} className="text-xs px-2 py-0.5 bg-[#C9A84C]/10 text-[#0A0A0A] border border-[#C9A84C]/30 rounded-full font-semibold">{cert}</span>
+                                ))}
+                                <button
+                                  onClick={() => handleAction(c.id, c.certification_verified === false ? 'verify_cert' : 'unverify_cert')}
+                                  disabled={actionLoading === c.id + 'verify_cert' || actionLoading === c.id + 'unverify_cert'}
+                                  title={c.certification_verified === false ? 'Badge hidden — click to show on public card' : 'Badge visible — click to hide from public card'}
+                                  className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border transition-colors disabled:opacity-50 ${
+                                    c.certification_verified === false
+                                      ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
+                                      : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
+                                  }`}
+                                >
+                                  {c.certification_verified === false ? '🚫 Badge hidden' : '✓ Badge visible'}
+                                </button>
+                              </div>
+                            )}
+                            {c.linkedin_url && (
+                              <a
+                                href={c.linkedin_url.startsWith('http') ? c.linkedin_url : `https://${c.linkedin_url}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 mt-2 text-xs font-semibold text-[#0077B5] hover:underline"
+                              >
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                </svg>
+                                View LinkedIn Profile →
+                              </a>
+                            )}
+                            <p className="text-xs text-gray-400 mt-1.5">
+                              Signed up {new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              {c.approved_at && ` · Approved ${new Date(c.approved_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
+                            </p>
+                          </div>
+                          
+                          <div className="flex flex-col gap-2 flex-shrink-0">
+                            {c.status === 'pending' && (
+                              <>
+                                <button onClick={() => handleAction(c.id, 'approve')}
+                                  disabled={actionLoading === c.id + 'approve'}
+                                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
+                                  {actionLoading === c.id + 'approve' ? '…' : '✓ Approve'}
+                                </button>
+                                <button onClick={() => handleAction(c.id, 'reject')}
+                                  disabled={actionLoading === c.id + 'reject'}
+                                  className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
+                                  {actionLoading === c.id + 'reject' ? '…' : '✕ Reject'}
+                                </button>
+                              </>
+                            )}
+                            {c.status === 'approved' && (
+                              <button onClick={() => handleAction(c.id, 'suspend')}
+                                disabled={actionLoading === c.id + 'suspend'}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
+                                {actionLoading === c.id + 'suspend' ? '…' : 'Suspend'}
+                              </button>
+                            )}
+                            {(c.status === 'rejected' || c.status === 'suspended') && (
+                              <button onClick={() => handleAction(c.id, 'restore')}
+                                disabled={actionLoading === c.id + 'restore'}
+                                className="px-4 py-2 bg-[#C9A84C] hover:bg-[#b8963e] text-[#0A0A0A] text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
+                                {actionLoading === c.id + 'restore' ? '…' : 'Restore'}
+                              </button>
+                            )}
+                            <button onClick={() => setExpandedId(isExpanded ? null : c.id)}
+                              className="px-4 py-2 border border-gray-200 hover:border-gray-300 text-gray-500 text-xs font-medium rounded-lg transition-colors">
+                              {isExpanded ? 'Less ↑' : 'More ↓'}
+                            </button>
+                          </div>
+                        </div>
+                        {isExpanded && (
+                          <div className="border-t border-gray-100 px-5 py-4 bg-[#FAFAFA]">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                              <div>
+                                <p className="font-semibold text-[#0A0A0A] mb-1">Professional Summary</p>
+                                <p className="text-gray-600 leading-relaxed">{c.bio || 'Not provided'}</p>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-[#0A0A0A] mb-1">Salary Expectation</p>
+                                <p className="text-gray-600">
+                                  {c.salary_amount
+                                    ? `${c.salary_currency} ${Number(c.salary_amount).toLocaleString()} / ${c.salary_period}`
+                                    : 'Not provided'}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-[#0A0A0A] mb-1">Visibility</p>
+                                <p className="text-gray-600">
+                                  {c.is_visible ? '\U0001f7e2 Visible on talent page' : '\U0001f534 Hidden from talent page'}
+                                  {' · '}
+                                  {c.is_anonymous ? '\U0001f512 Anonymous' : '\U0001f464 Not anonymous'}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-[#0A0A0A] mb-1">Supabase Record ID</p>
+                                <p className="text-gray-400 font-mono text-xs break-all">{c.id}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Candidate pagination */}
+                <Pagination
+                  total={filtered.length}
+                  page={candPage}
+                  pageSize={PAGE_SIZE}
+                  onChange={p => { setCandPage(p); setExpandedId(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                />
+              </>
+            )}
+          </>
+        )}
+
+      </div>
+    </div>
+  );
+}

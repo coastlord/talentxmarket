@@ -12,11 +12,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Image
-              src="/logo-light.png"
+              src="/tx-icon-gold.png"
               alt="TalentX Market"
-              width={140}
-              height={42}
-              className="h-9 w-auto mb-6"
+              width={501}
+              height={302}
+              className="w-auto mb-6"
+              style={{ height: '50px' }}
             />
             <p className="text-white/50 text-sm leading-relaxed mb-6">
               The compliance talent marketplace. Connecting AML, Risk, MLRO, and
@@ -55,21 +56,21 @@ export default function Footer() {
               For Professionals
             </h4>
             <ul className="space-y-3">
-              {[
-                { label: 'Post Your Availability', href: '#open-to-work' },
-                { label: 'Browse Vacancies', href: '#hiring' },
-                { label: 'How It Works', href: '#how-it-works' },
-                { label: 'Compliance Specialisms', href: '#roles' },
-              ].map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link href="/sign-up" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  Post Your Availability
+                </Link>
+              </li>
+              <li>
+                <a href="/#how-it-works" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  How It Works
+                </a>
+              </li>
+              <li>
+                <a href="/#roles" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  Compliance Specialisms
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -80,10 +81,10 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                { label: 'Post a Vacancy', href: '#hiring' },
-                { label: 'Search Talent', href: '#hiring' },
-                { label: 'Specialisms We Cover', href: '#roles' },
-                { label: 'Why TalentX', href: '#why-talentx' },
+                { label: 'Search Talent', href: '/talent' },
+                { label: 'Specialisms We Cover', href: '/#roles' },
+                { label: 'Why TalentX', href: '/#why-talentx' },
+                { label: 'Employer Dashboard', href: '/employers' },
               ].map((link) => (
                 <li key={link.label}>
                   <a
@@ -103,21 +104,26 @@ export default function Footer() {
               Company
             </h4>
             <ul className="space-y-3">
-              {[
-                { label: 'About TalentX', href: '#about' },
-                { label: 'Contact Us', href: 'mailto:hello@talentxmarket.com' },
-                { label: 'Privacy Policy', href: '/privacy' },
-                { label: 'Terms of Service', href: '/terms' },
-              ].map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <a href="#about" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  About TalentX
+                </a>
+              </li>
+              <li>
+                <a href="mailto:hello@talentxmarket.com" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  Contact Us
+                </a>
+              </li>
+              <li>
+                <Link href="/privacy" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-white/50 hover:text-brand-gold text-sm transition-colors duration-200">
+                  Terms of Use
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

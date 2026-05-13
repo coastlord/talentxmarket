@@ -2,47 +2,36 @@ import Image from 'next/image';
 
 export default function About() {
   return (
-    <section id="about" className="py-24 bg-white">
+    <section id="about" className="py-14 md:py-24 bg-[#F4F4F2]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
           {/* Left: Content */}
           <div>
-            <div className="gold-line mb-6" />
-            <h2 className="section-heading mb-6">
-              Built by Compliance
-              <span className="block text-brand-gold">Professionals</span>
+            <div className="gold-line mb-4 md:mb-6" />
+            <h2 className="section-heading mb-4 md:mb-6">
+              Built by a Group of
+              <span className="block text-brand-gold">Compliance Professionals</span>
             </h2>
-            <p className="text-brand-gray leading-relaxed mb-6">
-              TalentX Market was founded with one clear mission: to give the compliance
-              sector a dedicated space where talent and opportunity can find each other —
-              without noise, without generic job boards, and without inflated recruitment fees.
+            <p className="text-brand-gray leading-relaxed mb-4 md:mb-6">
+              TalentX Market was founded by a group of compliance professionals who
+              have personally hired AML, KYC, MLRO, and Financial Crime roles inside
+              regulated institutions — and who saw first-hand how broken the existing
+              hiring process was for this sector.
             </p>
-            <p className="text-brand-gray leading-relaxed mb-6">
-              Whether you work in AML, financial crime, regulatory risk, Trust &amp; Safety, or
-              hold an MLRO designation, TalentX Market is your professional home. A platform
-              that understands the nuances of compliance hiring and the career paths of
-              compliance professionals.
+            {/* Paragraphs 2 & 3 — hidden on mobile */}
+            <p className="hidden md:block text-brand-gray leading-relaxed mb-6">
+              We have sat on both sides of the table: as compliance professionals looking
+              for the right opportunity, and as hiring managers trying to find candidates
+              with genuine specialism depth. The tools available were generic, expensive,
+              and entirely unfit for the nuance that compliance hiring demands.
             </p>
-            <p className="text-brand-gray leading-relaxed mb-8">
-              Our platform brings together compliance professionals who are ready for their
-              next move with the organisations that are ready to hire them — directly, transparently,
-              and efficiently.
+            <p className="hidden md:block text-brand-gray leading-relaxed mb-8">
+              TalentX Market exists because we built the platform we always wished had existed —
+              one that understands what good compliance experience actually looks like,
+              and that treats both candidates and employers with the professionalism
+              this sector deserves.
             </p>
 
-            {/* Values */}
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: 'Specialist Focus', desc: 'Compliance only — no noise' },
-                { label: 'Direct Access', desc: 'No recruiters in the middle' },
-                { label: 'Global Network', desc: '30+ countries represented' },
-                { label: 'Professional-Led', desc: 'Built by the community' },
-              ].map((value, i) => (
-                <div key={i} className="bg-brand-off-white rounded-xl p-4 border border-brand-light-gray">
-                  <p className="font-bold text-brand-dark text-sm">{value.label}</p>
-                  <p className="text-brand-gray text-xs mt-1">{value.desc}</p>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Right: Visual */}
@@ -55,11 +44,12 @@ export default function About() {
               {/* Logo */}
               <div className="relative flex justify-center mb-10">
                 <Image
-                  src="/logo-light.png"
+                  src="/tx-icon-gold.png"
                   alt="TalentX Market"
-                  width={200}
-                  height={60}
-                  className="h-14 w-auto"
+                  width={501}
+                  height={302}
+                  className="w-auto"
+                  style={{ height: '60px' }}
                 />
               </div>
 
